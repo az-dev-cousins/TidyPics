@@ -122,7 +122,7 @@ Le projet est conçu pour être facilement maintenable et évolutif, avec une ar
 
 ## 📝 Liste détaillée des tâches
 
-👉 Toutes les user stories et tâches techniques sont listées dans [task_list.md](help/TASK_LIST.md).
+👉 Toutes les user stories et tâches techniques sont listées dans [task_list.md](dev_docs/TASK_LIST.md).
 
 ---
 
