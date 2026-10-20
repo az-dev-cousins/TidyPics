@@ -82,6 +82,8 @@ class _CheckpointPageState extends ConsumerState<CheckpointPage> {
       ..showSnackBar(
         SnackBar(
           content: Text(l10n.checkpointKept),
+          // Avec un bouton, Flutter garde le message affiché par défaut.
+          persist: false,
           action: SnackBarAction(
             label: l10n.actionUndo,
             onPressed: () => unawaited(_actions.putBack(entry.photo)),

@@ -21,7 +21,7 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 
 - [x] Android : `createTrashRequest` et restauration (via `photo_manager`, [ADR 0007](adr/0007-photo-manager-pour-la-corbeille.md))
 - [ ] Android : lecture de la corbeille (`QUERY_ARG_MATCH_TRASHED`) et vidage (`createDeleteRequest`), en Kotlin
-- [ ] Android 12+ : « Gestion des médias » (`MANAGE_MEDIA`), vérifier l'absence de popup
+- [x] Android 12+ : « Gestion des médias » (`MANAGE_MEDIA`) : vérifié sur l'émulateur Android 16, aucune popup à l'envoi en corbeille
 - [ ] Mesurer la taille maximum d'un lot de suppression
 - [ ] Google Photos : la copie cloud reste-t-elle après une suppression locale ?
 - [ ] iOS : JPG + RAW, peut-on supprimer un seul des deux fichiers ?
