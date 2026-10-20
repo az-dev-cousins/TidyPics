@@ -25,6 +25,7 @@ dependencies:
   # Empreinte visuelle des photos (doublons, rafales), calculée sur le téléphone.
   image: ^4.12.0
   share_plus: ^13.3.1
+  flutter_local_notifications: ^22.3.2
 
 dev_dependencies:
   flutter_test:

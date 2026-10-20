@@ -5,6 +5,7 @@ import 'package:tidypics/data/models/gallery_photo.dart';
 
 import '../helpers/app_harness.dart';
 import '../helpers/fake_gallery_source.dart';
+import '../helpers/fake_reminders.dart';
 import '../helpers/test_images.dart';
 
 Future<void> openMenu(WidgetTester tester) async {
@@ -419,6 +420,37 @@ void main() {
     expect(find.text('Toutes les captures sont triées !'), findsOneWidget);
     // La capture supprimée attend au panier, comme dans le tri normal.
     expect(find.text('1 · 1 Ko'), findsOneWidget);
+
+    await closeApp(tester);
+  });
+
+  testWidgets('rappel : activé dans les réglages, avec le nombre à trier', (
+    tester,
+  ) async {
+    final reminders = FakeReminderScheduler();
+    await pumpApp(
+      tester,
+      gallery: FakeGallerySource(photos: [photo('a', 0), photo('b', 900)]),
+      reminders: reminders,
+    );
+    await openMenu(tester);
+    await tester.tap(find.byTooltip('Réglages'));
+    await settle(tester);
+    await tapVisible(tester, find.text('Rappel chaque semaine'));
+    expect(
+      reminders.scheduledBody,
+      "2 photos t'attendent. Quelques minutes pour libérer de la place.",
+    );
+
+    // Refusé : le réglage reste coupé et l'app explique pourquoi.
+    await tester.tap(find.text('Rappel chaque semaine'));
+    await settle(tester);
+    expect(reminders.scheduledBody, isNull);
+    reminders.permission = false;
+    await tester.tap(find.text('Rappel chaque semaine'));
+    await settle(tester);
+    expect(find.textContaining('Notifications refusées'), findsOneWidget);
+    expect(reminders.scheduledBody, isNull);
 
     await closeApp(tester);
   });

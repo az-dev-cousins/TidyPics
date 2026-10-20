@@ -8,6 +8,7 @@ import '../../../data/providers.dart';
 import '../../../data/repositories/library_repository.dart';
 import '../../../data/repositories/settings_repository.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../reminders/application/reminders.dart';
 import '../application/settings_controller.dart';
 
 /// « Gestion des médias » : existe-t-elle (Android 12+) et est-elle accordée ?
@@ -48,6 +49,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   SettingsController get _controller => ref.read(settingsProvider.notifier);
+
+  Future<void> _setReminder(bool enabled) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await ref
+        .read(reminderActionsProvider)
+        .setEnabled(l10n, enabled: enabled);
+    if (!ok) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.settingsReminderDenied)),
+      );
+    }
+  }
 
   Future<void> _resetKept() async {
     final l10n = AppLocalizations.of(context);
@@ -261,6 +275,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ),
                 ],
+
+                section(l10n.settingsReminders),
+                Card(
+                  child: SwitchListTile(
+                    value: settings.weeklyReminder,
+                    title: Text(l10n.settingsWeeklyReminder),
+                    subtitle: Text(l10n.settingsWeeklyReminderHint),
+                    onChanged: (v) => unawaited(_setReminder(v)),
+                  ),
+                ),
 
                 section(l10n.settingsSectionDisplay),
                 SegmentedButton<ThemeMode>(

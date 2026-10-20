@@ -9,6 +9,7 @@ import 'package:tidypics/data/sources/local_db.dart';
 import 'package:tidypics/shared/widgets/photo_image.dart';
 
 import 'fake_gallery_source.dart';
+import 'fake_reminders.dart';
 import 'test_container.dart';
 
 /// PNG transparent de 1 × 1 pixel.
@@ -42,6 +43,7 @@ Future<void> pumpApp(
   Map<String, Object> settings = const {'onboarding_done': true},
   Locale locale = const Locale('fr'),
   Size size = const Size(1080, 2400),
+  FakeReminderScheduler? reminders,
 }) async {
   tester.platformDispatcher.localesTestValue = [locale];
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
@@ -54,6 +56,7 @@ Future<void> pumpApp(
     db: database,
     gallery: gallery,
     settings: settings,
+    reminders: reminders,
   );
   await tester.pumpWidget(
     ProviderScope(

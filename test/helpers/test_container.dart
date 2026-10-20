@@ -9,8 +9,10 @@ import 'package:shared_preferences_platform_interface/shared_preferences_async_p
 import 'package:tidypics/data/providers.dart';
 import 'package:tidypics/data/repositories/settings_repository.dart';
 import 'package:tidypics/data/sources/local_db.dart';
+import 'package:tidypics/features/reminders/application/reminders.dart';
 
 import 'fake_gallery_source.dart';
+import 'fake_reminders.dart';
 
 /// Base Drift en mémoire, neuve pour chaque test.
 LocalDb memoryDb() {
@@ -38,7 +40,11 @@ Future<List<Override>> testOverrides({
   required LocalDb db,
   required FakeGallerySource gallery,
   Map<String, Object> settings = const {'onboarding_done': true},
+  FakeReminderScheduler? reminders,
 }) async => [
+  reminderSchedulerProvider.overrideWithValue(
+    reminders ?? FakeReminderScheduler(),
+  ),
   localDbProvider.overrideWithValue(db),
   gallerySourceProvider.overrideWithValue(gallery),
   settingsRepositoryProvider.overrideWithValue(await memorySettings(settings)),

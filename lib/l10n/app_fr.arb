@@ -688,5 +688,19 @@
       }
     }
   },
-  "menuScreenshotsNone": "Rien à trier"
+  "menuScreenshotsNone": "Rien à trier",
+  "reminderTitle": "Un petit tri ?",
+  "reminderBody": "{count, plural, =1{1 photo t'attend. Quelques minutes pour libérer de la place.} other{{count} photos t'attendent. Quelques minutes pour libérer de la place.}}",
+  "@reminderBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "settingsReminders": "Rappels",
+  "settingsWeeklyReminder": "Rappel chaque semaine",
+  "settingsWeeklyReminderHint": "Une notification une semaine après ta dernière visite, avec le nombre de photos à trier. Rien n'est envoyé : c'est le téléphone qui la programme.",
+  "settingsReminderDenied": "Notifications refusées : autorise-les dans les réglages du téléphone."
 }

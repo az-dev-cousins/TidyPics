@@ -461,5 +461,19 @@
       }
     }
   },
-  "menuScreenshotsNone": "Nothing to sort"
+  "menuScreenshotsNone": "Nothing to sort",
+  "reminderTitle": "Time for a quick sort?",
+  "reminderBody": "{count, plural, =1{1 photo is waiting. A few minutes to free up space.} other{{count} photos are waiting. A few minutes to free up space.}}",
+  "@reminderBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "settingsReminders": "Reminders",
+  "settingsWeeklyReminder": "Weekly reminder",
+  "settingsWeeklyReminderHint": "A notification one week after your last visit, with the number of photos to sort. Nothing is sent: the phone schedules it.",
+  "settingsReminderDenied": "Notifications are blocked: allow them in your phone's settings."
 }

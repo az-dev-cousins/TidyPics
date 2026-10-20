@@ -10,6 +10,7 @@ import '../features/achievements/application/achievements_controller.dart';
 import '../features/achievements/presentation/achievement_texts.dart';
 import '../features/cart/application/checkpoint_controller.dart';
 import '../features/gallery/application/gallery_controller.dart';
+import '../features/reminders/application/reminders.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../l10n/app_localizations.dart';
 import 'router.dart';
@@ -29,8 +30,19 @@ class _TidyPicsAppState extends ConsumerState<TidyPicsApp> {
       await ref.read(galleryAccessProvider.notifier).refresh();
       unawaited(ref.read(gallerySyncProvider.notifier).scan());
     },
-    // Option Android 12+ : le panier part à la corbeille quand on quitte.
-    onHide: () => unawaited(ref.read(checkpointActionsProvider).trashOnLeave()),
+    onHide: () {
+      // Option Android 12+ : le panier part à la corbeille quand on quitte.
+      unawaited(ref.read(checkpointActionsProvider).trashOnLeave());
+      // Le rappel tombera une semaine après cette visite.
+      final context = _messenger.currentContext;
+      if (context != null) {
+        unawaited(
+          ref
+              .read(reminderActionsProvider)
+              .reschedule(AppLocalizations.of(context)),
+        );
+      }
+    },
   );
 
   @override

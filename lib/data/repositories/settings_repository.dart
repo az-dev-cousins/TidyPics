@@ -18,6 +18,7 @@ class AppSettings {
     this.deleteDirectly = false,
     this.rawIntroSeen = false,
     this.burstIntroSeen = false,
+    this.weeklyReminder = false,
   });
 
   final bool onboardingDone;
@@ -48,6 +49,9 @@ class AppSettings {
   /// Explication du tri d'une rafale déjà vue.
   final bool burstIntroSeen;
 
+  /// Rappel hebdomadaire par notification locale (désactivé par défaut).
+  final bool weeklyReminder;
+
   static const thresholds = [10, 25, 50, 100];
   static const minBurstGap = 1;
   static const maxBurstGap = 10;
@@ -64,6 +68,7 @@ class AppSettings {
     bool? deleteDirectly,
     bool? rawIntroSeen,
     bool? burstIntroSeen,
+    bool? weeklyReminder,
   }) => AppSettings(
     onboardingDone: onboardingDone ?? this.onboardingDone,
     sortOrder: sortOrder ?? this.sortOrder,
@@ -76,6 +81,7 @@ class AppSettings {
     deleteDirectly: deleteDirectly ?? this.deleteDirectly,
     rawIntroSeen: rawIntroSeen ?? this.rawIntroSeen,
     burstIntroSeen: burstIntroSeen ?? this.burstIntroSeen,
+    weeklyReminder: weeklyReminder ?? this.weeklyReminder,
   );
 }
 
@@ -95,6 +101,7 @@ class SettingsRepository {
   static const _deleteDirectly = 'delete_directly';
   static const _rawIntroSeen = 'raw_intro_seen';
   static const _burstIntroSeen = 'burst_intro_seen';
+  static const _weeklyReminder = 'weekly_reminder';
 
   static const keys = {
     _onboardingDone,
@@ -108,6 +115,7 @@ class SettingsRepository {
     _deleteDirectly,
     _rawIntroSeen,
     _burstIntroSeen,
+    _weeklyReminder,
   };
 
   static Future<SettingsRepository> open() async => SettingsRepository(
@@ -137,6 +145,7 @@ class SettingsRepository {
       deleteDirectly: _prefs.getBool(_deleteDirectly) ?? false,
       rawIntroSeen: _prefs.getBool(_rawIntroSeen) ?? false,
       burstIntroSeen: _prefs.getBool(_burstIntroSeen) ?? false,
+      weeklyReminder: _prefs.getBool(_weeklyReminder) ?? false,
     );
   }
 
@@ -152,5 +161,6 @@ class SettingsRepository {
     await _prefs.setBool(_deleteDirectly, settings.deleteDirectly);
     await _prefs.setBool(_rawIntroSeen, settings.rawIntroSeen);
     await _prefs.setBool(_burstIntroSeen, settings.burstIntroSeen);
+    await _prefs.setBool(_weeklyReminder, settings.weeklyReminder);
   }
 }

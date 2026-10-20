@@ -52,6 +52,9 @@ class SettingsController extends Notifier<AppSettings> {
 
   Future<void> markBurstIntroSeen() =>
       _save(state.copyWith(burstIntroSeen: true));
+
+  Future<void> setWeeklyReminder(bool value) =>
+      _save(state.copyWith(weeklyReminder: value));
 }
 
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(
