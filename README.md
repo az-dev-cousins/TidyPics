@@ -27,9 +27,29 @@ TidyPics est une app mobile Flutter (Android et iOS, téléphones et tablettes) 
 Prérequis : Flutter 3.47 stable (Dart 3.13), Android SDK (API 30+) et/ou Xcode avec CocoaPods (iOS 15+).
 
 ```bash
-flutter pub get        # dépendances + génération des traductions
-flutter run            # lance l'app sur l'appareil connecté
+flutter pub get                    # dépendances + génération des traductions
+flutter emulators --launch Pixel_7 # ou ouvre un simulateur iOS : open -a Simulator
+flutter run                        # lance l'app sur l'émulateur démarré
 ```
+
+> TidyPics ne cible que **Android et iOS**. Dans ton IDE, choisis l'émulateur ou le simulateur comme appareil cible, pas « macOS » ni « Chrome » : ces cibles ne sont pas configurées et donnent l'erreur *No macOS desktop project configured*.
+
+## Photos de test
+
+Un émulateur neuf n'a aucune photo. Deux scripts créent une fausse galerie qui couvre les cas de l'app : 150 photos de 2019 à 2026, 5 rafales, 4 paires JPG + RAW, 12 captures d'écran et 3 doublons.
+
+```bash
+dart run tool/generate_test_photos.dart   # génère les photos dans build/test_photos
+tool/seed_test_photos.sh android          # les envoie sur l'émulateur Android démarré
+tool/seed_test_photos.sh android --clean  # les retire de l'émulateur
+tool/seed_test_photos.sh ios              # les ajoute au simulateur iOS démarré
+```
+
+- Le script d'envoi génère les photos s'il ne les trouve pas.
+- Les JPEG portent leur date de prise de vue (EXIF) : la galerie les classe à la bonne date.
+- Les captures d'écran (PNG) n'ont pas de date de prise de vue, comme les vraies.
+- Les faux RAW (`.DNG`) sont des TIFF : reconnus par Android, ignorés sur iOS.
+- iOS ne permet pas de supprimer les photos du simulateur en ligne de commande : on passe par l'app Photos ou par `xcrun simctl erase`.
 
 ## Vérifier avant de pousser
 

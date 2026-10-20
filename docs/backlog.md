@@ -14,6 +14,7 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 - [x] Logo : le « t » paysage
 - [x] Icônes d'app (Android adaptative, iOS) et écran de démarrage (clair / sombre, Android 12+)
 - [x] Monter Flutter en 3.47.7 (Riverpod 3, Gradle 9, AGP 9, modèles Android/iOS à jour), CI comprise
+- [x] Photos de test pour émulateur et simulateur (dates, rafales, JPG + RAW, captures, doublons)
 - [ ] Protéger `main` sur GitHub et créer le GitHub Project (kanban)
 
 ## Lot 0bis — Prototypes techniques
