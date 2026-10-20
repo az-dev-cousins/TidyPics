@@ -5,7 +5,7 @@
 
 ## Où on en est
 
-**La V1 est complète côté fonctionnalités** (lots 0 à 7) et tourne sur l'émulateur et sur un Pixel 10. **La V2 a commencé** avec les doublons. iOS attend un iPhone pour être testé.
+**La V1 est complète côté fonctionnalités** (lots 0 à 7) et tourne sur l'émulateur et sur un Pixel 10. **La V2 est bien avancée** : doublons, succès, partage, captures d'écran et rappels sont faits. Il reste les documents (APK seulement). iOS attend un iPhone pour être testé.
 
 | Étape | Contenu | État |
 |---|---|---|
@@ -20,8 +20,8 @@
 | Lot 7 — Vidéos | Même fil que les photos, grosses vidéos en tête, lecture sans le son | ✅ · 🔬 fluidité sur le Pixel |
 | Lot 8 — Tests sur appareils | Pixel 10 en cours ; iPhone et iPad sans appareil pour l'instant | 🟡 |
 | **V2 — Lot 11 — Doublons** | Empreinte visuelle, écran « Doublons », rafales fiables | ✅ |
-| **V2 — Lot 13 — Succès et confort** | Succès, partage et « ouvrir dans la galerie », mode captures d'écran, rappels | ⏭️ **en cours** |
-| V2 — Lot 12 — Documents | Word, PDF, téléchargements (Android, APK seulement) | ⏸️ après le lot 13 |
+| V2 — Lot 13 — Succès et confort | Succès, partage et « ouvrir dans la galerie », mode captures d'écran, rappels | ✅ |
+| **V2 — Lot 12 — Documents** | Word, PDF, téléchargements (Android, APK seulement) | ⏭️ **prochaine étape** |
 | Lot 9 — Finitions | Accessibilité, textes, cas limites, « À propos » | ⏳ |
 | Lot 10 — APK pour les proches | Un APK propre à partager, avant toute publication sur les stores | ⏸️ plus tard |
 | V3 | Tous les fichiers, IA sur le téléphone, nettoyage Google Photos (si Google le permet) | 💡 |
@@ -45,13 +45,13 @@
 - **Écran « Doublons »** depuis le menu : la meilleure version est gardée (plus de pixels, moins compressée, hors dossier WhatsApp), un tap change d'avis, tout part à la corbeille en un seul lot.
 - **Rafales fiables** : même dossier obligatoire, jamais dans un dossier de photos reçues (WhatsApp, Telegram, téléchargements, captures), et empreintes proches. Les photos WhatsApp reçues à la même heure ne forment plus une rafale.
 
-### Lot 13 — Succès et confort ⏭️
-- **Succès** : paliers d'espace libéré, de photos triées, séries de jours de tri, et quelques premières fois (première rafale triée, premier doublon supprimé, un mois trié en entier). Un écran depuis le menu, une annonce discrète quand on en débloque un.
+### Lot 13 — Succès et confort ✅
+- **Succès** : 16 succès. Paliers d'espace libéré (100 Mo à 20 Go), de photos triées (100 à 10 000), séries de jours d'affilée (3, 7, 30), et des premières fois (rafale triée, doublon supprimé, RAW trié, mois trié en entier, galerie entière). Un écran depuis le menu avec la série en cours, une annonce quand on en débloque un. Ceux déjà mérités avant la mise à jour sont inscrits sans annonce.
 - **Appui long sur une carte** : « Partager… » (menu de partage du système : Google Photos, Drive, WhatsApp…, sans compte dans l'app) et « Ouvrir dans la galerie », pour retrouver la photo.
 - **Captures d'écran** : un tri dédié depuis le menu, seulement les captures.
 - **Rappels** : notification locale facultative, désactivée par défaut (« 200 photos à trier »). La permission de notification n'est demandée qu'en l'activant.
 
-### Lot 12 — Documents ⏸️ (après le lot 13)
+### Lot 12 — Documents ⏭️
 Les fichiers qui encombrent le téléphone sans être des photos : PDF, Word, Excel, PowerPoint, archives, APK, gros téléchargements.
 - ✅ **Décidé** : disponible **uniquement dans l'APK** partagé (lot 10). Une future version des stores ne l'aura pas : le Play Store refuse la permission nécessaire sauf justification.
 - ✅ **Décidé** : **corbeille propre à l'app**. Les documents écartés sont mis de côté 30 jours (récupérables), puis effacés. Ils prennent encore de la place pendant ces 30 jours ; « Vider maintenant » les efface tout de suite.

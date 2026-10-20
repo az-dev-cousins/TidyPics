@@ -6,6 +6,10 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Succès (F12) : 16 succès (espace libéré, photos triées, séries de jours, premières fois), écran dédié et annonce quand on en débloque un.
+- Appui long ou « ⋯ » sur une carte (F13) : partager la photo, l'ouvrir dans la galerie.
+- Tri des captures d'écran (F14), depuis le menu.
+- Rappel chaque semaine (F15), facultatif, par notification locale.
 - Doublons (F11) : empreinte visuelle calculée sur le téléphone, écran « Doublons » dans le menu, la meilleure version gardée d'office.
 - Carte : dossier d'origine (« Camera », « WhatsApp Images »…) sous la date.
 - Docs : [roadmap](docs/roadmap.md) complète, cahier des charges v1.4, README à jour.

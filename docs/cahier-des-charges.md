@@ -1,7 +1,7 @@
 # 📸 TidyPics — Cahier des charges
 
-> Version 1.5 — 20/10/2026 (doublons, rafales fiables, dossier d'origine, retours du Pixel 10)
-> Statut : **V1 terminée côté fonctionnalités, V2 commencée** — voir la [roadmap](roadmap.md)
+> Version 1.6 — 21/10/2026 (succès, partage, captures d'écran, rappels ; décisions sur les documents)
+> Statut : **V1 terminée côté fonctionnalités, V2 bien avancée** — voir la [roadmap](roadmap.md)
 > Source de vérité : ce document, avec les décisions de [`docs/adr/`](adr/README.md) et la direction artistique de [`docs/design/`](design/direction-artistique.md).
 
 ---
@@ -41,8 +41,8 @@ Les galeries de smartphone accumulent des milliers de photos inutiles : rafales,
 
 ### V2 (détail dans la [roadmap](roadmap.md))
 - ✅ Doublons (F11)
-- Tri des documents : PDF, Word, téléchargements (Android)
-- Succès, notifications locales, envoi vers le cloud via le menu de partage
+- ✅ Succès (F12), partage et ouverture dans la galerie (F13), tri des captures d'écran (F14), rappels (F15)
+- Tri des documents (F16) : PDF, Word, téléchargements. Android, **APK seulement**
 
 ### Plus tard
 - V3 : tous les types de fichiers, IA sur le téléphone (flou, screenshots, meilleure photo), nettoyage de Google Photos si Google le permet un jour
@@ -79,9 +79,10 @@ Référence : [Android — Access media files from shared storage](https://devel
 | Lecture des photos et des vidéos (`READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`) | Android | Fin de l'onboarding | L'app ne peut rien faire : écran expliquant comment l'autoriser dans les réglages |
 | Accès partiel « photos sélectionnées » | Android 14+ | Choix proposé par le système | On trie seulement ces photos, avec un bandeau « Autoriser toutes les photos » |
 | Photothèque (complet ou limité) | iOS | Fin de l'onboarding | Idem Android |
+| Notifications (`POST_NOTIFICATIONS`) | Android 13+, iOS | ✅ Seulement en activant le rappel hebdomadaire (F15) | Le rappel reste coupé, avec une explication |
 | **Gestion des médias** (`MANAGE_MEDIA`) | Android 12+ | **Au premier checkpoint**, avec une explication (« Supprime sans confirmation à chaque fois ») | Une popup système s'affiche à chaque lot. Rien n'est bloqué |
 
-L'app ne demande **aucune permission réseau, de localisation ou de notification** en V1.
+L'app ne demande **aucune permission réseau ni de localisation**. La permission de notification n'est demandée que si l'on active le rappel (F15).
 
 ### 3.4 Cloud : ce qui se passe vraiment
 
@@ -248,6 +249,38 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
   - un bouton envoie les autres à la corbeille en un seul lot. Les versions gardées ne reviennent plus au tri.
 - Pendant l'analyse, l'écran montre l'avancée ; les doublons apparaissent au fur et à mesure.
 
+### F12 — Succès (V2) ✅
+- 16 succès en quatre familles :
+  - **espace libéré** : 100 Mo, 1 Go, 5 Go, 20 Go ;
+  - **photos triées** : 100, 1 000, 5 000, 10 000 (décisions et photos au panier) ;
+  - **séries** : 3, 7 et 30 jours de tri d'affilée (la meilleure série compte) ;
+  - **premières fois** : une rafale triée, un doublon supprimé, un RAW trié, un mois trié en entier, toute la galerie triée.
+- Un succès gagné le reste, même si un compteur baisse ensuite (photos gardées remises à zéro, photo restaurée).
+- **Écran « Succès »** depuis le menu : nombre débloqué, série en cours, avancée de chaque palier, date de déblocage.
+- **Annonce** discrète (bandeau en bas, bouton « Voir ») quand on en débloque un, quel que soit l'écran. À la première ouverture après la mise à jour, ceux déjà mérités sont inscrits sans annonce.
+- Tout est calculé sur le téléphone (base v4 : jours de tri, premières fois, succès débloqués).
+
+### F13 — Partager et retrouver une photo (V2) ✅
+- **Appui long** sur la carte, ou bouton **« ⋯ »** à côté de la légende (accessible) : nom du fichier, date, dimensions, taille, dossier.
+- **« Partager… »** : menu de partage du système (Google Photos, Drive, WhatsApp…). C'est l'app choisie qui envoie : TidyPics ne se connecte à rien.
+- **« Ouvrir dans la galerie »** (Android) : ouvre la photo dans l'app Galerie ou Google Photos.
+
+### F14 — Captures d'écran (V2) ✅
+- Un **tri dédié** depuis le menu (tuile avec le nombre à trier) : seulement les captures, une par une, de la plus ancienne à la plus récente.
+- Une capture = un dossier « Screenshots » ou un nom « Screenshot_… » (Android), ou le sous-type « capture d'écran » de Photos (iOS).
+- Mêmes gestes, même panier et même récap que le tri normal.
+
+### F15 — Rappels (V2) ✅
+- Réglage **« Rappel chaque semaine »**, désactivé par défaut. La permission de notification est demandée en l'activant ; refusée, le réglage reste coupé avec une explication.
+- Une notification locale **une semaine après la dernière visite**, avec le nombre de photos à trier. Reprogrammée en quittant l'app ; rien à trier, pas de rappel.
+- Heure non exacte : aucune permission d'alarme. Reprogrammée après un redémarrage du téléphone.
+
+### F16 — Documents (V2, à faire) ⏭️
+- PDF, Word, Excel, PowerPoint, archives, APK, gros téléchargements.
+- ✅ **Uniquement dans l'APK** partagé (lot 10) : le Play Store refuse la permission « Accès à tous les fichiers » sauf justification. Android seulement ; impossible sur iOS.
+- ✅ **Corbeille propre à l'app** : les documents écartés sont mis de côté 30 jours, récupérables, puis effacés. « Vider maintenant » les efface tout de suite.
+- Tri au swipe, les plus gros d'abord ; nom, taille, dossier et date sur la carte ; aperçu de la première page des PDF.
+
 ---
 
 ## 5. Direction artistique et logo
@@ -336,7 +369,7 @@ lib/
 
 ### 8.4 Données locales
 
-Base Drift, version 3 (migrations v1 → v3 testées).
+Base Drift, version 4 (migrations v1 → v4 testées).
 
 | Table | Contenu |
 |---|---|
@@ -345,6 +378,9 @@ Base Drift, version 3 (migrations v1 → v3 testées).
 | `cart_items` | asset_id, taille, date d'ajout |
 | `trash_log` | asset_id, nom, miniature (~10 Ko), taille, durée, date d'envoi |
 | `stats_events` | type (envoyée / restaurée), octets, nombre, date |
+| `activity_days` | jours de tri (séries de succès) |
+| `milestones` | premières fois (rafale triée, doublon supprimé…) |
+| `achievement_log` | succès débloqués et leur date |
 
 Les groupes (rafales, paires) ne sont pas stockés : ils sont recalculés à l'ouverture du tri (quelques millisecondes).
 
@@ -402,7 +438,8 @@ Les groupes (rafales, paires) ne sont pas stockés : ils sont recalculés à l'o
 | 9 — Finitions | Accessibilité, textes, cas limites, « À propos » | V1 prête |
 | 10 — APK pour les proches | Clé de signature, APK à partager, page d'explication (les stores plus tard) | ⏸️ plus tard |
 | 11 — Doublons (V2) | F11, rafales fiables | ✅ |
-| 12 — Documents (V2) | PDF, Word, téléchargements (Android) | ⏭️ |
+| 13 — Succès et confort (V2) | F12 à F15 | ✅ |
+| 12 — Documents (V2) | F16, APK seulement | ⏭️ |
 | V2 / V3 | Voir la [roadmap](roadmap.md) | |
 
 Lots 0 à 7 : ✅ faits (détail dans le [backlog](backlog.md)).

@@ -118,9 +118,17 @@ Pistes et choix : https://claude.ai/artifact/D4jveh5gf2pPxWirwQxVsC. Menu A + C,
 - [x] F11 Écran « Doublons » et tuile du menu
 - [ ] F11 Mesurer le calcul des empreintes sur une vraie galerie (Pixel 10)
 
-## Lot 12 — Documents (V2)
+## Lot 13 — Succès et confort (V2)
 
-- [ ] Choisir : corbeille propre à l'app ou suppression directe confirmée
+- [x] F12 Succès : 16 succès, écran, tuile, annonce, base v4
+- [x] F13 Appui long et « ⋯ » : partager, ouvrir dans la galerie
+- [x] F14 Tri des captures d'écran
+- [x] F15 Rappel hebdomadaire facultatif
+
+## Lot 12 — Documents (V2, APK seulement)
+
+- [x] Choisir : corbeille propre à l'app (30 jours)
+- [ ] Ne l'activer que dans l'APK partagé (pas dans une future version des stores)
 - [ ] Permission « Accès à tous les fichiers » avec explication
 - [ ] Scan des documents (PDF, Word, Excel, archives, APK, gros téléchargements)
 - [ ] Tri au swipe, les plus gros d'abord, aperçu des PDF

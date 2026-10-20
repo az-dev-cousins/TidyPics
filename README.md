@@ -10,10 +10,11 @@ TidyPics est une app mobile Flutter (Android et iOS, téléphones et tablettes) 
 - 🧺 Panier et récap : une seule confirmation pour tout un lot, corbeille du système
 - 📸 Rafales et paires JPG + RAW regroupées, tri des RAW à part
 - 🪞 Doublons (copies WhatsApp, fichiers copiés) repérés sur le téléphone
+- 🏆 Succès, tri des captures d'écran, partage, rappel facultatif
 - 📊 Espace libéré, stockage du téléphone, stats par semaine et par mois
 - 📱 Téléphones et tablettes, thème clair et sombre
 
-> Statut : **V1 complète côté fonctionnalités**, testée sur l'émulateur et un Pixel 10. **V2 commencée** (doublons). Voir la [roadmap](docs/roadmap.md).
+> Statut : **V1 complète côté fonctionnalités**, testée sur l'émulateur et un Pixel 10. **V2 bien avancée** (doublons, succès, captures, partage, rappels). Voir la [roadmap](docs/roadmap.md).
 
 ## Documentation
 
@@ -72,7 +73,7 @@ La CI GitHub Actions lance ces mêmes commandes, plus un build Android, à chaqu
 
 ## Stack
 
-Flutter · Riverpod · go_router · Drift (SQLite) · photo_manager · video_player · image (empreintes visuelles) · Material 3 · Manrope (incluse dans l'app)
+Flutter · Riverpod · go_router · Drift (SQLite) · photo_manager · video_player · image (empreintes visuelles) · share_plus · flutter_local_notifications · Material 3 · Manrope (incluse dans l'app)
 
 Un peu de code natif : Kotlin (`MainActivity.kt`, corbeille, tailles, stockage) et Swift (`AppDelegate.swift`, stockage).
 
@@ -88,7 +89,8 @@ lib/
 ├── data/            # modèles, base Drift, accès galerie, repositories
 ├── l10n/            # traductions (fr par défaut, en)
 ├── features/        # onboarding, home (menu), swipe (tri, rafales), months, cart (récap),
-│                    # trash, raw_pairs, duplicates, stats, settings, gallery
+│                    # trash, raw_pairs, duplicates, achievements, reminders,
+│                    # stats, settings, gallery
 └── shared/widgets/  # widgets réutilisables (miniatures…)
 docs/                # roadmap, cahier des charges, backlog, ADR, design
 tool/                # photos et vidéos de test, mesures
