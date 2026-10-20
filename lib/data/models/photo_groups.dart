@@ -79,11 +79,16 @@ List<PhotoItem> findRawPairs(
   return pairs;
 }
 
+/// Au-delà, ce n'est pas une rafale : ce sont des fichiers sans date de prise
+/// de vue, copiés d'un coup (sauvegarde restaurée, téléchargements). Ils se
+/// trient un par un.
+const maxBurstSize = 50;
+
 /// Découpe la galerie en éléments à trier (F5, F6).
 ///
 /// 1. Les paires JPG + RAW sont repérées d'abord : ce n'est pas une rafale.
 /// 2. Parmi les autres photos, triées par date, celles prises à moins de
-///    [burstGap] de la précédente forment une rafale.
+///    [burstGap] de la précédente forment une rafale, jusqu'à [maxBurstSize].
 ///
 /// Le résultat est trié par date.
 List<PhotoItem> groupPhotos(
@@ -99,10 +104,10 @@ List<PhotoItem> groupPhotos(
   final items = <PhotoItem>[...pairs];
   var run = <GalleryPhoto>[];
   void flush() {
-    if (run.length > 1) {
+    if (run.length > 1 && run.length <= maxBurstSize) {
       items.add(PhotoItem.burst(run));
-    } else if (run.length == 1) {
-      items.add(PhotoItem.single(run.first));
+    } else {
+      items.addAll(run.map(PhotoItem.single));
     }
     run = [];
   }

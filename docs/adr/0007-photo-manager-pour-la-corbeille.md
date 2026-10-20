@@ -13,7 +13,7 @@ Le cahier des charges (§8.1) prévoyait du code natif Kotlin pour tout ce que `
 ## Décision
 - On passe par `photo_manager` pour toutes ces opérations, derrière l'interface `GallerySource` (`lib/data/sources/gallery_source.dart`).
 - Le seul code natif est un canal `tidypics/device` qui donne la version d'Android (pour savoir si « Gestion des médias » existe).
-- Les gros paniers sont découpés en lots de 500 photos. La vraie limite reste à mesurer (lot 0bis).
+- Les gros paniers sont découpés en lots. Mesuré sur émulateur (Android 16) : un lot de 3 000 photos passe sans erreur, en une popup. Sans « Gestion des médias », lots de 3 000 (une popup chacun) ; avec, lots de 250 pour faire avancer la barre.
 
 ## Conséquences
 - ✅ Très peu de code natif à maintenir, même API sur Android et iOS.

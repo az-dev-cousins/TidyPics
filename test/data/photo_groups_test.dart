@@ -79,6 +79,17 @@ void main() {
       expect(items.map((i) => i.kind), everyElement(PhotoItemKind.single));
     });
 
+    test('au-delà de $maxBurstSize photos, ce n\'est plus une rafale', () {
+      final copied = [
+        for (var i = 0; i <= maxBurstSize; i++) photo('c$i', 'C$i.jpg', at(0)),
+      ];
+      expect(groupPhotos(copied), hasLength(maxBurstSize + 1));
+      expect(
+        groupPhotos(copied.take(maxBurstSize).toList()).single.kind,
+        PhotoItemKind.burst,
+      );
+    });
+
     test('une paire JPG + RAW ne forme pas une rafale', () {
       final items = groupPhotos([
         photo('j', 'DSC_1.JPG', at(0)),

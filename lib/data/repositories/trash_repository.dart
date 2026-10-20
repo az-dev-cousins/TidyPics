@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/gallery_photo.dart';
 import '../sources/gallery_source.dart';
@@ -75,32 +76,60 @@ class TrashRepository {
   ///
   /// [permanent] (Android, option avancée) : efface pour de bon, sans passer
   /// par la corbeille. Rien n'est alors inscrit au journal.
+  ///
+  /// [onProgress] reçoit l'avancée, de 0 à 1 : lecture des miniatures puis
+  /// envoi (environ 4 min pour 3 000 photos sur émulateur, d'où la barre).
   Future<TrashOutcome> trash(
     List<GalleryPhoto> photos, {
     DateTime? at,
     bool permanent = false,
+    ValueChanged<double>? onProgress,
   }) async {
     if (photos.isEmpty) return TrashOutcome.none;
+    // Moitié miniatures, moitié envoi (sans miniatures : tout pour l'envoi).
+    final steps = permanent ? photos.length : photos.length * 2;
+    var done = 0;
+    void advance(int count) {
+      done += count;
+      onProgress?.call((done / steps).clamp(0.0, 1.0));
+    }
 
     // Les miniatures sont lues avant : une fois à la corbeille, la photo
-    // n'est plus accessible.
+    // n'est plus accessible. Plusieurs à la fois, c'est bien plus rapide.
     final thumbnails = <String, Uint8List?>{};
     if (!permanent) {
-      for (final photo in photos) {
-        try {
-          thumbnails[photo.id] = await _gallery.thumbnail(photo.id, size: 160);
-        } on Object {
-          // Miniature illisible (ex. certains RAW) : la photo part quand même,
-          // le journal affichera une vignette neutre.
-          thumbnails[photo.id] = null;
-        }
+      const parallel = 8;
+      for (var i = 0; i < photos.length; i += parallel) {
+        final chunk = photos.skip(i).take(parallel);
+        await Future.wait(
+          chunk.map((photo) async {
+            try {
+              thumbnails[photo.id] = await _gallery.thumbnail(
+                photo.id,
+                size: 160,
+              );
+            } on Object {
+              // Miniature illisible (ex. certains RAW) : la photo part quand
+              // même, le journal affichera une vignette neutre.
+              thumbnails[photo.id] = null;
+            }
+          }),
+        );
+        advance(chunk.length);
       }
     }
 
+    var sent = 0;
     final trashedIds =
         (permanent
                 ? await _gallery.deleteForever(photos.map((p) => p.id).toList())
-                : await _gallery.moveToTrash(photos))
+                : await _gallery.moveToTrash(
+                    photos,
+                    onProgress: (count) {
+                      advance(count - sent);
+                      sent = count;
+                    },
+                  ))
             .toSet();
     if (trashedIds.isEmpty) return TrashOutcome.none;
 

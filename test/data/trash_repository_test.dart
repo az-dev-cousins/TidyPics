@@ -50,6 +50,15 @@ void main() {
     expect(log.first.daysLeft(at.add(const Duration(days: 29))), 1);
   });
 
+  test('l\'avancée monte jusqu\'à 1 : miniatures, puis envoi', () async {
+    final steps = <double>[];
+    await trash.trash(photos, onProgress: steps.add);
+
+    expect(steps.first, 0.5);
+    expect(steps.last, 1.0);
+    expect(steps, orderedEquals([...steps]..sort()));
+  });
+
   test('popup refusée : rien ne change, le panier reste', () async {
     gallery.refuseTrash = true;
     final outcome = await trash.trash(photos);

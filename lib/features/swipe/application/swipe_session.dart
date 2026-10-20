@@ -198,6 +198,7 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
   /// Les éléments à trier : groupés (rafales, JPG + RAW), dans l'ordre voulu.
   Future<List<PhotoItem>> _loadQueue(LibraryRepository library) async {
     final settings = ref.read(settingsProvider);
+    final watch = Stopwatch()..start();
     final photos = scope.isMonth
         ? await library.monthPhotos(scope.year!, scope.month!)
         : await library.unsortedPhotos(SortOrder.oldestFirst);
@@ -208,6 +209,13 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
       bursts: settings.groupBursts,
       burstGap: Duration(seconds: settings.burstGapSeconds),
     );
+    // Mesure de la file, en mode profile (flutter run --profile).
+    if (kProfileMode) {
+      debugPrint(
+        'File de tri : ${photos.length} photos, ${items.length} cartes, '
+        '${watch.elapsedMilliseconds} ms',
+      );
+    }
     // Un mois se trie dans l'ordre chronologique.
     if (scope.isMonth) return items;
     return switch (settings.sortOrder) {

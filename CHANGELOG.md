@@ -6,6 +6,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Récap : pourcentage d'avancée pendant l'envoi à la corbeille.
+- `tool/generate_bulk_photos.dart` : génère des milliers de petites photos pour les mesures.
 - Tri des RAW : signale les RAW sans JPG gardé. Dans le tri normal, une paire JPG + RAW reste une seule carte ; badge RAW au récap.
 - Rafales : flèche de retour au tri (la carte de la rafale garde ou supprime tout), explication à la première ouverture.
 - Corbeille : nom du fichier affiché.
@@ -19,6 +21,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 - Le tri propose les rafales et les paires JPG + RAW comme un seul élément.
 
 ### Corrigé
+- Envoi de gros paniers bien plus rapide (3 000 photos : moins d'une minute au lieu de 4 sur émulateur) : miniatures lues 8 par 8.
+- Des fichiers sans date de prise de vue copiés d'un coup ne forment plus des « rafales » géantes (50 photos au plus).
 - Les paires JPG + RAW des Pixel (`….RAW-01.COVER.jpg` + `….RAW-02.ORIGINAL.dng`) étaient prises pour des rafales.
 - Mode sombre : en-têtes en vert profond au lieu d'un aplat menthe éblouissant, fond noir autour des photos, surfaces mieux séparées du fond.
 - Une miniature illisible (certains RAW) bloquait l'envoi à la corbeille.

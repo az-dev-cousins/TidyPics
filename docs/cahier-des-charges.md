@@ -173,7 +173,7 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 - Les entrées de plus de 30 jours sont retirées automatiquement du journal.
 
 ### F5 — Photos similaires (rafales)
-- Une **rafale** = des photos prises à **moins de N secondes** d'intervalle (3 s par défaut, réglable de 1 à 10 s). Les rafales iOS natives (`burstIdentifier`) sont aussi reconnues.
+- Une **rafale** = des photos prises à **moins de N secondes** d'intervalle (3 s par défaut, réglable de 1 à 10 s). Les rafales iOS natives (`burstIdentifier`) sont aussi reconnues. Au-delà de 50 photos, ce n'est pas une rafale (fichiers sans date copiés d'un coup) : elles se trient une par une.
 - Les groupes sont calculés une fois, lors du scan de la galerie (sur la liste triée par date), puis mis à jour au fil des nouvelles photos. Le mode aléatoire tire ensuite ces groupes comme un seul élément.
 - **Carte « Rafale (n) »** dans le tri : photos en éventail, vignettes et bouton « Choisir les meilleures ».
 - ✅ **Choisir les meilleures** (version A des maquettes) :

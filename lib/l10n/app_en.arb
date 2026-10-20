@@ -54,6 +54,14 @@
   "checkpointRefused": "Nothing was deleted. The photos stay in the bin.",
   "checkpointFailed": "Deletion failed. The photos stay in the bin.",
   "checkpointWorking": "Moving to trash…",
+  "checkpointWorkingProgress": "Moving to trash… {percent}%",
+  "@checkpointWorkingProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "manageMediaTitle": "Delete without confirming",
   "manageMediaBody": "Android asks for confirmation for every batch. Allow \"Media management\" to skip it: everything stays recoverable for 30 days in the trash.",
   "manageMediaAllow": "Allow",

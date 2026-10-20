@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/gallery_photo.dart';
@@ -42,17 +43,23 @@ class CheckpointActions {
   static bool _busy = false;
 
   /// Envoie tout le panier à la corbeille système, en un seul lot.
-  Future<TrashOutcome> trashAll(List<CartEntry> cart) async {
+  Future<TrashOutcome> trashAll(
+    List<CartEntry> cart, {
+    ValueChanged<double>? onProgress,
+  }) async {
     if (_busy) return TrashOutcome.none;
     _busy = true;
     try {
-      return await _trashAll(cart);
+      return await _trashAll(cart, onProgress);
     } finally {
       _busy = false;
     }
   }
 
-  Future<TrashOutcome> _trashAll(List<CartEntry> cart) async {
+  Future<TrashOutcome> _trashAll(
+    List<CartEntry> cart,
+    ValueChanged<double>? onProgress,
+  ) async {
     final gallery = _ref.read(gallerySourceProvider);
     final library = _ref.read(libraryRepositoryProvider);
     final photos = <GalleryPhoto>[];
@@ -70,7 +77,7 @@ class CheckpointActions {
         gallery.hasRestorableTrash;
     return _ref
         .read(trashRepositoryProvider)
-        .trash(photos, permanent: permanent);
+        .trash(photos, permanent: permanent, onProgress: onProgress);
   }
 
   /// Tout le panier, tel qu'il est en base.

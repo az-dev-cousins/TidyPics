@@ -83,12 +83,22 @@ class GallerySyncController extends Notifier<SyncStatus> {
     final trash = ref.read(trashRepositoryProvider);
     try {
       var photos = const <GalleryPhoto>[];
+      final watch = Stopwatch()..start();
       do {
         _again = false;
         photos = await gallery.fetchAll();
+        final fetched = watch.elapsedMilliseconds;
         if (!ref.mounted) return;
         await library.sync(photos);
         if (!ref.mounted) return;
+        // Mesure du scan, en mode profile (flutter run --profile).
+        if (kProfileMode) {
+          debugPrint(
+            'Scan : ${photos.length} photos, lecture $fetched ms, '
+            'base ${watch.elapsedMilliseconds - fetched} ms',
+          );
+        }
+        watch.reset();
       } while (_again);
       await trash.purgeExpired();
       // Restaurées ou effacées depuis l'app Galerie : le journal suit.

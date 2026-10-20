@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:tidypics/data/models/gallery_photo.dart';
 import 'package:tidypics/data/sources/gallery_source.dart';
@@ -76,10 +77,14 @@ class FakeGallerySource implements GallerySource {
   }
 
   @override
-  Future<List<String>> moveToTrash(List<GalleryPhoto> list) async {
+  Future<List<String>> moveToTrash(
+    List<GalleryPhoto> list, {
+    ValueChanged<int>? onProgress,
+  }) async {
     trashCalls++;
     if (refuseTrash) return const [];
     final ids = list.map((p) => p.id).toList();
+    onProgress?.call(ids.length);
     trashed.addAll(ids);
     systemTrash.addAll(ids);
     photos.removeWhere((p) => ids.contains(p.id));

@@ -48,6 +48,9 @@ class CheckpointPage extends ConsumerStatefulWidget {
 
 class _CheckpointPageState extends ConsumerState<CheckpointPage> {
   bool _working = false;
+
+  /// Avancée de l'envoi, de 0 à 1 (`null` tant qu'elle est inconnue).
+  double? _progress;
   bool _leaving = false;
 
   /// Photos décochées : pas supprimées, rendues au tri en partant.
@@ -119,9 +122,17 @@ class _CheckpointPageState extends ConsumerState<CheckpointPage> {
     if (selected.isEmpty || _working) return;
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    setState(() => _working = true);
+    setState(() {
+      _working = true;
+      _progress = null;
+    });
     try {
-      final outcome = await _actions.trashAll(selected);
+      final outcome = await _actions.trashAll(
+        selected,
+        onProgress: (value) {
+          if (mounted) setState(() => _progress = value);
+        },
+      );
       if (!mounted) return;
       messenger.hideCurrentSnackBar();
       if (outcome.count == 0) {
@@ -285,16 +296,21 @@ class _CheckpointPageState extends ConsumerState<CheckpointPage> {
                         ),
                         onPressed: _working || count == 0 ? null : _onDelete,
                         icon: _working
-                            ? const SizedBox.square(
+                            ? SizedBox.square(
                                 dimension: 18,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
+                                  value: _progress,
                                 ),
                               )
                             : const Icon(Icons.delete_outline_rounded),
                         label: Text(
                           _working
-                              ? l10n.checkpointWorking
+                              ? _progress == null
+                                    ? l10n.checkpointWorking
+                                    : l10n.checkpointWorkingProgress(
+                                        (_progress! * 100).floor(),
+                                      )
                               : l10n.checkpointDelete(
                                   count,
                                   l10n.fileSize(bytes),

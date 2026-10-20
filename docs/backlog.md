@@ -22,7 +22,7 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 - [x] Android : `createTrashRequest` et restauration (via `photo_manager`, [ADR 0007](adr/0007-photo-manager-pour-la-corbeille.md))
 - [x] Android : lecture de la corbeille (`QUERY_ARG_MATCH_TRASHED`) et vidage (`createDeleteRequest`), en Kotlin
 - [x] Android 12+ : « Gestion des médias » (`MANAGE_MEDIA`) : vérifié sur l'émulateur Android 16, aucune popup à l'envoi en corbeille
-- [ ] Mesurer la taille maximum d'un lot de suppression
+- [x] Mesurer la taille maximum d'un lot de suppression (émulateur : 3 000 photos en un lot sans erreur ; lots de 3 000 sans « Gestion des médias », de 250 avec, pour la barre d'avancée)
 - [ ] Google Photos : la copie cloud reste-t-elle après une suppression locale ?
 - [ ] iOS : JPG + RAW, peut-on supprimer un seul des deux fichiers ?
 
@@ -32,7 +32,7 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 - [x] Permissions : Android (`READ_MEDIA_IMAGES`, accès partiel Android 14), iOS (complet ou limité), écran d'explication en cas de refus
 - [x] Base locale Drift : tables du §8.4, migrations (ADR 0006 confirmée)
 - [x] Scan de la galerie avec `photo_manager`
-- [ ] Mesurer le scan sur 20 000 photos
+- [x] Mesurer le scan sur 20 000 photos (émulateur, mode profile : ~3,2 s en arrière-plan ; file de tri prête en 0,6 s)
 - [x] Détection des nouvelles photos et des photos supprimées ailleurs
 
 ## Lot 2 — Swipe
@@ -49,7 +49,7 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 
 - [x] F3 Panier enregistré à chaque swipe
 - [x] F3 Checkpoint : seuil, « Je m'arrête là », sortie du tri, ouverture de l'app
-- [x] §6 Envoi groupé : Android et iOS (lots de 500)
+- [x] §6 Envoi groupé : Android et iOS
 - [x] F3 Demande de « Gestion des médias » au premier checkpoint
 - [x] F3 Option Android 12+ : envoi automatique quand on quitte l'app (Android le termine au retour dans l'app)
 - [x] F4 « En cours de suppression » : journal, jours restants, restaurer (Android), aide guidée (iOS)

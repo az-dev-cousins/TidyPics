@@ -58,7 +58,11 @@ abstract interface class GallerySource {
 
   /// Envoie les photos à la corbeille système, en un minimum de popups.
   /// Renvoie les identifiants réellement envoyés (vide si refusé).
-  Future<List<String>> moveToTrash(List<GalleryPhoto> photos);
+  /// [onProgress] reçoit le nombre de photos déjà envoyées.
+  Future<List<String>> moveToTrash(
+    List<GalleryPhoto> photos, {
+    ValueChanged<int>? onProgress,
+  });
 
   /// Android seulement : sort les photos de la corbeille.
   Future<List<String>> restoreFromTrash(List<GalleryPhoto> photos);
@@ -99,7 +103,13 @@ class PhotoManagerGallerySource implements GallerySource {
 
   /// Taille maximum d'un lot de suppression. Au-delà, Android peut échouer
   /// (limite de taille des échanges entre processus). À affiner au lot 0bis.
-  static const trashBatchSize = 500;
+  /// Lots d'envoi à la corbeille (Android). Mesuré sur émulateur : un lot de
+  /// 3 000 photos passe sans erreur, en une seule popup.
+  /// - Sans « Gestion des médias », chaque lot est une popup : le moins de
+  ///   lots possible.
+  /// - Avec, pas de popup : des lots plus petits font avancer la barre.
+  static const trashBatchPerPopup = 3000;
+  static const trashBatchSilent = 250;
 
   final _changes = StreamController<void>.broadcast(
     onListen: _startNotify,
@@ -231,7 +241,10 @@ class PhotoManagerGallerySource implements GallerySource {
   }
 
   @override
-  Future<List<String>> moveToTrash(List<GalleryPhoto> photos) async {
+  Future<List<String>> moveToTrash(
+    List<GalleryPhoto> photos, {
+    ValueChanged<int>? onProgress,
+  }) async {
     if (photos.isEmpty) return const [];
     if (!Platform.isAndroid) {
       // iOS : un seul lot, une seule popup. Les photos vont dans
@@ -240,13 +253,15 @@ class PhotoManagerGallerySource implements GallerySource {
         photos.map((p) => p.id).toList(),
       );
     }
+    final size = await canManageMedia() ? trashBatchSilent : trashBatchPerPopup;
     final trashed = <String>[];
-    for (var i = 0; i < photos.length; i += trashBatchSize) {
-      final batch = photos.skip(i).take(trashBatchSize).map(_entity).toList();
+    for (var i = 0; i < photos.length; i += size) {
+      final batch = photos.skip(i).take(size).map(_entity).toList();
       final done = await PhotoManager.editor.android.moveToTrash(batch);
       // Lot refusé : on s'arrête là, le reste du panier est conservé.
       if (done.isEmpty) break;
       trashed.addAll(done);
+      onProgress?.call(trashed.length);
     }
     return trashed;
   }

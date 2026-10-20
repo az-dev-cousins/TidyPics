@@ -119,6 +119,14 @@
   "checkpointRefused": "Rien n'a été supprimé. Les photos restent dans le panier.",
   "checkpointFailed": "La suppression a échoué. Les photos restent dans le panier.",
   "checkpointWorking": "Envoi à la corbeille…",
+  "checkpointWorkingProgress": "Envoi à la corbeille… {percent} %",
+  "@checkpointWorkingProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "manageMediaTitle": "Supprimer sans confirmation",
   "manageMediaBody": "Android demande une confirmation à chaque lot. Autorise « Gestion des médias » pour t'en passer : tout reste récupérable 30 jours dans la corbeille.",
   "manageMediaAllow": "Autoriser",
