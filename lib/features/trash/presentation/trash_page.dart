@@ -139,11 +139,18 @@ class TrashPage extends ConsumerWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    // Le nom du fichier : utile pour s'y
+                                    // retrouver (paires JPG + RAW, rafales).
+                                    if (entry.photo.title != null)
+                                      Text(
+                                        entry.photo.title!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.titleSmall,
+                                      ),
                                     Text(
-                                      l10n.trashDaysLeft(entry.daysLeft(now)),
-                                      style: theme.textTheme.titleSmall,
-                                    ),
-                                    Text(
+                                      '${l10n.trashDaysLeft(entry.daysLeft(now))}'
+                                      ' · '
                                       '${l10n.shortDate(entry.photo.takenAt)}'
                                       ' · '
                                       '${l10n.fileSize(entry.photo.sizeBytes ?? 0)}',

@@ -140,12 +140,12 @@ final rawPairsProvider = FutureProvider.autoDispose<List<PhotoItem>>((ref) {
   return ref.watch(libraryRepositoryProvider).rawPairs();
 });
 
-/// Paires dont le RAW reste à trier (tuile du menu).
-final rawToSortProvider = FutureProvider.autoDispose<List<PhotoItem>>((ref) {
+/// RAW restant à trier (tuile du menu).
+final rawToSortProvider = FutureProvider.autoDispose<List<RawToSort>>((ref) {
   ref
     ..watch(librarySummaryProvider)
     ..watch(cartProvider);
-  return ref.watch(libraryRepositoryProvider).rawPairsToSort();
+  return ref.watch(libraryRepositoryProvider).rawFilesToSort();
 });
 
 /// Stockage du téléphone, relu à chaque ouverture du menu.

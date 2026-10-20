@@ -189,13 +189,18 @@
   "rawSortDoneBody": "{count, plural, =1{1 RAW in the bin · {size}} other{{count} RAW in the bin · {size}}}",
   "rawSortReview": "See the review",
   "rawIntroTitle": "Sort RAW files",
-  "rawIntroBody": "Here, each card is the RAW file of a photo you also have as a JPG.",
+  "rawIntroBody": "Here, each card is a RAW file. RAW files no longer show up in normal sorting: this is the only place to sort them.",
   "rawIntroLeft": "Swipe left: the RAW goes to the bin.",
   "rawIntroRight": "Swipe right: you keep the RAW.",
-  "rawIntroJpg": "The JPG is never touched, whatever you choose.",
+  "rawIntroJpg": "The JPG is never touched. If a RAW no longer has a kept JPG, the card says so.",
   "rawIntroStart": "Let's go",
   "rawSortDetails": "JPG + RAW pair details",
   "menuRawSort": "Sort RAW files",
   "menuRawSortNone": "All sorted",
-  "menuRawSortDetail": "{count, plural, =1{1 RAW to sort} other{{count} RAW to sort}}"
+  "menuRawSortDetail": "{count, plural, =1{1 RAW to sort} other{{count} RAW to sort}}",
+  "rawSortNoJpg": "No JPG",
+  "rawSortJpgInCart": "JPG in the bin",
+  "rawSortOrphanNoJpg": "No JPG for this photo: if you delete the RAW, nothing will be left.",
+  "rawSortOrphanJpgInCart": "This photo's JPG is in the bin: keeping the RAW will leave it alone.",
+  "burstTrashAll": "Delete all"
 }

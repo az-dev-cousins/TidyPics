@@ -29,6 +29,16 @@ void main() {
       expect(pairs, isEmpty);
     });
 
+    test('noms des Pixel : suffixes RAW-01.COVER et RAW-02.ORIGINAL', () {
+      final items = groupPhotos([
+        photo('j', 'PXL_20251012_101010123.RAW-01.COVER.jpg', at(0)),
+        photo('r', 'PXL_20251012_101010123.RAW-02.ORIGINAL.dng', at(0)),
+      ]);
+      // Une paire, pas une rafale.
+      expect(items.single.kind, PhotoItemKind.rawPair);
+      expect(items.single.photos.map((p) => p.id), ['j', 'r']);
+    });
+
     test('HEIC + RAW, casse ignorée', () {
       final pairs = findRawPairs([
         photo('1', 'img_42.heic', at(0)),

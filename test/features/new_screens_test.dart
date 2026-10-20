@@ -184,4 +184,22 @@ void main() {
 
     await closeApp(tester);
   });
+
+  testWidgets('rafale : tout supprimer dès le début', (tester) async {
+    final gallery = FakeGallerySource(
+      photos: [photo('a', 0), photo('b', 1), photo('c', 2)],
+    );
+    await pumpApp(tester, gallery: gallery);
+    await tester.tap(find.text('Choisir les meilleures'));
+    await settle(tester);
+    await tester.tap(find.text('Tout supprimer'));
+    await settle(tester);
+
+    expect(find.text('Aucune gardée · 3 au panier'), findsOneWidget);
+    await tester.tap(find.text('Valider'));
+    await settle(tester);
+    expect(find.text('3 · 3 Ko'), findsOneWidget);
+
+    await closeApp(tester);
+  });
 }

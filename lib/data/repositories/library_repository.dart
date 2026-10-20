@@ -61,6 +61,26 @@ class MonthSummary {
   bool get isDone => total > 0 && sorted >= total;
 }
 
+/// Un RAW à trier et son JPG (s'il existe encore).
+class RawToSort {
+  const RawToSort({required this.raw, this.jpg, this.jpgInCart = false});
+
+  final GalleryPhoto raw;
+  final GalleryPhoto? jpg;
+
+  /// Le JPG attend au panier : garder ce RAW le laisserait seul.
+  final bool jpgInCart;
+
+  /// RAW sans JPG gardé (JPG supprimé, au panier, ou jamais pris).
+  bool get isOrphan => jpg == null || jpgInCart;
+
+  RawToSort withSizes({int? raw, int? jpg}) => RawToSort(
+    raw: raw == null ? this.raw : this.raw.copyWith(sizeBytes: raw),
+    jpg: jpg == null ? this.jpg : this.jpg?.copyWith(sizeBytes: jpg),
+    jpgInCart: jpgInCart,
+  );
+}
+
 /// Une photo du panier, avec ce qu'il faut pour l'afficher et la supprimer.
 class CartEntry {
   const CartEntry({required this.photo, required this.addedAt});
@@ -228,20 +248,37 @@ class LibraryRepository {
     return findRawPairs(photos)..sort((a, b) => b.takenAt.compareTo(a.takenAt));
   }
 
-  /// Paires dont le RAW n'a pas encore été trié (tri des RAW, F6) : ni
-  /// décision sur le RAW, ni RAW au panier.
-  Future<List<PhotoItem>> rawPairsToSort() async {
+  /// Les RAW pas encore triés (tri des RAW, F6), chacun avec son JPG s'il
+  /// existe. Les RAW sont triés uniquement ici, jamais dans le tri normal.
+  Future<List<RawToSort>> rawFilesToSort() async {
     final decided =
-        await (_db.selectOnly(_db.photoDecisions)
-              ..addColumns([_db.photoDecisions.assetId]))
-            .map((r) => r.read(_db.photoDecisions.assetId)!)
-            .get();
-    final done = decided.toSet();
-    final pairs = await rawPairs();
+        (await (_db.selectOnly(_db.photoDecisions)
+                  ..addColumns([_db.photoDecisions.assetId]))
+                .map((r) => r.read(_db.photoDecisions.assetId)!)
+                .get())
+            .toSet();
+    final inCart =
+        (await (_db.selectOnly(_db.cartItems)
+                  ..addColumns([_db.cartItems.assetId]))
+                .map((r) => r.read(_db.cartItems.assetId)!)
+                .get())
+            .toSet();
+    final photos = await _db.select(_db.photos).map(_toPhoto).get();
+    final jpgOf = {
+      for (final pair in findRawPairs(photos))
+        pair.photos[1].id: pair.photos[0],
+    };
     return [
-      for (final pair in pairs)
-        if (!done.contains(pair.photos[1].id)) pair,
-    ]..sort((a, b) => a.takenAt.compareTo(b.takenAt));
+      for (final photo in photos)
+        if (photo.isRaw &&
+            !decided.contains(photo.id) &&
+            !inCart.contains(photo.id))
+          RawToSort(
+            raw: photo,
+            jpg: jpgOf[photo.id],
+            jpgInCart: inCart.contains(jpgOf[photo.id]?.id),
+          ),
+    ]..sort((a, b) => a.raw.takenAt.compareTo(b.raw.takenAt));
   }
 
   /// Toutes les photos d'un mois, même déjà vues ou gardées (tri ciblé).

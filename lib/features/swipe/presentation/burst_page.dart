@@ -62,11 +62,14 @@ class _BurstPageState extends ConsumerState<BurstPage> {
     if (_allDecided) unawaited(_showRecap());
   }
 
-  void _keepAll() {
+  /// « Tout garder » ou « Tout supprimer » : toute la rafale d'un coup, puis
+  /// le récap pour confirmer.
+  void _decideAll({required bool keep}) {
     setState(() {
       for (final p in _photos) {
-        _kept[p.id] = true;
+        _kept[p.id] = keep;
       }
+      _swipes++;
     });
     unawaited(_showRecap());
   }
@@ -146,10 +149,6 @@ class _BurstPageState extends ConsumerState<BurstPage> {
           onPressed: () => context.pop(),
         ),
         title: Text(l10n.swipeBurstBadge(_photos.length)),
-        actions: [
-          TextButton(onPressed: _keepAll, child: Text(l10n.burstKeepAll)),
-          const SizedBox(width: 8),
-        ],
       ),
       body: SafeArea(
         top: false,
@@ -166,7 +165,31 @@ class _BurstPageState extends ConsumerState<BurstPage> {
                         ?.copyWith(color: tidy.inkMuted),
                   ),
                 ),
-                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: tidy.delete),
+                          ),
+                          onPressed: () => _decideAll(keep: false),
+                          icon: Icon(Icons.close_rounded, color: tidy.delete),
+                          label: Text(l10n.burstTrashAll),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _decideAll(keep: true),
+                          icon: Icon(Icons.check_rounded, color: tidy.keep),
+                          label: Text(l10n.burstKeepAll),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),

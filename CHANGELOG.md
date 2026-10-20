@@ -6,6 +6,9 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Les RAW sortent du tri normal (le JPG y passe seul) et se trient uniquement dans le tri des RAW, qui signale les RAW sans JPG gardé.
+- Rafales : « Tout supprimer » et « Tout garder » dès l'ouverture.
+- Corbeille : nom du fichier affiché.
 - Écrans choisis sur les maquettes :
   - Menu : courbe de l'espace libéré, barre de stockage du téléphone (part des photos), tuiles panier / par mois / JPG + RAW / corbeille.
   - Tri par mois : années en onglets, cartes avec photo et barre de complétion ; un mois propose toutes ses photos, même déjà vues.
@@ -16,6 +19,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 - Le tri propose les rafales et les paires JPG + RAW comme un seul élément.
 
 ### Corrigé
+- Les paires JPG + RAW des Pixel (`….RAW-01.COVER.jpg` + `….RAW-02.ORIGINAL.dng`) étaient prises pour des rafales.
 - Mode sombre : en-têtes en vert profond au lieu d'un aplat menthe éblouissant, fond noir autour des photos, surfaces mieux séparées du fond.
 - Une miniature illisible (certains RAW) bloquait l'envoi à la corbeille.
 - « En cours de suppression » sur Android : bouton « Vider maintenant » (effacement définitif, une popup ou aucune avec « Gestion des médias »), et journal aligné sur la vraie corbeille (photo restaurée ou effacée depuis l'app Galerie).

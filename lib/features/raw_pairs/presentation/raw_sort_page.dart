@@ -10,8 +10,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/gallery_photo.dart';
-import '../../../data/models/photo_groups.dart';
 import '../../../data/providers.dart';
+import '../../../data/repositories/library_repository.dart';
 import '../../../data/sources/local_db.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/photo_image.dart';
@@ -36,10 +36,10 @@ class RawSortPage extends ConsumerStatefulWidget {
 
 class _RawSortPageState extends ConsumerState<RawSortPage> {
   final _deck = GlobalKey<SwipeDeckState>();
-  List<PhotoItem>? _queue;
+  List<RawToSort>? _queue;
 
-  /// Dernières décisions, pour « Annuler » : la paire et si le RAW est gardé.
-  final _history = <(PhotoItem, bool)>[];
+  /// Dernières décisions, pour « Annuler » : le RAW et s'il est gardé.
+  final _history = <(RawToSort, bool)>[];
   int _trashedBytes = 0;
   int _trashedCount = 0;
 
@@ -52,22 +52,22 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
   Future<void> _load() async {
     final library = ref.read(libraryRepositoryProvider);
     final gallery = ref.read(gallerySourceProvider);
-    final pairs = await library.rawPairsToSort();
+    final files = await library.rawFilesToSort();
     // Les tailles s'affichent sur la carte : on les lit tout de suite.
-    final sized = <PhotoItem>[];
-    for (final pair in pairs) {
-      final photos = <GalleryPhoto>[];
-      for (final photo in pair.photos) {
-        if (photo.sizeBytes != null) {
-          photos.add(photo);
-          continue;
-        }
-        final size = await gallery.fileSize(photo.id);
-        await library.setSize(photo.id, size);
-        photos.add(photo.copyWith(sizeBytes: size));
-      }
-      sized.add(PhotoItem.rawPair(jpg: photos[0], raw: photos[1]));
+    Future<int?> sizeOf(GalleryPhoto? photo) async {
+      if (photo == null || photo.sizeBytes != null) return null;
+      final size = await gallery.fileSize(photo.id);
+      await library.setSize(photo.id, size);
+      return size;
     }
+
+    final sized = <RawToSort>[
+      for (final file in files)
+        file.withSizes(
+          raw: await sizeOf(file.raw),
+          jpg: await sizeOf(file.jpg),
+        ),
+    ];
     if (!mounted) return;
     setState(() => _queue = sized);
     if (!ref.read(settingsProvider).rawIntroSeen && sized.isNotEmpty) {
@@ -90,12 +90,12 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
   Future<void> _onSwiped(SwipeChoice choice) async {
     final queue = _queue;
     if (queue == null || queue.isEmpty) return;
-    final pair = queue.first;
-    final raw = pair.photos[1];
+    final file = queue.first;
+    final raw = file.raw;
     final keep = choice != SwipeChoice.trash;
     setState(() {
       _queue = queue.sublist(1);
-      _history.add((pair, keep));
+      _history.add((file, keep));
       if (_history.length > SwipeSession.undoDepth) _history.removeAt(0);
       if (!keep) {
         _trashedCount++;
@@ -112,13 +112,13 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
 
   Future<void> _undo() async {
     if (_history.isEmpty) return;
-    final (pair, kept) = _history.removeLast();
-    final raw = pair.photos[1];
+    final (file, kept) = _history.removeLast();
+    final raw = file.raw;
     _deck.currentState?.prepareReturn(
       kept ? SwipeChoice.keep : SwipeChoice.trash,
     );
     setState(() {
-      _queue = [pair, ...?_queue];
+      _queue = [file, ...?_queue];
       if (!kept) {
         _trashedCount--;
         _trashedBytes -= raw.sizeBytes ?? 0;
@@ -226,8 +226,8 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: SwipeDeck(
                             key: _deck,
-                            currentKey: current.id,
-                            nextKey: next?.id,
+                            currentKey: current.raw.id,
+                            nextKey: next?.raw.id,
                             currentCard:
                                 (
                                   context, {
@@ -235,13 +235,13 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
                                   stamp,
                                   strength = 0,
                                 }) => _RawCard(
-                                  pair: current,
+                                  file: current,
                                   stamp: stamp,
                                   strength: strength,
                                 ),
                             nextCard: next == null
                                 ? null
-                                : (context) => _RawCard(pair: next),
+                                : (context) => _RawCard(file: next),
                             accepts: (c) => c != SwipeChoice.favorite,
                             onSwiped: _onSwiped,
                           ),
@@ -304,12 +304,12 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
   }
 }
 
-/// Carte d'une paire : l'aperçu de la photo, un grand badge « RAW » et les
-/// deux tailles, pour décider du RAW seul.
+/// Carte d'un RAW : l'aperçu de la photo, un grand badge « RAW », sa taille
+/// et ce qu'il advient du JPG. Un RAW sans JPG gardé est signalé.
 class _RawCard extends ConsumerWidget {
-  const _RawCard({required this.pair, this.stamp, this.strength = 0});
+  const _RawCard({required this.file, this.stamp, this.strength = 0});
 
-  final PhotoItem pair;
+  final RawToSort file;
   final SwipeChoice? stamp;
   final double strength;
 
@@ -317,32 +317,39 @@ class _RawCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final tidy = TidyColors.of(context);
     final images = ref.watch(photoImagesProvider);
-    final jpg = pair.photos[0];
-    final raw = pair.photos[1];
+    final jpg = file.jpg;
+    final raw = file.raw;
+    final jpgNote = jpg == null
+        ? l10n.rawSortNoJpg
+        : file.jpgInCart
+        ? l10n.rawSortJpgInCart
+        : l10n.rawSortJpgKept(l10n.fileSize(jpg.sizeBytes ?? 0));
     return SwipeCardFrame(
       caption:
-          '${l10n.shortDate(pair.takenAt)} · '
+          '${l10n.shortDate(raw.takenAt)} · '
           'RAW ${l10n.fileSize(raw.sizeBytes ?? 0).toUpperCase()}',
       stamp: stamp,
       strength: strength,
       trailing: [
-        Text(
-          l10n.rawSortJpgKept(l10n.fileSize(jpg.sizeBytes ?? 0)),
-          style: theme.textTheme.labelMedium,
-        ),
+        if (file.isOrphan) ...[
+          Icon(Icons.warning_amber_rounded, size: 18, color: tidy.delete),
+          const SizedBox(width: 4),
+        ],
+        Text(jpgNote, style: theme.textTheme.labelMedium),
       ],
-      // L'aperçu vient du JPG : la miniature d'un RAW n'est pas toujours
-      // lisible, et c'est la même photo.
+      // L'aperçu vient du JPG quand il existe : la miniature d'un RAW n'est
+      // pas toujours lisible, et c'est la même photo.
       image: Stack(
         fit: StackFit.expand,
         children: [
           Image(
-            image: images.large(jpg),
+            image: images.large(jpg ?? raw),
             fit: BoxFit.contain,
             gaplessPlayback: true,
             errorBuilder: (context, _, _) =>
-                const PhotoPlaceholder(icon: Icons.broken_image_outlined),
+                const PhotoPlaceholder(icon: Icons.image_outlined),
           ),
           Positioned(
             left: 16,
@@ -367,6 +374,28 @@ class _RawCard extends ConsumerWidget {
               ),
             ),
           ),
+          if (file.isOrphan)
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 16,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: tidy.delete),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    jpg == null
+                        ? l10n.rawSortOrphanNoJpg
+                        : l10n.rawSortOrphanJpgInCart,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

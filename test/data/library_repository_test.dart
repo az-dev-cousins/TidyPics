@@ -153,4 +153,37 @@ void main() {
       },
     );
   });
+
+  test('RAW à trier : avec leur JPG, et les orphelins signalés', () async {
+    final at = DateTime(2025, 5, 1, 10);
+    final jpg1 = GalleryPhoto(id: 'j1', takenAt: at, title: 'DSC_1.JPG');
+    final raw1 = GalleryPhoto(id: 'r1', takenAt: at, title: 'DSC_1.DNG');
+    final jpg2 = GalleryPhoto(
+      id: 'j2',
+      takenAt: at.add(const Duration(hours: 1)),
+      title: 'DSC_2.JPG',
+    );
+    final raw2 = GalleryPhoto(
+      id: 'r2',
+      takenAt: at.add(const Duration(hours: 1)),
+      title: 'DSC_2.DNG',
+    );
+    final solo = GalleryPhoto(
+      id: 'r3',
+      takenAt: at.add(const Duration(hours: 2)),
+      title: 'IMG_3.ARW',
+    );
+    await library.sync([jpg1, raw1, jpg2, raw2, solo]);
+    await library.addToCart(jpg2);
+
+    final files = await library.rawFilesToSort();
+    expect(files.map((f) => f.raw.id), ['r1', 'r2', 'r3']);
+    expect(files[0].isOrphan, isFalse);
+    expect(files[1].jpgInCart, isTrue);
+    expect(files[2].jpg, isNull);
+
+    // Un RAW trié ne revient plus.
+    await library.decide(raw1, Decision.kept);
+    expect((await library.rawFilesToSort()).map((f) => f.raw.id), ['r2', 'r3']);
+  });
 }

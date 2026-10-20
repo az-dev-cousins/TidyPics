@@ -112,15 +112,20 @@ class _Generator {
     final files = <File>[];
     for (var p = 1; p <= pairCount; p++) {
       final date = _randomDate();
-      final name = 'DSC_${9000 + p}';
+      // La dernière paire est nommée comme sur un Pixel :
+      // PXL_….RAW-01.COVER.jpg + PXL_….RAW-02.ORIGINAL.dng.
+      final pixel = p == pairCount;
+      final stem = pixel ? 'PXL_${_stamp(date)}123' : 'DSC_${9000 + p}';
+      final jpgName = pixel ? '$stem.RAW-01.COVER.jpg' : '$stem.JPG';
+      final rawName = pixel ? '$stem.RAW-02.ORIGINAL.dng' : '$stem.DNG';
       final image = _scene(
         width: 1000,
         height: 750,
         hue: random.nextDouble(),
         lines: ['Paire JPG + RAW $p', _label(date)],
       );
-      files.add(_writeJpg(image, '$name.JPG', date));
-      final raw = File('${outDir.path}/$name.DNG')
+      files.add(_writeJpg(image, jpgName, date));
+      final raw = File('${outDir.path}/$rawName')
         ..writeAsBytesSync(img.encodeTiff(image));
       raw.setLastModifiedSync(date);
       files.add(raw);

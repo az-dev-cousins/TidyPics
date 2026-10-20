@@ -40,10 +40,13 @@ String? _extension(GalleryPhoto photo) {
   return dot < 0 ? null : name.substring(dot + 1).toLowerCase();
 }
 
+/// Nom commun aux deux fichiers d'une paire : ce qui précède le premier
+/// point. Les Pixel ajoutent des suffixes (`PXL_….RAW-01.COVER.jpg` et
+/// `PXL_….RAW-02.ORIGINAL.dng`), les autres appareils non (`DSC_1.JPG`).
 String? _baseName(GalleryPhoto photo) {
   final name = photo.title;
   if (name == null) return null;
-  final dot = name.lastIndexOf('.');
+  final dot = name.indexOf('.');
   return (dot < 0 ? name : name.substring(0, dot)).toLowerCase();
 }
 

@@ -433,10 +433,10 @@
   },
   "rawSortReview": "Voir le récap",
   "rawIntroTitle": "Trier les RAW",
-  "rawIntroBody": "Ici, chaque carte est le fichier RAW d'une photo que tu as aussi en JPG.",
+  "rawIntroBody": "Ici, chaque carte est un fichier RAW. Les RAW ne passent plus dans le tri normal : c'est le seul endroit où les trier.",
   "rawIntroLeft": "Glisse à gauche : le RAW va au panier.",
   "rawIntroRight": "Glisse à droite : tu gardes le RAW.",
-  "rawIntroJpg": "Le JPG n'est jamais touché, quoi que tu choisisses.",
+  "rawIntroJpg": "Le JPG n'est jamais touché. Si un RAW n'a plus de JPG gardé, la carte le signale.",
   "rawIntroStart": "C'est parti",
   "rawSortDetails": "Détail des paires JPG + RAW",
   "menuRawSort": "Trier les RAW",
@@ -448,5 +448,10 @@
         "type": "int"
       }
     }
-  }
+  },
+  "rawSortNoJpg": "Pas de JPG",
+  "rawSortJpgInCart": "JPG au panier",
+  "rawSortOrphanNoJpg": "Pas de JPG pour cette photo : si tu supprimes le RAW, il n'en restera rien.",
+  "rawSortOrphanJpgInCart": "Le JPG de cette photo est au panier : garder le RAW le laissera seul.",
+  "burstTrashAll": "Tout supprimer"
 }

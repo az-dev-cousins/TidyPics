@@ -288,8 +288,10 @@ class _PairRow extends ConsumerWidget {
     final jpg = pair.photos[0];
     final raw = pair.photos[1];
     final name = jpg.title ?? raw.title ?? '';
+    // Nom commun aux deux fichiers (avant le premier point, voir
+    // photo_groups.dart).
     final base = name.contains('.')
-        ? name.substring(0, name.lastIndexOf('.'))
+        ? name.substring(0, name.indexOf('.'))
         : name;
 
     Widget thumb(GalleryPhoto photo, String tag, bool kept) => SizedBox.square(

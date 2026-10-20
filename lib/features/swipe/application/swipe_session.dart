@@ -201,8 +201,10 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
     final photos = scope.isMonth
         ? await library.monthPhotos(scope.year!, scope.month!)
         : await library.unsortedPhotos(SortOrder.oldestFirst);
+    // Les RAW se trient à part (tri des RAW) : le tri normal ne montre
+    // que les JPG, y compris ceux qui ont un RAW.
     final items = groupPhotos(
-      photos,
+      photos.where((p) => !p.isRaw).toList(),
       bursts: settings.groupBursts,
       burstGap: Duration(seconds: settings.burstGapSeconds),
     );
