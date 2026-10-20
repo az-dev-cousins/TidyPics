@@ -6,6 +6,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Doublons (F11) : empreinte visuelle calculée sur le téléphone, écran « Doublons » dans le menu, la meilleure version gardée d'office.
+- Carte : dossier d'origine (« Camera », « WhatsApp Images »…) sous la date.
 - Docs : [roadmap](docs/roadmap.md) complète, cahier des charges v1.4, README à jour.
 - Récap et corbeille : « 2 photos et 1 vidéo » au lieu de tout compter en photos ; « 3 000 » avec séparateur.
 - Vidéos (F10) : triées avec les photos, les grosses (plus de 100 Mo) en tête dans le désordre. Lecture automatique sans le son, avec pause et son. Marque « ▶ durée » sur les miniatures, segment « Vidéos » dans la barre de stockage.
@@ -26,6 +28,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 - Le tri propose les rafales et les paires JPG + RAW comme un seul élément.
 
 ### Corrigé
+- Des photos WhatsApp reçues à la même heure formaient une « rafale » : les rafales demandent maintenant le même dossier, hors dossiers de photos reçues, et des photos qui se ressemblent.
 - Carte d'une rafale : vignettes carrées de taille fixe (avec deux photos, elles s'étiraient en bandes illisibles).
 - Envoi de gros paniers bien plus rapide (3 000 photos : moins d'une minute au lieu de 4 sur émulateur) : miniatures lues 8 par 8.
 - Des fichiers sans date de prise de vue copiés d'un coup ne forment plus des « rafales » géantes (50 photos au plus).

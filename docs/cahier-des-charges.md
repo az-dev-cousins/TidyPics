@@ -1,7 +1,7 @@
 # 📸 TidyPics — Cahier des charges
 
-> Version 1.4 — 20/10/2026 (vidéos, tablette, mesures sur 20 000 photos)
-> Statut : **périmètre V1 validé, fonctionnalités terminées** — reste les tests sur appareils, les finitions et la publication ([roadmap](roadmap.md))
+> Version 1.5 — 20/10/2026 (doublons, rafales fiables, dossier d'origine, retours du Pixel 10)
+> Statut : **V1 terminée côté fonctionnalités, V2 commencée** — voir la [roadmap](roadmap.md)
 > Source de vérité : ce document, avec les décisions de [`docs/adr/`](adr/README.md) et la direction artistique de [`docs/design/`](design/direction-artistique.md).
 
 ---
@@ -39,9 +39,13 @@ Les galeries de smartphone accumulent des milliers de photos inutiles : rafales,
 - ❌ Desktop et web
 - ❌ Envoi de photos vers un cloud par l'app elle-même (cela demanderait un compte Google)
 
-### Plus tard (détail dans la [roadmap](roadmap.md))
-- V2 : doublons exacts, succès, notifications locales, envoi vers le cloud via le menu de partage
-- V3 : tous les types de fichiers, IA sur le téléphone (flou, screenshots, meilleure photo)
+### V2 (détail dans la [roadmap](roadmap.md))
+- ✅ Doublons (F11)
+- Tri des documents : PDF, Word, téléchargements (Android)
+- Succès, notifications locales, envoi vers le cloud via le menu de partage
+
+### Plus tard
+- V3 : tous les types de fichiers, IA sur le téléphone (flou, screenshots, meilleure photo), nettoyage de Google Photos si Google le permet un jour
 
 ---
 
@@ -90,8 +94,8 @@ L'app ne demande **aucune permission réseau, de localisation ou de notification
 
 **Android avec Google Photos (ou un autre cloud)**
 - TidyPics ne voit que les photos **présentes sur le téléphone**. Les photos qui ne sont que dans Google Photos sont invisibles.
-- Supprimer une photo libère l'espace **du téléphone**. ⚠️ **À vérifier par un test** : à notre connaissance, la copie sauvegardée dans Google Photos reste dans le cloud.
-- Google ne fournit **aucune API publique pour supprimer** des photos de Google Photos. Nettoyer le cloud Google n'est donc pas possible pour une app tierce.
+- Supprimer une photo libère l'espace **du téléphone**. ✅ **Vérifié sur un Pixel 10** : la copie sauvegardée dans Google Photos reste dans le cloud.
+- Google ne fournit **aucune API publique pour supprimer** des photos de Google Photos, et depuis mars 2025 son API ne donne plus accès qu'aux photos créées par l'app elle-même. Nettoyer le cloud Google n'est donc pas possible pour une app tierce (piste V3, à surveiller).
 - Envoyer une photo vers Google Photos depuis l'app demanderait une connexion Google, ce qui va contre « aucun compte ». L'alternative retenue pour la V2 passe par le **menu de partage du système** (voir F1).
 
 ---
@@ -114,6 +118,7 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 - Chaque geste a aussi un bouton équivalent, pour l'accessibilité.
 - Une animation confirme chaque décision (poubelle, check, étoile).
 - Sur la carte : date, taille, badges « RAW », « Rafale », « Vidéo · durée » ou « iCloud » s'il y a lieu.
+- ✅ Sous la date : le **dossier d'origine** (« Camera », « WhatsApp Images »…), pour retrouver la photo dans la galerie (Android ; iOS ne range pas les photos en dossiers).
 - Un compteur de session est visible : photos triées et Mo dans le panier.
 - Une photo gardée **n'est plus reproposée**. Un réglage permet de remettre à zéro les photos gardées.
 - ✅ **L'app s'ouvre directement sur le tri** (après l'onboarding et à chaque lancement). Le menu (stats, panier, réglages…) s'ouvre depuis une icône en haut à gauche, sans passer par le récap.
@@ -175,6 +180,10 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 
 ### F5 — Photos similaires (rafales)
 - Une **rafale** = des photos prises à **moins de N secondes** d'intervalle (3 s par défaut, réglable de 1 à 10 s). Les rafales iOS natives (`burstIdentifier`) sont aussi reconnues. Au-delà de 50 photos, ce n'est pas une rafale (fichiers sans date copiés d'un coup) : elles se trient une par une.
+- ✅ Il faut aussi :
+  - le **même dossier** ;
+  - pas un **dossier de photos reçues** (WhatsApp, Telegram, Signal, téléchargements, captures d'écran…) : plusieurs photos différentes y ont la même heure ;
+  - des **empreintes visuelles proches** quand elles sont connues (voir F11).
 - Les groupes sont calculés une fois, lors du scan de la galerie (sur la liste triée par date), puis mis à jour au fil des nouvelles photos. Le mode aléatoire tire ensuite ces groupes comme un seul élément.
 - **Carte « Rafale (n) »** dans le tri : photos en éventail, vignettes et bouton « Choisir les meilleures ».
 - ✅ **Choisir les meilleures** (version A des maquettes) :
@@ -227,6 +236,17 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 - Miniatures (récap, panier, corbeille) : marque « ▶ 0:42 ».
 - Barre de stockage : segment « Vidéos » (Android).
 - Lecteur : `video_player`, fichiers locaux seulement ([ADR 0008](adr/0008-video-player.md)).
+
+### F11 — Doublons (V2) ✅
+- Un **doublon** = la même photo enregistrée plusieurs fois : copie WhatsApp recompressée, capture renvoyée, fichier copié. Le nom, la date et la taille peuvent différer.
+- Chaque photo reçoit une **empreinte visuelle** calculée sur le téléphone, en tâche de fond après le scan ([ADR 0009](adr/0009-empreinte-visuelle.md)). Mêmes proportions, mêmes formes, mêmes détails et mêmes couleurs : la même photo.
+- Ne sont pas comparés : les vidéos, les RAW (F6), les images presque unies, et deux photos d'une même rafale (sauf copie exacte).
+- **Écran « Doublons »**, depuis le menu (tuile avec le nombre de groupes et l'espace à libérer, ou l'avancée de l'analyse) :
+  - un groupe par photo, les versions côte à côte avec leur dossier, leurs dimensions et leur taille ;
+  - la **meilleure est gardée** d'office : plus de pixels, puis fichier plus lourd (moins compressé), puis hors dossier de photos reçues, puis la plus ancienne ;
+  - un tap change d'avis sur une version ; les groupes qui libèrent le plus passent en premier ;
+  - un bouton envoie les autres à la corbeille en un seul lot. Les versions gardées ne reviennent plus au tri.
+- Pendant l'analyse, l'écran montre l'avancée ; les doublons apparaissent au fur et à mesure.
 
 ---
 
@@ -316,11 +336,11 @@ lib/
 
 ### 8.4 Données locales
 
-Base Drift, version 2 (migration v1 → v2 testée).
+Base Drift, version 3 (migrations v1 → v3 testées).
 
 | Table | Contenu |
 |---|---|
-| `photos` | index de la galerie : id, date, nom, dimensions, taille, favori, durée (vidéos) |
+| `photos` | index de la galerie : id, date, nom, dimensions, taille, favori, durée (vidéos), dossier, empreinte visuelle (formes, détails, couleurs) |
 | `photo_decisions` | asset_id, décision (kept / favorite / trashed), date, favori d'avant |
 | `cart_items` | asset_id, taille, date d'ajout |
 | `trash_log` | asset_id, nom, miniature (~10 Ko), taille, durée, date d'envoi |
@@ -359,8 +379,8 @@ Les groupes (rafales, paires) ne sont pas stockés : ils sont recalculés à l'o
 | 7 | « Gestion des médias » demandée au premier checkpoint | ✅ validé |
 | 8 | iOS en accès limité accepté, avec un bandeau | ✅ validé |
 | 9 | Logo : « t » paysage | ✅ validé |
-| 10 | Test : Google Photos garde-t-il la copie cloud ? | 🔬 prototype (lot 0bis) |
-| 11 | Test : JPG + RAW sur iOS | 🔬 prototype (lot 0bis) |
+| 10 | Test : Google Photos garde-t-il la copie cloud ? | ✅ oui, vérifié sur Pixel 10 |
+| 11 | Test : JPG + RAW sur iOS | ⏸️ pas d'iPhone pour l'instant |
 | 12 | Package Android renommé en `com.azancoth.tidypics` | ✅ fait au lot 0 |
 
 ---
@@ -378,9 +398,11 @@ Les groupes (rafales, paires) ne sont pas stockés : ils sont recalculés à l'o
 | 5 — Ciblé | Tri par année et mois | Tri ciblé possible |
 | 6 — Groupes | F5 et F6 | **MVP complet** ✅ |
 | 7 — Vidéos | F10 | Photos et vidéos triées ensemble ✅ |
-| 8 — Tests sur appareils | Pixel 10, iPhone, iPad : points 10 et 11, fluidité, vidéos iCloud | La V1 marche sur de vrais téléphones |
+| 8 — Tests sur appareils | Pixel 10 (en cours), iPhone et iPad (sans appareil pour l'instant) | La V1 marche sur de vrais téléphones |
 | 9 — Finitions | Accessibilité, textes, cas limites, « À propos » | V1 prête |
-| 10 — Publication | Play Store, App Store, politique de confidentialité | **V1 publiée** |
+| 10 — APK pour les proches | Clé de signature, APK à partager, page d'explication (les stores plus tard) | ⏸️ plus tard |
+| 11 — Doublons (V2) | F11, rafales fiables | ✅ |
+| 12 — Documents (V2) | PDF, Word, téléchargements (Android) | ⏭️ |
 | V2 / V3 | Voir la [roadmap](roadmap.md) | |
 
 Lots 0 à 7 : ✅ faits (détail dans le [backlog](backlog.md)).

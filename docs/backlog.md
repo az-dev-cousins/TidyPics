@@ -23,7 +23,7 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 - [x] Android : lecture de la corbeille (`QUERY_ARG_MATCH_TRASHED`) et vidage (`createDeleteRequest`), en Kotlin
 - [x] Android 12+ : « Gestion des médias » (`MANAGE_MEDIA`) : vérifié sur l'émulateur Android 16, aucune popup à l'envoi en corbeille
 - [x] Mesurer la taille maximum d'un lot de suppression (émulateur : 3 000 photos en un lot sans erreur ; lots de 3 000 sans « Gestion des médias », de 250 avec, pour la barre d'avancée)
-- [ ] Google Photos : la copie cloud reste-t-elle après une suppression locale ?
+- [x] Google Photos : la copie cloud reste après une suppression locale (vérifié sur Pixel 10)
 - [ ] iOS : JPG + RAW, peut-on supprimer un seul des deux fichiers ?
 
 ## Lot 1 — Galerie
@@ -85,11 +85,11 @@ Pistes et choix : https://claude.ai/artifact/D4jveh5gf2pPxWirwQxVsC. Menu A + C,
 
 ## Lot 8 — Tests sur appareils
 
-- [ ] Pixel 10 : 60 fps au swipe, vidéos fluides
-- [ ] Pixel 10 : Google Photos garde-t-il la copie cloud ? (voir lot 0bis)
+- [ ] Pixel 10 : 60 fps au swipe
+- [ ] Pixel 10 : vidéos fluides avec l'APK de release (pas fluides en debug)
 - [ ] Pixel 10 : paires JPG + RAW, rafales, « Gestion des médias », envoi en quittant l'app
 - [ ] Pixel 10 : scan d'une vraie galerie (temps, taille de la base)
-- [ ] iPhone : JPG + RAW, suppression d'un seul fichier (voir lot 0bis)
+- [ ] iPhone (pas d'appareil pour l'instant) : JPG + RAW, suppression d'un seul fichier (voir lot 0bis)
 - [ ] iPhone : rafales natives `burstIdentifier` (voir lot 6)
 - [ ] iPhone : vidéos iCloud (voir lot 7), accès limité, « Récemment supprimés »
 - [ ] iPad : mise en page tablette, portrait et paysage
@@ -103,9 +103,24 @@ Pistes et choix : https://claude.ai/artifact/D4jveh5gf2pPxWirwQxVsC. Menu A + C,
 - [ ] Écran « À propos » : version, vie privée, licences
 - [ ] Démarrage à froid < 2 s, mémoire avec 50 000 éléments
 
-## Lot 10 — Publication V1
+## Lot 10 — APK pour les proches (plus tard)
 
-- [ ] Android : clé de signature, `appbundle`, fiche Play Store, « Sécurité des données », test fermé
-- [ ] iOS : compte développeur, TestFlight, fiche App Store, « App Privacy »
-- [ ] Politique de confidentialité en ligne
-- [ ] Version 1.0.0, CHANGELOG, tag
+- [ ] Clé de signature à soi, gardée hors du dépôt
+- [ ] APK de release léger, numéro de version qui monte à chaque envoi
+- [ ] Page d'explication : installer, mettre à jour
+- [ ] Plus tard : Play Store et App Store
+
+## Lot 11 — Doublons (V2)
+
+- [x] F2 Dossier d'origine sur la carte
+- [x] F5 Rafales : même dossier, pas de dossier de photos reçues (WhatsApp…), empreintes proches
+- [x] F11 Empreinte visuelle en tâche de fond (formes, détails, couleurs), base v3
+- [x] F11 Écran « Doublons » et tuile du menu
+- [ ] F11 Mesurer le calcul des empreintes sur une vraie galerie (Pixel 10)
+
+## Lot 12 — Documents (V2)
+
+- [ ] Choisir : corbeille propre à l'app ou suppression directe confirmée
+- [ ] Permission « Accès à tous les fichiers » avec explication
+- [ ] Scan des documents (PDF, Word, Excel, archives, APK, gros téléchargements)
+- [ ] Tri au swipe, les plus gros d'abord, aperçu des PDF
