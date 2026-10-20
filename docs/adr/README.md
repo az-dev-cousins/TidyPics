@@ -34,4 +34,5 @@ Ce que ça implique, en bien et en moins bien.
 | 0003 | [Android 11 minimum](0003-android-11-minimum.md) | Acceptée |
 | 0004 | [Riverpod pour la gestion d'état](0004-riverpod.md) | Acceptée |
 | 0005 | [Navigation avec go_router](0005-go-router.md) | Acceptée |
-| 0006 | [Stockage local avec Drift](0006-drift.md) | Proposée |
+| 0006 | [Stockage local avec Drift](0006-drift.md) | Acceptée |
+| 0007 | [`photo_manager` pour la corbeille et « Gestion des médias »](0007-photo-manager-pour-la-corbeille.md) | Acceptée |

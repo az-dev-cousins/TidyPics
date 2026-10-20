@@ -24,6 +24,10 @@
 		<string>????</string>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>TidyPics affiche tes photos pour que tu les tries. Elles ne quittent jamais ton téléphone.</string>
+		<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
+		<true/>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>UIApplicationSceneManifest</key>

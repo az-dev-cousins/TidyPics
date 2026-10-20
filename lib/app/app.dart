@@ -1,22 +1,52 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/app_theme.dart';
+import '../features/gallery/application/gallery_controller.dart';
+import '../features/settings/application/settings_controller.dart';
 import '../l10n/app_localizations.dart';
 import 'router.dart';
 
-class TidyPicsApp extends ConsumerWidget {
+class TidyPicsApp extends ConsumerStatefulWidget {
   const TidyPicsApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TidyPicsApp> createState() => _TidyPicsAppState();
+}
+
+class _TidyPicsAppState extends ConsumerState<TidyPicsApp> {
+  // Au retour dans l'app : la permission a pu changer dans les réglages, et
+  // des photos ont pu être prises ou supprimées ailleurs.
+  late final AppLifecycleListener _lifecycle = AppLifecycleListener(
+    onResume: () async {
+      await ref.read(galleryAccessProvider.notifier).refresh();
+      unawaited(ref.read(gallerySyncProvider.notifier).scan());
+    },
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle; // Démarre l'écoute.
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
+      themeMode: ref.watch(settingsProvider.select((s) => s.themeMode)),
       // Le français est la langue de référence et la langue par défaut.
       supportedLocales: const [Locale('fr'), Locale('en')],
       localizationsDelegates: const [

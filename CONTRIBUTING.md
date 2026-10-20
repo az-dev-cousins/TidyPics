@@ -18,9 +18,9 @@
 
 ## Branches
 
-- `main` est protégée et toujours stable. On ne pousse jamais directement dessus.
-- Une branche par issue, préfixée par son type : `feat/12-swipe-card`, `fix/18-crash-permission`, `chore/ci-cache`, `docs/adr-drift`.
-- Fusion par PR en **squash merge** : un commit propre par PR sur `main`.
+- Pour l'instant, on travaille **directement sur `main`** : développeur seul, versionnement depuis Android Studio. Chaque commit sur `main` doit passer `make check`.
+- Une branche (`feat/…`, `fix/…`, `chore/…`) seulement pour un changement risqué ou long, fusionnée dès qu'il est fini.
+- La CI tourne à chaque push sur `main` comme sur les PR.
 
 ## Commits — Conventional Commits
 

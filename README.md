@@ -10,7 +10,7 @@ TidyPics est une app mobile Flutter (Android et iOS, téléphones et tablettes) 
 - 📸 Rafales et doublons JPG + RAW regroupés
 - 📊 Espace libéré depuis l'installation
 
-> Statut : **lot 0 (socle)** en cours. L'app n'est pas encore utilisable.
+> Statut : **première version utilisable** (galerie, swipe, panier, suppression). Pas encore de rafales, de JPG + RAW ni de tri par mois.
 
 ## Documentation
 
@@ -64,7 +64,9 @@ La CI GitHub Actions lance ces mêmes commandes sur chaque PR.
 
 ## Stack
 
-Flutter · Riverpod · go_router · Material 3 · Manrope (incluse dans l'app)
+Flutter · Riverpod · go_router · Drift (SQLite) · photo_manager · Material 3 · Manrope (incluse dans l'app)
+
+Le code de la base (`lib/data/sources/local_db.g.dart`) est généré et versionné. Après une modification de `local_db.dart`, relance `dart run build_runner build`.
 
 ## Structure
 
@@ -72,9 +74,10 @@ Flutter · Riverpod · go_router · Material 3 · Manrope (incluse dans l'app)
 lib/
 ├── main.dart        # point d'entrée
 ├── app/             # MaterialApp, routes
-├── core/theme/      # couleurs et thèmes clair / sombre
+├── core/            # thèmes clair / sombre, formatage (tailles, dates)
+├── data/            # modèles, base Drift, accès galerie, repositories
 ├── l10n/            # traductions (fr par défaut, en)
-├── features/        # un dossier par fonctionnalité
-└── shared/widgets/  # widgets réutilisables
+├── features/        # onboarding, home, swipe, cart, trash, settings, gallery
+└── shared/widgets/  # widgets réutilisables (miniatures…)
 docs/                # cahier des charges, ADR, design
 ```
