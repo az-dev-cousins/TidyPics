@@ -228,6 +228,22 @@ class LibraryRepository {
     return findRawPairs(photos)..sort((a, b) => b.takenAt.compareTo(a.takenAt));
   }
 
+  /// Paires dont le RAW n'a pas encore été trié (tri des RAW, F6) : ni
+  /// décision sur le RAW, ni RAW au panier.
+  Future<List<PhotoItem>> rawPairsToSort() async {
+    final decided =
+        await (_db.selectOnly(_db.photoDecisions)
+              ..addColumns([_db.photoDecisions.assetId]))
+            .map((r) => r.read(_db.photoDecisions.assetId)!)
+            .get();
+    final done = decided.toSet();
+    final pairs = await rawPairs();
+    return [
+      for (final pair in pairs)
+        if (!done.contains(pair.photos[1].id)) pair,
+    ]..sort((a, b) => a.takenAt.compareTo(b.takenAt));
+  }
+
   /// Toutes les photos d'un mois, même déjà vues ou gardées (tri ciblé).
   /// Seules celles au panier sont exclues : elles attendent le récap.
   Future<List<GalleryPhoto>> monthPhotos(int year, int month) async {

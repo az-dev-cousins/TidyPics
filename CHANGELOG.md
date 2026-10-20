@@ -12,6 +12,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
   - Statistiques : total, barres par semaine ou par mois, cumul, chiffres clés.
   - Rafales : carte en éventail dans le tri, puis « Choisir les meilleures » photo par photo, avec bande de vignettes et récap avant de valider.
   - Doublons JPG + RAW : choix pour toutes les paires ou paire par paire, envoi groupé à la corbeille.
+  - Tri des RAW au swipe, à part du JPG, dans un écran sombre avec sa propre explication.
 - Le tri propose les rafales et les paires JPG + RAW comme un seul élément.
 
 ### Corrigé

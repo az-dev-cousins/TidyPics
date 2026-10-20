@@ -406,5 +406,47 @@
         "type": "int"
       }
     }
-  }
+  },
+  "rawSortTitle": "Tri des RAW",
+  "rawSortHelp": "Comment ça marche",
+  "rawSortJpgSafe": "Le JPG reste toujours : tu décides seulement du RAW.",
+  "rawSortLeft": "{count, plural, =1{1 restant} other{{count} restants}}",
+  "@rawSortLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rawSortDelete": "Supprimer le RAW",
+  "rawSortKeep": "Garder le RAW",
+  "rawSortJpgKept": "JPG {size} gardé",
+  "@rawSortJpgKept": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "rawSortDone": "Tous les RAW sont triés",
+  "rawSortDoneBody": "{count, plural, =1{1 RAW au panier · {size}} other{{count} RAW au panier · {size}}}",
+  "@rawSortDoneBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "rawSortReview": "Voir le récap",
+  "rawSortCta": "Trier les RAW un par un",
+  "rawSortCtaBody": "Au swipe : garde ou supprime chaque RAW, le JPG reste.",
+  "rawIntroTitle": "Trier les RAW",
+  "rawIntroBody": "Ici, chaque carte est le fichier RAW d'une photo que tu as aussi en JPG.",
+  "rawIntroLeft": "Glisse à gauche : le RAW va au panier.",
+  "rawIntroRight": "Glisse à droite : tu gardes le RAW.",
+  "rawIntroJpg": "Le JPG n'est jamais touché, quoi que tu choisisses.",
+  "rawIntroStart": "C'est parti"
 }

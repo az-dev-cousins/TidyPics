@@ -142,4 +142,40 @@ void main() {
 
     await closeApp(tester);
   });
+
+  testWidgets('tri des RAW : explication, puis un swipe par RAW', (
+    tester,
+  ) async {
+    final gallery = FakeGallerySource(
+      photos: [
+        photo('j1', 0, title: 'DSC_1.JPG'),
+        photo('r1', 0, title: 'DSC_1.DNG'),
+        photo('j2', 900, title: 'DSC_2.JPG'),
+        photo('r2', 900, title: 'DSC_2.DNG'),
+      ],
+    );
+    await pumpApp(tester, gallery: gallery);
+    await openMenu(tester);
+    await tapVisible(tester, find.text('JPG + RAW'));
+    await tester.tap(find.text('Trier les RAW un par un'));
+    await settle(tester);
+
+    // Première fois : l'explication du mode.
+    expect(find.text('Trier les RAW'), findsOneWidget);
+    await tester.tap(find.text("C'est parti"));
+    await settle(tester);
+    expect(find.text('2 restants'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Supprimer le RAW'));
+    await settle(tester);
+    await tester.tap(find.byTooltip('Garder le RAW'));
+    await settle(tester);
+
+    expect(find.text('Tous les RAW sont triés'), findsOneWidget);
+    expect(find.text('1 RAW au panier · 1 Ko'), findsOneWidget);
+    // Rien n'est supprimé avant le récap, et les JPG restent à trier.
+    expect(gallery.trashed, isEmpty);
+
+    await closeApp(tester);
+  });
 }

@@ -47,6 +47,8 @@ class SettingsController extends Notifier<AppSettings> {
 
   Future<void> setDeleteDirectly(bool value) =>
       _save(state.copyWith(deleteDirectly: value));
+
+  Future<void> markRawIntroSeen() => _save(state.copyWith(rawIntroSeen: true));
 }
 
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(

@@ -11,6 +11,7 @@ import '../features/months/presentation/months_page.dart';
 import '../features/onboarding/presentation/onboarding_page.dart';
 import '../features/onboarding/presentation/permission_page.dart';
 import '../features/raw_pairs/presentation/raw_pairs_page.dart';
+import '../features/raw_pairs/presentation/raw_sort_page.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../features/settings/presentation/settings_page.dart';
 import '../features/stats/presentation/stats_page.dart';
@@ -31,6 +32,7 @@ abstract final class AppRoutes {
   static const months = '/months';
   static const stats = '/stats';
   static const rawPairs = '/raw-pairs';
+  static const rawSort = '/raw-sort';
   static const _checkpoint = '/checkpoint';
   static const _month = '/month';
 
@@ -124,6 +126,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.rawPairs,
         builder: (context, state) => const RawPairsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.rawSort,
+        builder: (context, state) => const RawSortPage(),
       ),
       GoRoute(
         path: AppRoutes.trash,

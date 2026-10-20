@@ -16,6 +16,7 @@ class AppSettings {
     this.burstGapSeconds = 3,
     this.autoTrashOnLeave = false,
     this.deleteDirectly = false,
+    this.rawIntroSeen = false,
   });
 
   final bool onboardingDone;
@@ -40,6 +41,9 @@ class AppSettings {
   /// Android, option avancée : effacer pour de bon au récap, sans corbeille.
   final bool deleteDirectly;
 
+  /// Explication du tri des RAW déjà vue.
+  final bool rawIntroSeen;
+
   static const thresholds = [10, 25, 50, 100];
   static const minBurstGap = 1;
   static const maxBurstGap = 10;
@@ -54,6 +58,7 @@ class AppSettings {
     int? burstGapSeconds,
     bool? autoTrashOnLeave,
     bool? deleteDirectly,
+    bool? rawIntroSeen,
   }) => AppSettings(
     onboardingDone: onboardingDone ?? this.onboardingDone,
     sortOrder: sortOrder ?? this.sortOrder,
@@ -64,6 +69,7 @@ class AppSettings {
     burstGapSeconds: burstGapSeconds ?? this.burstGapSeconds,
     autoTrashOnLeave: autoTrashOnLeave ?? this.autoTrashOnLeave,
     deleteDirectly: deleteDirectly ?? this.deleteDirectly,
+    rawIntroSeen: rawIntroSeen ?? this.rawIntroSeen,
   );
 }
 
@@ -81,6 +87,7 @@ class SettingsRepository {
   static const _burstGap = 'burst_gap_seconds';
   static const _autoTrashOnLeave = 'auto_trash_on_leave';
   static const _deleteDirectly = 'delete_directly';
+  static const _rawIntroSeen = 'raw_intro_seen';
 
   static const keys = {
     _onboardingDone,
@@ -92,6 +99,7 @@ class SettingsRepository {
     _burstGap,
     _autoTrashOnLeave,
     _deleteDirectly,
+    _rawIntroSeen,
   };
 
   static Future<SettingsRepository> open() async => SettingsRepository(
@@ -119,6 +127,7 @@ class SettingsRepository {
           .clamp(AppSettings.minBurstGap, AppSettings.maxBurstGap),
       autoTrashOnLeave: _prefs.getBool(_autoTrashOnLeave) ?? false,
       deleteDirectly: _prefs.getBool(_deleteDirectly) ?? false,
+      rawIntroSeen: _prefs.getBool(_rawIntroSeen) ?? false,
     );
   }
 
@@ -132,5 +141,6 @@ class SettingsRepository {
     await _prefs.setInt(_burstGap, settings.burstGapSeconds);
     await _prefs.setBool(_autoTrashOnLeave, settings.autoTrashOnLeave);
     await _prefs.setBool(_deleteDirectly, settings.deleteDirectly);
+    await _prefs.setBool(_rawIntroSeen, settings.rawIntroSeen);
   }
 }
