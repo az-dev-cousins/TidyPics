@@ -1,4 +1,4 @@
-package com.azancoth.tidypics.tidypics
+package com.azancoth.tidypics
 
 import io.flutter.embedding.android.FlutterActivity
 
