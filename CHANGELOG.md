@@ -6,6 +6,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- `Makefile` : raccourcis pour les photos de test (`make photos-android`…) et les vérifications (`make check`).
 - Photos de test : générateur (`tool/generate_test_photos.dart`) et envoi sur émulateur Android ou simulateur iOS (`tool/seed_test_photos.sh`).
 - Logo « t » paysage, icônes d'app Android (adaptative) et iOS, écran de démarrage clair et sombre.
 - Cahier des charges V1, décisions d'architecture (ADR 0001 à 0006) et direction artistique « Clean & zen ».

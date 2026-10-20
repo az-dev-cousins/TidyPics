@@ -39,11 +39,12 @@ flutter run                        # lance l'app sur l'émulateur démarré
 Un émulateur neuf n'a aucune photo. Deux scripts créent une fausse galerie qui couvre les cas de l'app : 150 photos de 2019 à 2026, 5 rafales, 4 paires JPG + RAW, 12 captures d'écran et 3 doublons.
 
 ```bash
-dart run tool/generate_test_photos.dart   # génère les photos dans build/test_photos
-tool/seed_test_photos.sh android          # les envoie sur l'émulateur Android démarré
-tool/seed_test_photos.sh android --clean  # les retire de l'émulateur
-tool/seed_test_photos.sh ios              # les ajoute au simulateur iOS démarré
+make photos-android        # les envoie sur l'émulateur Android démarré
+make photos-android-clean  # les retire de l'émulateur
+make photos-ios            # les ajoute au simulateur iOS démarré
 ```
+
+`make` seul liste tous les raccourcis. Derrière, ce sont `tool/seed_test_photos.sh` et `dart run tool/generate_test_photos.dart` (génère les photos dans `build/test_photos`).
 
 - Le script d'envoi génère les photos s'il ne les trouve pas.
 - Les JPEG portent leur date de prise de vue (EXIF) : la galerie les classe à la bonne date.
