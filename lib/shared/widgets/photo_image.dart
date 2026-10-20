@@ -7,7 +7,9 @@ import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/formatters.dart';
 import '../../data/models/gallery_photo.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Fabrique les images des photos. Remplacée par de fausses images dans les
 /// tests.
@@ -36,7 +38,8 @@ class PhotoImages {
 
   AssetEntity _entity(GalleryPhoto photo) => AssetEntity(
     id: photo.id,
-    typeInt: AssetType.image.index,
+    typeInt: (photo.isVideo ? AssetType.video : AssetType.image).index,
+    duration: photo.duration?.inSeconds ?? 0,
     width: photo.width,
     height: photo.height,
   );
@@ -54,15 +57,61 @@ class PhotoThumbnail extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final images = ref.watch(photoImagesProvider);
+    final image = Image(
+      image: images.thumbnail(photo, size: size),
+      fit: BoxFit.cover,
+      gaplessPlayback: true,
+      errorBuilder: (context, _, _) => const PhotoPlaceholder(),
+      frameBuilder: (context, child, frame, sync) =>
+          frame == null && !sync ? const PhotoPlaceholder() : child,
+    );
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppTheme.radiusThumbnail),
-      child: Image(
-        image: images.thumbnail(photo, size: size),
-        fit: BoxFit.cover,
-        gaplessPlayback: true,
-        errorBuilder: (context, _, _) => const PhotoPlaceholder(),
-        frameBuilder: (context, child, frame, sync) =>
-            frame == null && !sync ? const PhotoPlaceholder() : child,
+      child: photo.duration == null
+          ? image
+          : Stack(
+              fit: StackFit.expand,
+              children: [
+                image,
+                Positioned(
+                  left: 4,
+                  bottom: 4,
+                  child: VideoMark(duration: photo.duration!),
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+/// Petite marque « ▶ 0:42 » posée sur la miniature d'une vidéo.
+class VideoMark extends StatelessWidget {
+  const VideoMark({super.key, required this.duration});
+
+  final Duration duration;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(3, 1, 7, 1),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.play_arrow_rounded,
+              size: 14,
+              color: theme.colorScheme.onSurface,
+            ),
+            Text(l10n.videoLength(duration), style: theme.textTheme.labelSmall),
+          ],
+        ),
       ),
     );
   }

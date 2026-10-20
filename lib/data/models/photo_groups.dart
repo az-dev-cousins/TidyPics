@@ -113,6 +113,11 @@ List<PhotoItem> groupPhotos(
   }
 
   for (final photo in singles) {
+    // Une vidéo se trie toujours seule.
+    if (photo.isVideo) {
+      items.add(PhotoItem.single(photo));
+      continue;
+    }
     final previous = run.lastOrNull;
     final closeEnough =
         previous != null &&

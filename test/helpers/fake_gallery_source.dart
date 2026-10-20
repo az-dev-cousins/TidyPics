@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
@@ -69,6 +70,10 @@ class FakeGallerySource implements GallerySource {
     }
     return Uint8List.fromList([1, 2, 3]);
   }
+
+  /// Pas de lecteur vidéo dans les tests : la carte garde sa miniature.
+  @override
+  Future<File?> videoFile(String id) async => null;
 
   @override
   Future<bool> setFavorite(String id, {required bool favorite}) async {

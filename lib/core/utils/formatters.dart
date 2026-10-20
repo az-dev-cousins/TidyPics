@@ -28,6 +28,15 @@ extension Formatters on AppLocalizations {
     return sizeKb(kb.format(bytes / 1e3));
   }
 
+  /// Durée d'une vidéo : « 0:42 », « 12:05 », « 1:02:03 ».
+  String videoLength(Duration duration) {
+    String two(int v) => v.toString().padLeft(2, '0');
+    final h = duration.inHours;
+    final m = duration.inMinutes % 60;
+    final s = duration.inSeconds % 60;
+    return h > 0 ? '$h:${two(m)}:${two(s)}' : '$m:${two(s)}';
+  }
+
   /// « 14 JUIL. 2019 », style « Label » de la direction artistique.
   String shortDate(DateTime date) =>
       DateFormat.yMMMd(localeName).format(date).toUpperCase();

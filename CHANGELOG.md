@@ -6,6 +6,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Vidéos (F10) : triées avec les photos, les grosses (plus de 100 Mo) en tête dans le désordre. Lecture automatique sans le son, avec pause et son. Marque « ▶ durée » sur les miniatures, segment « Vidéos » dans la barre de stockage.
+- `make videos-android` / `videos-android-big` / `videos-android-clean` : vidéos de test sur l'émulateur.
 - Tablette en paysage : panneau à droite de la carte avec la session en cours, l'avancée vers le récap et les dernières photos du panier.
 - Récap : pourcentage d'avancée pendant l'envoi à la corbeille.
 - `tool/generate_bulk_photos.dart` : génère des milliers de petites photos pour les mesures.

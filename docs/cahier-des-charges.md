@@ -24,7 +24,7 @@ Les galeries de smartphone accumulent des milliers de photos inutiles : rafales,
 ## 2. Périmètre
 
 ### Dans le périmètre (V1)
-- Photos uniquement (pas de vidéos)
+- Photos et **vidéos** (✅ avancées de la V2, voir F10)
 - Smartphones et **tablettes** (iPhone, iPad, Android)
 - Tri par swipe : aléatoire (par défaut) ou ordonné
 - Tri ciblé par année et par mois
@@ -40,7 +40,7 @@ Les galeries de smartphone accumulent des milliers de photos inutiles : rafales,
 - ❌ Envoi de photos vers un cloud par l'app elle-même (cela demanderait un compte Google)
 
 ### Plus tard
-- V2 : vidéos, succès, notifications locales, envoi vers le cloud via le menu de partage
+- V2 : succès, notifications locales, envoi vers le cloud via le menu de partage
 - V3 : tous les types de fichiers, IA (flou, screenshots, meilleure photo)
 
 ---
@@ -215,8 +215,17 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
   - ✅ Le premier écran est un **tutoriel interactif** : trois photos d'exemple dessinées par l'app (floue → gauche, belle balade → droite, coucher de soleil → haut). La carte esquisse le geste attendu ; un mauvais geste la ramène au centre. On peut passer le tutoriel.
   - Animations à l'entrée de chaque écran.
 - **Menu** (ouvert depuis le tri) : bouton « Reprendre le tri », tri par année/mois, doublons JPG + RAW, « En cours de suppression », stats, paramètres. Badge sur le panier s'il y a des photos en attente.
-  - ✅ Barre de stockage façon réglages du téléphone : capacité, espace libre et part des photos (Android ; sur iOS, seulement utilisé / libre). Prévue pour accueillir les vidéos en V2.
+  - ✅ Barre de stockage façon réglages du téléphone : capacité, espace libre et part des photos et des vidéos (Android ; sur iOS, seulement utilisé / libre).
   - ✅ Tri par mois (A + C) : les années en onglets, une carte par mois avec une photo, le pourcentage trié et une barre de complétion.
+
+### F10 — Vidéos ✅
+- Photos et vidéos se trient **dans le même fil**, avec les mêmes gestes.
+- **Grosses vidéos en tête** : au-delà de 100 Mo (ou d'une minute si la taille est inconnue, iOS), elles arrivent d'abord, dans un ordre aléatoire. Le reste suit l'ordre choisi. Un mois garde l'ordre chronologique.
+- **Lecture automatique sans le son**, en boucle, sur la carte du dessus seulement. Boutons pause et son ; le son activé le reste pour les vidéos suivantes de la session. Un écran ouvert par-dessus (menu, récap) met la vidéo en pause.
+- Une vidéo ne fait jamais partie d'une rafale ni d'une paire JPG + RAW.
+- Miniatures (récap, panier, corbeille) : marque « ▶ 0:42 ».
+- Barre de stockage : segment « Vidéos » (Android).
+- Lecteur : `video_player`, fichiers locaux seulement ([ADR 0008](adr/0008-video-player.md)).
 
 ---
 
@@ -336,7 +345,7 @@ lib/
 | # | Sujet | Statut |
 |---|---|---|
 | 1 | Android 11 minimum | ✅ validé ([ADR 0003](adr/0003-android-11-minimum.md)) |
-| 2 | Vidéos | ✅ V2/V3 |
+| 2 | Vidéos | ✅ dans la V1 (F10) |
 | 3 | Swipe haut = Garder + Favori | ✅ validé |
 | 4 | Checkpoint (§F3) et envoi auto en quittant l'app (Android 12+) | ✅ validé |
 | 5 | Riverpod | ✅ validé ([ADR 0004](adr/0004-riverpod.md)) |
@@ -362,4 +371,4 @@ lib/
 | 4 — Stats | F7 et accueil final | Les gains sont visibles |
 | 5 — Ciblé | Tri par année et mois | Tri ciblé possible |
 | 6 — Groupes | F5 et F6 | **MVP complet** |
-| 7+ | Vidéos, succès, notifications, partage vers le cloud, IA | V2 / V3 |
+| 7+ | Succès, notifications, partage vers le cloud, IA | V2 / V3 |

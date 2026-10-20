@@ -113,8 +113,11 @@ class LibraryRepository {
               width: Value(photo.width),
               height: Value(photo.height),
               isFavorite: Value(photo.isFavorite),
+              sizeBytes: Value(photo.sizeBytes),
+              durationMs: Value(photo.duration?.inMilliseconds),
             ),
-            // La taille déjà lue est conservée.
+            // Taille inconnue de la galerie (iOS) : celle déjà lue est
+            // conservée.
             onConflict: DoUpdate(
               (_) => PhotosCompanion(
                 takenAt: Value(photo.takenAt),
@@ -122,6 +125,10 @@ class LibraryRepository {
                 width: Value(photo.width),
                 height: Value(photo.height),
                 isFavorite: Value(photo.isFavorite),
+                durationMs: Value(photo.duration?.inMilliseconds),
+                sizeBytes: photo.sizeBytes == null
+                    ? const Value.absent()
+                    : Value(photo.sizeBytes),
               ),
             ),
           );
@@ -406,5 +413,8 @@ class LibraryRepository {
     height: row.height,
     sizeBytes: row.sizeBytes,
     isFavorite: row.isFavorite,
+    duration: row.durationMs == null
+        ? null
+        : Duration(milliseconds: row.durationMs!),
   );
 }

@@ -74,3 +74,11 @@ Pistes et choix : https://claude.ai/artifact/D4jveh5gf2pPxWirwQxVsC. Menu A + C,
 - [ ] F5 iOS : reconnaître les rafales natives (`burstIdentifier`)
 - [x] F6 Paires JPG + RAW : détection, mode dédié, carte en session
 - [x] F8 Paramètres complets
+
+## Lot 7 — Vidéos
+
+- [x] F10 Photos et vidéos dans le même tri, grosses vidéos en tête (aléatoire)
+- [x] F10 Lecture automatique sans le son, pause et son
+- [x] F10 Marque « ▶ durée » sur les miniatures, segment « Vidéos » du stockage
+- [ ] F10 iOS : vérifier le temps de départ des vidéos iCloud / HEVC sur un vrai iPhone
+- [ ] Textes : « 3 photos » compte aussi les vidéos (dire « 2 photos et 1 vidéo » ?)

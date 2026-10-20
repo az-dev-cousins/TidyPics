@@ -186,11 +186,28 @@ class _Thumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bytes = entry.thumbnail;
+    final duration = entry.photo.duration;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppTheme.radiusThumbnail),
-      child: bytes == null
-          ? const PhotoPlaceholder(icon: Icons.image_outlined)
-          : Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (bytes == null)
+            PhotoPlaceholder(
+              icon: duration == null
+                  ? Icons.image_outlined
+                  : Icons.videocam_outlined,
+            )
+          else
+            Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true),
+          if (duration != null)
+            Positioned(
+              left: 4,
+              bottom: 4,
+              child: VideoMark(duration: duration),
+            ),
+        ],
+      ),
     );
   }
 }

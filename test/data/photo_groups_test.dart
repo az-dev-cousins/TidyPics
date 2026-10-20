@@ -63,6 +63,31 @@ void main() {
       expect(items.first.photos.map((p) => p.id), ['a', 'b', 'c']);
     });
 
+    test('une vidéo reste seule, sans couper la rafale', () {
+      final items = groupPhotos([
+        photo('a', 'A.jpg', at(0)),
+        GalleryPhoto(
+          id: 'v',
+          takenAt: at(1),
+          title: 'V.mp4',
+          duration: const Duration(seconds: 4),
+        ),
+        photo('b', 'B.jpg', at(2)),
+      ]);
+      expect(items, hasLength(2));
+      expect(
+        items.firstWhere((i) => i.cover.isVideo).kind,
+        PhotoItemKind.single,
+      );
+      expect(
+        items
+            .firstWhere((i) => i.kind == PhotoItemKind.burst)
+            .photos
+            .map((p) => p.id),
+        ['a', 'b'],
+      );
+    });
+
     test("l'écart est réglable", () {
       final photos = [photo('a', 'A.jpg', at(0)), photo('b', 'B.jpg', at(5))];
       expect(groupPhotos(photos), hasLength(2));

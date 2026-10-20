@@ -18,6 +18,8 @@ abstract final class AppPalette {
   static const sunOutline = Color(0xFFD99A00);
   // « Autre » dans la barre de stockage : neutre, toujours légendé.
   static const stone = Color(0xFF9E998C);
+  // « Vidéos » dans la barre de stockage, à côté du sapin des photos.
+  static const violet = Color(0xFF7A63C2);
 
   // Fond derrière une photo (bandes au-dessus et en dessous).
   static const photoBackdrop = Color(0xFFEFEEE8);
@@ -33,6 +35,7 @@ abstract final class AppPalette {
   static const onBrightMint = Color(0xFF0E2A22);
   static const nightTomato = Color(0xFFFF7B63);
   static const nightStone = Color(0xFF7F8C87);
+  static const nightViolet = Color(0xFF9580E0);
   // Carte d'en-tête (espace libéré) en sombre : vert profond, pas d'aplat vif.
   static const nightHero = Color(0xFF173A30);
   static const nightPhotoBackdrop = Color(0xFF0B0F0E);
@@ -59,6 +62,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
     required this.inkMuted,
     required this.line,
     required this.chartNeutral,
+    required this.chartVideo,
     required this.hero,
     required this.onHero,
     required this.photoBackdrop,
@@ -80,6 +84,9 @@ class TidyColors extends ThemeExtension<TidyColors> {
 
   /// Catégorie « Autre » des graphiques (ex. stockage hors photos).
   final Color chartNeutral;
+
+  /// Catégorie « Vidéos » des graphiques.
+  final Color chartVideo;
 
   /// Fond de la carte d'en-tête (espace libéré) et son texte.
   final Color hero;
@@ -103,6 +110,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
     inkMuted: AppPalette.inkMuted,
     line: AppPalette.line,
     chartNeutral: AppPalette.stone,
+    chartVideo: AppPalette.violet,
     hero: AppPalette.fir,
     onHero: AppPalette.surface,
     photoBackdrop: AppPalette.photoBackdrop,
@@ -121,6 +129,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
     inkMuted: AppPalette.nightInkMuted,
     line: AppPalette.nightLine,
     chartNeutral: AppPalette.nightStone,
+    chartVideo: AppPalette.nightViolet,
     hero: AppPalette.nightHero,
     onHero: AppPalette.mint,
     photoBackdrop: AppPalette.nightPhotoBackdrop,
@@ -145,6 +154,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
       other.inkMuted == inkMuted &&
       other.line == line &&
       other.chartNeutral == chartNeutral &&
+      other.chartVideo == chartVideo &&
       other.hero == hero &&
       other.onHero == onHero &&
       other.photoBackdrop == photoBackdrop &&
@@ -163,6 +173,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
     inkMuted,
     line,
     chartNeutral,
+    chartVideo,
     hero,
     onHero,
     photoBackdrop,
@@ -182,6 +193,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
     Color? inkMuted,
     Color? line,
     Color? chartNeutral,
+    Color? chartVideo,
     Color? hero,
     Color? onHero,
     Color? photoBackdrop,
@@ -199,6 +211,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
       inkMuted: inkMuted ?? this.inkMuted,
       line: line ?? this.line,
       chartNeutral: chartNeutral ?? this.chartNeutral,
+      chartVideo: chartVideo ?? this.chartVideo,
       hero: hero ?? this.hero,
       onHero: onHero ?? this.onHero,
       photoBackdrop: photoBackdrop ?? this.photoBackdrop,
@@ -221,6 +234,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
       inkMuted: Color.lerp(inkMuted, other.inkMuted, t)!,
       line: Color.lerp(line, other.line, t)!,
       chartNeutral: Color.lerp(chartNeutral, other.chartNeutral, t)!,
+      chartVideo: Color.lerp(chartVideo, other.chartVideo, t)!,
       hero: Color.lerp(hero, other.hero, t)!,
       onHero: Color.lerp(onHero, other.onHero, t)!,
       photoBackdrop: Color.lerp(photoBackdrop, other.photoBackdrop, t)!,

@@ -21,6 +21,9 @@ class Photos extends Table {
   IntColumn get sizeBytes => integer().nullable()();
   BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
 
+  /// Durée d'une vidéo en millisecondes ; `null` pour une photo.
+  IntColumn get durationMs => integer().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -66,6 +69,9 @@ class TrashLog extends Table {
   /// corbeille.
   BlobColumn get thumbnail => blob().nullable()();
 
+  /// Durée d'une vidéo en millisecondes ; `null` pour une photo.
+  IntColumn get durationMs => integer().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {assetId};
 }
@@ -90,10 +96,17 @@ class LocalDb extends _$LocalDb {
     : super(executor ?? driftDatabase(name: 'tidypics'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      // v2 : les vidéos.
+      if (from < 2) {
+        await m.addColumn(photos, photos.durationMs);
+        await m.addColumn(trashLog, trashLog.durationMs);
+      }
+    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },

@@ -1,4 +1,4 @@
-/// Une photo de la galerie du téléphone, telle que vue par l'app.
+/// Une photo ou une vidéo de la galerie du téléphone, telle que vue par l'app.
 class GalleryPhoto {
   const GalleryPhoto({
     required this.id,
@@ -8,6 +8,7 @@ class GalleryPhoto {
     this.height = 0,
     this.sizeBytes,
     this.isFavorite = false,
+    this.duration,
   });
 
   /// Identifiant système (MediaStore sur Android, PHAsset sur iOS).
@@ -22,6 +23,26 @@ class GalleryPhoto {
   /// Taille du fichier en octets, `null` tant qu'elle n'a pas été lue.
   final int? sizeBytes;
   final bool isFavorite;
+
+  /// Durée d'une vidéo ; `null` pour une photo.
+  final Duration? duration;
+
+  bool get isVideo => duration != null;
+
+  /// Au-delà, une vidéo passe en tête du tri : c'est là qu'on libère le plus.
+  static const bigVideoBytes = 100 * 1000 * 1000;
+
+  /// Taille inconnue (iOS avant lecture) : on se fie à la durée.
+  static const bigVideoDuration = Duration(minutes: 1);
+
+  bool get isBigVideo {
+    final d = duration;
+    if (d == null) return false;
+    final size = sizeBytes;
+    return size != null && size > 0
+        ? size >= bigVideoBytes
+        : d >= bigVideoDuration;
+  }
 
   static const _rawExtensions = {
     'dng',
@@ -53,6 +74,7 @@ class GalleryPhoto {
     height: height,
     sizeBytes: sizeBytes ?? this.sizeBytes,
     isFavorite: isFavorite ?? this.isFavorite,
+    duration: duration,
   );
 
   @override
@@ -64,9 +86,18 @@ class GalleryPhoto {
       other.width == width &&
       other.height == height &&
       other.sizeBytes == sizeBytes &&
-      other.isFavorite == isFavorite;
+      other.isFavorite == isFavorite &&
+      other.duration == duration;
 
   @override
-  int get hashCode =>
-      Object.hash(id, takenAt, title, width, height, sizeBytes, isFavorite);
+  int get hashCode => Object.hash(
+    id,
+    takenAt,
+    title,
+    width,
+    height,
+    sizeBytes,
+    isFavorite,
+    duration,
+  );
 }

@@ -230,4 +230,37 @@ void main() {
 
     await closeApp(tester);
   });
+
+  testWidgets('vidéo : en tête, sans le son, pause et son au bouton', (
+    tester,
+  ) async {
+    final gallery = FakeGallerySource(
+      photos: [
+        photo('a', 0),
+        GalleryPhoto(
+          id: 'v',
+          takenAt: t0.add(const Duration(days: 1)),
+          title: 'VID_1.mp4',
+          sizeBytes: 300 * 1000 * 1000,
+          duration: const Duration(seconds: 42),
+        ),
+      ],
+    );
+    await pumpApp(tester, gallery: gallery);
+    expect(find.text('Vidéo · 0:42'), findsOneWidget);
+    expect(find.byTooltip('Pause'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Activer le son'));
+    await settle(tester);
+    expect(find.byTooltip('Couper le son'), findsOneWidget);
+    await tester.tap(find.byTooltip('Pause'));
+    await settle(tester);
+    expect(find.byTooltip('Lecture'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Supprimer'));
+    await settle(tester);
+    expect(find.text('1 · 300 Mo'), findsOneWidget);
+
+    await closeApp(tester);
+  });
 }

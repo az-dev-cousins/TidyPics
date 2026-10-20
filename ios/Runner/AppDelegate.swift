@@ -22,7 +22,8 @@ import UIKit
         let values = try? url.resourceValues(forKeys: [
           .volumeTotalCapacityKey, .volumeAvailableCapacityForImportantUsageKey,
         ])
-        // La place des photos n'est pas connue ici : elle est calculée côté Dart.
+        // iOS ne donne pas la place des photos et des vidéos : la barre montre
+        // seulement l’espace utilisé et libre.
         result([
           "total": values?.volumeTotalCapacity ?? 0,
           "free": values?.volumeAvailableCapacityForImportantUsage ?? 0,

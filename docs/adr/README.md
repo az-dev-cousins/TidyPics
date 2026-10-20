@@ -36,3 +36,4 @@ Ce que ça implique, en bien et en moins bien.
 | 0005 | [Navigation avec go_router](0005-go-router.md) | Acceptée |
 | 0006 | [Stockage local avec Drift](0006-drift.md) | Acceptée |
 | 0007 | [`photo_manager` pour la corbeille et « Gestion des médias »](0007-photo-manager-pour-la-corbeille.md) | Acceptée |
+| 0008 | [`video_player` pour lire les vidéos](0008-video-player.md) | Acceptée |

@@ -153,6 +153,7 @@ class TrashRepository {
                 sizeBytes: Value(photo.sizeBytes ?? 0),
                 trashedAt: now,
                 thumbnail: Value(thumbnails[photo.id]),
+                durationMs: Value(photo.duration?.inMilliseconds),
               ),
               mode: InsertMode.insertOrReplace,
             );
@@ -290,6 +291,9 @@ class TrashRepository {
               width: row.width,
               height: row.height,
               sizeBytes: row.sizeBytes,
+              duration: row.durationMs == null
+                  ? null
+                  : Duration(milliseconds: row.durationMs!),
             ),
             trashedAt: row.trashedAt,
             thumbnail: row.thumbnail,

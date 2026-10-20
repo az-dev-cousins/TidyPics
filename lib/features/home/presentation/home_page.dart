@@ -253,6 +253,7 @@ class _StorageCard extends ConsumerWidget {
     final storage = ref.watch(deviceStorageProvider).value;
     if (storage == null) return const SizedBox.shrink();
     final photos = storage.photos;
+    final videos = storage.videos ?? 0;
     final segments = [
       if (photos != null) ...[
         StorageSegment(
@@ -260,9 +261,15 @@ class _StorageCard extends ConsumerWidget {
           bytes: photos,
           color: theme.colorScheme.primary,
         ),
+        if (videos > 0)
+          StorageSegment(
+            label: l10n.storageVideos,
+            bytes: videos,
+            color: tidy.chartVideo,
+          ),
         StorageSegment(
           label: l10n.storageOther,
-          bytes: (storage.used - photos).clamp(0, storage.total),
+          bytes: (storage.used - photos - videos).clamp(0, storage.total),
           color: tidy.chartNeutral,
         ),
       ] else

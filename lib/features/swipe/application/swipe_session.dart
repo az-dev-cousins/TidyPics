@@ -218,11 +218,24 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
     }
     // Un mois se trie dans l'ordre chronologique.
     if (scope.isMonth) return items;
-    return switch (settings.sortOrder) {
-      SortOrder.random => items..shuffle(),
-      SortOrder.oldestFirst => items,
-      SortOrder.newestFirst => items.reversed.toList(),
-    };
+    // Les grosses vidéos d'abord, dans le désordre : c'est là qu'on libère
+    // le plus de place, le plus vite.
+    final big = [
+      for (final item in items)
+        if (item.cover.isBigVideo) item,
+    ]..shuffle();
+    final rest = [
+      for (final item in items)
+        if (!item.cover.isBigVideo) item,
+    ];
+    return [
+      ...big,
+      ...switch (settings.sortOrder) {
+        SortOrder.random => rest..shuffle(),
+        SortOrder.oldestFirst => rest,
+        SortOrder.newestFirst => rest.reversed,
+      },
+    ];
   }
 
   SwipeState? get _ready => state.value;

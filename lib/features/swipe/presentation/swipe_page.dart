@@ -312,6 +312,7 @@ class _SwipePageState extends ConsumerState<SwipePage> {
                 item: current,
                 stamp: stamp,
                 strength: strength,
+                play: isCurrent,
                 onPickBest: () => _pickBest(current),
               ),
           nextCard: next == null

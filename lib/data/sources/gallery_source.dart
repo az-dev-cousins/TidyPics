@@ -24,13 +24,20 @@ enum GalleryAccess {
 
 /// Stockage du téléphone, pour la barre du menu.
 class DeviceStorage {
-  const DeviceStorage({required this.total, required this.free, this.photos});
+  const DeviceStorage({
+    required this.total,
+    required this.free,
+    this.photos,
+    this.videos,
+  });
 
   final int total;
   final int free;
 
-  /// Place prise par les photos, si le système la donne (Android).
+  /// Place prise par les photos et les vidéos, si le système la donne
+  /// (Android).
   final int? photos;
+  final int? videos;
 
   int get used => total - free;
 }
@@ -52,6 +59,9 @@ abstract interface class GallerySource {
   Future<int> fileSize(String id);
 
   Future<Uint8List?> thumbnail(String id, {int size = 200});
+
+  /// Fichier d'une vidéo, pour la lire sur la carte (`null` si illisible).
+  Future<File?> videoFile(String id);
 
   /// Met ou retire le favori système. Renvoie `false` en cas d'échec.
   Future<bool> setFavorite(String id, {required bool favorite});
@@ -94,15 +104,13 @@ abstract interface class GallerySource {
 class PhotoManagerGallerySource implements GallerySource {
   static const _permission = PermissionRequestOption(
     androidPermission: AndroidPermission(
-      type: RequestType.image,
+      type: RequestType.common,
       mediaLocation: false,
     ),
   );
 
   static const _device = MethodChannel('tidypics/device');
 
-  /// Taille maximum d'un lot de suppression. Au-delà, Android peut échouer
-  /// (limite de taille des échanges entre processus). À affiner au lot 0bis.
   /// Lots d'envoi à la corbeille (Android). Mesuré sur émulateur : un lot de
   /// 3 000 photos passe sans erreur, en une seule popup.
   /// - Sans « Gestion des médias », chaque lot est une popup : le moins de
@@ -154,17 +162,23 @@ class PhotoManagerGallerySource implements GallerySource {
 
   @override
   Future<void> extendLimitedAccess() =>
-      PhotoManager.presentLimited(type: RequestType.image);
+      PhotoManager.presentLimited(type: RequestType.common);
 
   @override
   Future<List<GalleryPhoto>> fetchAll() async {
     final filter = FilterOptionGroup(
       imageOption: const FilterOption(needTitle: true),
+      videoOption: const FilterOption(
+        needTitle: true,
+        // Par défaut, photo_manager ignore les vidéos de plus d'un jour. Pas
+        // plus de 7 jours : la durée part en millisecondes sur 32 bits.
+        durationConstraint: DurationConstraint(max: Duration(days: 7)),
+      ),
       orders: [const OrderOption(type: OrderOptionType.createDate)],
     );
     final count = await PhotoManager.getAssetCount(
       filterOption: filter,
-      type: RequestType.image,
+      type: RequestType.common,
     );
     const page = 500;
     final photos = <GalleryPhoto>[];
@@ -173,11 +187,24 @@ class PhotoManagerGallerySource implements GallerySource {
         start: start,
         end: start + page,
         filterOption: filter,
-        type: RequestType.image,
+        type: RequestType.common,
       );
       photos.addAll(assets.map(_toPhoto));
     }
-    return photos;
+    if (!Platform.isAndroid) return photos;
+    // Android : toutes les tailles en une requête, pour mettre les grosses
+    // vidéos en tête et chiffrer le panier sans attendre.
+    try {
+      final sizes = await _device.invokeMapMethod<String, int>('sizes');
+      if (sizes == null) return photos;
+      return [
+        for (final p in photos)
+          sizes[p.id] == null ? p : p.copyWith(sizeBytes: sizes[p.id]),
+      ];
+    } on PlatformException catch (error) {
+      debugPrint('Tailles illisibles : $error');
+      return photos;
+    }
   }
 
   GalleryPhoto _toPhoto(AssetEntity asset) => GalleryPhoto(
@@ -187,11 +214,13 @@ class PhotoManagerGallerySource implements GallerySource {
     width: asset.orientatedWidth,
     height: asset.orientatedHeight,
     isFavorite: asset.isFavorite,
+    duration: asset.type == AssetType.video ? asset.videoDuration : null,
   );
 
   AssetEntity _entity(GalleryPhoto photo) => AssetEntity(
     id: photo.id,
-    typeInt: AssetType.image.index,
+    typeInt: (photo.isVideo ? AssetType.video : AssetType.image).index,
+    duration: photo.duration?.inSeconds ?? 0,
     width: photo.width,
     height: photo.height,
     title: photo.title,
@@ -215,6 +244,17 @@ class PhotoManagerGallerySource implements GallerySource {
       ThumbnailSize.square(size),
       quality: 80,
     );
+  }
+
+  @override
+  Future<File?> videoFile(String id) async {
+    try {
+      final entity = await AssetEntity.fromId(id);
+      return await entity?.file;
+    } on Object catch (error) {
+      debugPrint('Vidéo illisible $id : $error');
+      return null;
+    }
   }
 
   @override
@@ -305,6 +345,7 @@ class PhotoManagerGallerySource implements GallerySource {
         total: total,
         free: (values?['free'] as num?)?.toInt() ?? 0,
         photos: (values?['photos'] as num?)?.toInt(),
+        videos: (values?['videos'] as num?)?.toInt(),
       );
     } on Object catch (error) {
       debugPrint('Stockage illisible : $error');

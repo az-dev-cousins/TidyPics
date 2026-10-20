@@ -17,7 +17,12 @@ import io.flutter.plugin.common.MethodChannel
  * - `trashedIds` : parmi des photos envoyées à la corbeille, celles qui y sont
  *   encore (l'utilisateur a pu les restaurer ou vider la corbeille ailleurs).
  * - `deleteForever` : vide la corbeille pour ces photos (« Vider maintenant »).
- * - `storage` : capacité du téléphone, espace libre et place des photos.
+ * - `storage` : capacité du téléphone, espace libre, place des photos et des
+ *   vidéos.
+ * - `sizes` : taille de chaque photo et vidéo, en une requête.
+ *
+ * Photos et vidéos passent par la table `Files` de MediaStore, qui couvre
+ * les deux.
  */
 class MainActivity : FlutterActivity() {
     private var pendingDelete: Pair<MethodChannel.Result, List<String>>? = null
@@ -31,28 +36,92 @@ class MainActivity : FlutterActivity() {
                     "trashedIds" -> result.success(trashedIds(call.argument<List<String>>("ids").orEmpty()))
                     "deleteForever" -> deleteForever(call.argument<List<String>>("ids").orEmpty(), result)
                     "storage" -> result.success(storage())
+                    "sizes" -> result.success(sizes())
                     else -> result.notImplemented()
                 }
             }
     }
 
+    private val files = MediaStore.Files.getContentUri("external")
+
+    private val mediaSelection =
+        "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (" +
+            "${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}," +
+            "${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
+
     private fun storage(): Map<String, Long> {
         val stat = android.os.StatFs(android.os.Environment.getDataDirectory().path)
         var photos = 0L
+        var videos = 0L
         contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            arrayOf(MediaStore.MediaColumns.SIZE),
-            null,
+            files,
+            arrayOf(MediaStore.Files.FileColumns.MEDIA_TYPE, MediaStore.MediaColumns.SIZE),
+            mediaSelection,
             null,
             null,
         )?.use { cursor ->
-            while (cursor.moveToNext()) photos += cursor.getLong(0)
+            while (cursor.moveToNext()) {
+                if (cursor.getInt(0) == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+                    videos += cursor.getLong(1)
+                } else {
+                    photos += cursor.getLong(1)
+                }
+            }
         }
         return mapOf(
             "total" to stat.totalBytes,
             "free" to stat.availableBytes,
             "photos" to photos,
+            "videos" to videos,
         )
+    }
+
+    private fun sizes(): Map<String, Long> {
+        val sizes = HashMap<String, Long>()
+        contentResolver.query(
+            files,
+            arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.SIZE),
+            mediaSelection,
+            null,
+            null,
+        )?.use { cursor ->
+            while (cursor.moveToNext()) sizes[cursor.getLong(0).toString()] = cursor.getLong(1)
+        }
+        return sizes
+    }
+
+    /** Adresse MediaStore de chaque élément (photo ou vidéo), corbeille comprise. */
+    private fun mediaUris(ids: List<String>): List<android.net.Uri> {
+        val uris = mutableListOf<android.net.Uri>()
+        for (chunk in ids.chunked(500)) {
+            val args = Bundle().apply {
+                putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_INCLUDE)
+                putString(
+                    android.content.ContentResolver.QUERY_ARG_SQL_SELECTION,
+                    "${MediaStore.MediaColumns._ID} IN (${chunk.joinToString(",") { "?" }})",
+                )
+                putStringArray(
+                    android.content.ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS,
+                    chunk.toTypedArray(),
+                )
+            }
+            contentResolver.query(
+                files,
+                arrayOf(MediaStore.MediaColumns._ID, MediaStore.Files.FileColumns.MEDIA_TYPE),
+                args,
+                null,
+            )?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val base = if (cursor.getInt(1) == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                    } else {
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    }
+                    uris.add(ContentUris.withAppendedId(base, cursor.getLong(0)))
+                }
+            }
+        }
+        return uris
     }
 
     private fun trashedIds(ids: List<String>): List<String> {
@@ -72,7 +141,7 @@ class MainActivity : FlutterActivity() {
                 )
             }
             contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                files,
                 arrayOf(MediaStore.MediaColumns._ID),
                 args,
                 null,
@@ -92,8 +161,11 @@ class MainActivity : FlutterActivity() {
             result.error("busy", "Une suppression est déjà en cours", null)
             return
         }
-        val uris = ids.mapNotNull { it.toLongOrNull() }
-            .map { ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, it) }
+        val uris = mediaUris(ids)
+        if (uris.isEmpty()) {
+            result.success(emptyList<String>())
+            return
+        }
         // Une seule popup pour tout le lot ; aucune avec « Gestion des médias ».
         val request = MediaStore.createDeleteRequest(contentResolver, uris)
         pendingDelete = result to ids

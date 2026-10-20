@@ -205,6 +205,28 @@ void main() {
       expect((await library().watchSummary().first).cartCount, 0);
     });
 
+    test('les grosses vidéos passent en tête, même du plus ancien', () async {
+      GalleryPhoto video(String id, int seconds, int megabytes) => GalleryPhoto(
+        id: id,
+        takenAt: t0.add(Duration(seconds: seconds)),
+        title: '$id.mp4',
+        sizeBytes: megabytes * 1000 * 1000,
+        duration: const Duration(seconds: 30),
+      );
+      await start(
+        custom: [
+          at('a', 0),
+          video('small', 600, 20),
+          video('big1', 1200, 300),
+          at('b', 1800),
+          video('big2', 2400, 150),
+        ],
+      );
+      final ids = state().queue.map((i) => i.id).toList();
+      expect(ids.take(2), unorderedEquals(['big1', 'big2']));
+      expect(ids.skip(2), ['a', 'small', 'b']);
+    });
+
     test('rafale triée photo par photo : gardées et panier', () async {
       await start(custom: [at('a', 0), at('b', 1), at('c', 2)]);
       await session().resolveGroup({'b'});
