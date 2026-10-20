@@ -1,0 +1,11 @@
+{
+  "@@locale": "fr",
+  "appTitle": "TidyPics",
+  "homeTagline": "Trie. Respire. Libère de la place.",
+  "@homeTagline": {
+    "description": "Slogan affiché sur l'accueil."
+  },
+  "homePrivacyTitle": "Tes photos restent chez toi",
+  "homePrivacyBody": "TidyPics fonctionne sans compte et sans connexion. Rien n'est envoyé nulle part.",
+  "homeComingSoon": "Le tri arrive bientôt."
+}
