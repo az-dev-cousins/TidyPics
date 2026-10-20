@@ -441,5 +441,25 @@
         "type": "int"
       }
     }
-  }
+  },
+  "photoMore": "More options",
+  "photoShare": "Share…",
+  "photoShareHint": "To Google Photos, Drive, WhatsApp…: the app you pick does the sending.",
+  "photoOpenInGallery": "Open in gallery",
+  "photoShareFailed": "Couldn't read this file.",
+  "photoOpenFailed": "No gallery app can open this file.",
+  "photoUntitled": "Untitled",
+  "screenshotsTitle": "Screenshots",
+  "screenshotsDoneTitle": "All screenshots sorted!",
+  "menuScreenshots": "Screenshots",
+  "menuScreenshotsDetail": "{count, plural, =1{1 to sort} other{{count} to sort}}",
+  "@menuScreenshotsDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "menuScreenshotsNone": "Nothing to sort"
 }

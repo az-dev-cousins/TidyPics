@@ -17,6 +17,7 @@ import '../../cart/presentation/checkpoint_page.dart';
 import '../../gallery/application/gallery_controller.dart';
 import '../../settings/application/settings_controller.dart';
 import '../application/swipe_session.dart';
+import 'photo_actions.dart';
 import 'session_panel.dart';
 import 'swipe_card.dart';
 import 'swipe_deck.dart';
@@ -56,12 +57,15 @@ class _SwipePageState extends ConsumerState<SwipePage> {
 
   SwipeScope get _scope => widget.scope;
   bool get _isMonth => _scope.isMonth;
+
+  /// Un mois ou les captures : ouvert depuis le menu, on y revient à la fin.
+  bool get _isFocused => _scope.isFocused;
   SwipeSession get _session => ref.read(swipeSessionProvider(_scope).notifier);
 
   @override
   void initState() {
     super.initState();
-    if (!_isMonth) unawaited(_maybeShowPendingCart());
+    if (!_isFocused) unawaited(_maybeShowPendingCart());
   }
 
   /// Ouverture de l'app avec des photos encore au panier : récap.
@@ -92,7 +96,7 @@ class _SwipePageState extends ConsumerState<SwipePage> {
 
   /// Fin de session : un mois revient à la liste des mois, sinon le menu.
   void _endSession() {
-    if (_isMonth) {
+    if (_isFocused) {
       context.pop();
       return;
     }
@@ -180,7 +184,7 @@ class _SwipePageState extends ConsumerState<SwipePage> {
       onKeyEvent: _onKey,
       child: Scaffold(
         appBar: AppBar(
-          leading: _isMonth
+          leading: _isFocused
               ? const BackButton()
               : IconButton(
                   tooltip: l10n.swipeMenu,
@@ -189,6 +193,8 @@ class _SwipePageState extends ConsumerState<SwipePage> {
                 ),
           title: _isMonth
               ? Text(l10n.monthName(DateTime(_scope.year!, _scope.month!)))
+              : _scope.screenshots
+              ? Text(l10n.screenshotsTitle)
               : null,
           actions: [
             TextButton(
@@ -282,10 +288,12 @@ class _SwipePageState extends ConsumerState<SwipePage> {
             : Icons.check_circle_outline_rounded,
         title: _isMonth
             ? l10n.monthDoneTitle
+            : _scope.screenshots
+            ? l10n.screenshotsDoneTitle
             : nothingSorted
             ? l10n.swipeEmptyTitle
             : l10n.swipeDoneTitle,
-        body: _isMonth
+        body: _isFocused
             ? ''
             : nothingSorted
             ? l10n.swipeEmptyBody
@@ -308,12 +316,18 @@ class _SwipePageState extends ConsumerState<SwipePage> {
           currentKey: current.id,
           nextKey: next?.id,
           currentCard: (context, {required isCurrent, stamp, strength = 0}) =>
-              ItemSwipeCard(
-                item: current,
-                stamp: stamp,
-                strength: strength,
-                play: isCurrent,
-                onPickBest: () => _pickBest(current),
+              GestureDetector(
+                // Appui long : partager, ouvrir dans la galerie.
+                onLongPress: () =>
+                    showPhotoActions(context, ref, current.cover),
+                child: ItemSwipeCard(
+                  item: current,
+                  stamp: stamp,
+                  strength: strength,
+                  play: isCurrent,
+                  onPickBest: () => _pickBest(current),
+                  onMore: () => showPhotoActions(context, ref, current.cover),
+                ),
               ),
           nextCard: next == null
               ? null

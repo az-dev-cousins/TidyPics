@@ -668,5 +668,25 @@
         "type": "int"
       }
     }
-  }
+  },
+  "photoMore": "Plus d'options",
+  "photoShare": "Partager…",
+  "photoShareHint": "Vers Google Photos, Drive, WhatsApp… : c'est l'app choisie qui envoie.",
+  "photoOpenInGallery": "Ouvrir dans la galerie",
+  "photoShareFailed": "Impossible de lire ce fichier.",
+  "photoOpenFailed": "Aucune galerie ne sait ouvrir ce fichier.",
+  "photoUntitled": "Sans nom",
+  "screenshotsTitle": "Captures d'écran",
+  "screenshotsDoneTitle": "Toutes les captures sont triées !",
+  "menuScreenshots": "Captures d'écran",
+  "menuScreenshotsDetail": "{count, plural, =1{1 à trier} other{{count} à trier}}",
+  "@menuScreenshotsDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "menuScreenshotsNone": "Rien à trier"
 }

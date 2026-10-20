@@ -60,8 +60,15 @@ abstract interface class GallerySource {
 
   Future<Uint8List?> thumbnail(String id, {int size = 200});
 
-  /// Fichier d'une vidéo, pour la lire sur la carte (`null` si illisible).
-  Future<File?> videoFile(String id);
+  /// Fichier d'une photo ou d'une vidéo : lecture sur la carte, partage
+  /// (`null` si illisible).
+  Future<File?> mediaFile(String id);
+
+  /// Android : la galerie du système sait ouvrir une photo précise.
+  bool get canOpenInGallery;
+
+  /// Ouvre la photo dans la galerie du système. `false` si impossible.
+  Future<bool> openInGallery(String id);
 
   /// Met ou retire le favori système. Renvoie `false` en cas d'échec.
   Future<bool> setFavorite(String id, {required bool favorite});
@@ -110,6 +117,9 @@ class PhotoManagerGallerySource implements GallerySource {
   );
 
   static const _device = MethodChannel('tidypics/device');
+
+  /// `PHAssetMediaSubtype.photoScreenshot`.
+  static const _iosScreenshot = 1 << 2;
 
   /// Lots d'envoi à la corbeille (Android). Mesuré sur émulateur : un lot de
   /// 3 000 photos passe sans erreur, en une seule popup.
@@ -215,7 +225,13 @@ class PhotoManagerGallerySource implements GallerySource {
     height: asset.orientatedHeight,
     isFavorite: asset.isFavorite,
     duration: asset.type == AssetType.video ? asset.videoDuration : null,
-    folder: asset.relativePath,
+    // iOS ne range pas en dossiers : une capture d'écran (sous-type
+    // signalé par Photos) reçoit le dossier « Screenshots ».
+    folder:
+        asset.relativePath ??
+        (Platform.isIOS && asset.subtype & _iosScreenshot != 0
+            ? 'Screenshots'
+            : null),
   );
 
   AssetEntity _entity(GalleryPhoto photo) => AssetEntity(
@@ -248,13 +264,28 @@ class PhotoManagerGallerySource implements GallerySource {
   }
 
   @override
-  Future<File?> videoFile(String id) async {
+  Future<File?> mediaFile(String id) async {
     try {
       final entity = await AssetEntity.fromId(id);
       return await entity?.file;
     } on Object catch (error) {
       debugPrint('Vidéo illisible $id : $error');
       return null;
+    }
+  }
+
+  @override
+  bool get canOpenInGallery => Platform.isAndroid;
+
+  @override
+  Future<bool> openInGallery(String id) async {
+    if (!Platform.isAndroid) return false;
+    try {
+      return await _device.invokeMethod<bool>('openInGallery', {'id': id}) ??
+          false;
+    } on PlatformException catch (error) {
+      debugPrint('Ouverture dans la galerie impossible : $error');
+      return false;
     }
   }
 

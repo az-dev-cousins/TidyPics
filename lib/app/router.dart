@@ -37,6 +37,7 @@ abstract final class AppRoutes {
   static const rawSort = '/raw-sort';
   static const duplicates = '/duplicates';
   static const achievements = '/achievements';
+  static const screenshots = '/screenshots';
   static const _checkpoint = '/checkpoint';
   static const _month = '/month';
 
@@ -138,6 +139,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.duplicates,
         builder: (context, state) => const DuplicatesPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.screenshots,
+        builder: (context, state) =>
+            const SwipePage(scope: SwipeScope.screenshots()),
       ),
       GoRoute(
         path: AppRoutes.achievements,

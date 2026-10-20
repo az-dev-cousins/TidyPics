@@ -48,6 +48,14 @@ class GalleryPhoto {
     return parts.isEmpty ? null : parts.last;
   }
 
+  /// Capture d'écran : rangée dans un dossier « Screenshots » (Android, et
+  /// iOS où la galerie le signale), ou nommée « Screenshot_… ».
+  bool get isScreenshot {
+    final folderLower = folder?.toLowerCase() ?? '';
+    final name = title?.toLowerCase() ?? '';
+    return folderLower.contains('screenshot') || name.startsWith('screenshot');
+  }
+
   /// Empreinte visuelle (dHash 64 bits) : deux photos qui se ressemblent ont
   /// des empreintes proches. `null` tant qu'elle n'est pas calculée.
   final int? visualHash;

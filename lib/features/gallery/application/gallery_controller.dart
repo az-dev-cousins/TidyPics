@@ -240,3 +240,14 @@ final duplicatesProvider = StreamProvider.autoDispose<List<DuplicateGroup>>((
       .watchHashedPhotos()
       .map((photos) => findDuplicates(photos, burstGap: gap));
 });
+
+/// Captures d'écran qui restent à trier (tuile du menu).
+final screenshotsToSortProvider = FutureProvider.autoDispose<int>((ref) async {
+  ref
+    ..watch(librarySummaryProvider)
+    ..watch(cartProvider);
+  final photos = await ref
+      .watch(libraryRepositoryProvider)
+      .unsortedPhotos(SortOrder.oldestFirst);
+  return photos.where((p) => p.isScreenshot).length;
+});

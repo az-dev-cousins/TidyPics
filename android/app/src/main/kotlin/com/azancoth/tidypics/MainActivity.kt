@@ -19,7 +19,8 @@ import io.flutter.plugin.common.MethodChannel
  * - `deleteForever` : vide la corbeille pour ces photos (« Vider maintenant »).
  * - `storage` : capacité du téléphone, espace libre, place des photos et des
  *   vidéos.
- * - `sizes` : taille de chaque photo et vidéo, en une requête.
+  * - `sizes` : taille de chaque photo et vidéo, en une requête.
+ * - `openInGallery` : ouvre une photo dans l'app Galerie (ou Google Photos).
  *
  * Photos et vidéos passent par la table `Files` de MediaStore, qui couvre
  * les deux.
@@ -36,7 +37,8 @@ class MainActivity : FlutterActivity() {
                     "trashedIds" -> result.success(trashedIds(call.argument<List<String>>("ids").orEmpty()))
                     "deleteForever" -> deleteForever(call.argument<List<String>>("ids").orEmpty(), result)
                     "storage" -> result.success(storage())
-                    "sizes" -> result.success(sizes())
+                                        "sizes" -> result.success(sizes())
+                    "openInGallery" -> result.success(openInGallery(call.argument<String>("id")))
                     else -> result.notImplemented()
                 }
             }
@@ -74,6 +76,20 @@ class MainActivity : FlutterActivity() {
             "photos" to photos,
             "videos" to videos,
         )
+    }
+
+        private fun openInGallery(id: String?): Boolean {
+        val uri = mediaUris(listOfNotNull(id)).firstOrNull() ?: return false
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, contentResolver.getType(uri))
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        return try {
+            startActivity(intent)
+            true
+        } catch (e: android.content.ActivityNotFoundException) {
+            false
+        }
     }
 
     private fun sizes(): Map<String, Long> {

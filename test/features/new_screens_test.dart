@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:tidypics/data/models/gallery_photo.dart';
@@ -14,8 +13,15 @@ Future<void> openMenu(WidgetTester tester) async {
 }
 
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
-  await tester.ensureVisible(finder);
-  await tester.pumpAndSettle();
+  // La grille du menu ne défile pas elle-même : on fait défiler la page
+  // jusqu'à voir l'élément.
+  final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+  for (var i = 0; i < 10; i++) {
+    final y = tester.getCenter(finder).dy;
+    if (y > 80 && y < screen.height - 80) break;
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+    await tester.pumpAndSettle();
+  }
   await tester.tap(finder);
   await settle(tester);
 }
@@ -340,6 +346,9 @@ void main() {
     await settle(tester);
     await settle(tester);
     expect(find.text('Succès débloqué : Œil de lynx'), findsOneWidget);
+    // L'annonce se retire toute seule.
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
 
     await openMenu(tester);
     expect(find.text('1 sur 16'), findsOneWidget);
@@ -347,6 +356,69 @@ void main() {
     expect(find.text('Rythme de croisière'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Œil de lynx'), 300);
     expect(find.text('Œil de lynx'), findsOneWidget);
+
+    await closeApp(tester);
+  });
+
+  testWidgets('« ⋯ » sur une carte : partager ou ouvrir dans la galerie', (
+    tester,
+  ) async {
+    final gallery = FakeGallerySource(
+      photos: [
+        GalleryPhoto(
+          id: 'a',
+          takenAt: t0,
+          title: 'PXL_1.jpg',
+          folder: 'DCIM/Camera/',
+        ),
+      ],
+    );
+    await pumpApp(tester, gallery: gallery);
+    expect(find.text('Camera'), findsOneWidget);
+
+    await tester.tap(find.byTooltip("Plus d'options"));
+    await settle(tester);
+    expect(find.text('PXL_1.jpg'), findsOneWidget);
+    expect(find.text('Partager…'), findsOneWidget);
+    await tester.tap(find.text('Ouvrir dans la galerie'));
+    await settle(tester);
+    expect(gallery.openedInGallery, ['a']);
+
+    await closeApp(tester);
+  });
+
+  testWidgets('captures d\'écran : un tri à part, seulement les captures', (
+    tester,
+  ) async {
+    final gallery = FakeGallerySource(
+      photos: [
+        photo('photo', 0),
+        GalleryPhoto(
+          id: 'cap1',
+          takenAt: t0.add(const Duration(hours: 1)),
+          title: 'Screenshot_20250310-130000.png',
+          folder: 'Pictures/Screenshots/',
+        ),
+        GalleryPhoto(
+          id: 'cap2',
+          takenAt: t0.add(const Duration(hours: 2)),
+          title: 'Screenshot_20250310-140000.png',
+          folder: 'Pictures/Screenshots/',
+        ),
+      ],
+    );
+    await pumpApp(tester, gallery: gallery);
+    await openMenu(tester);
+    expect(find.text('2 à trier'), findsOneWidget);
+    await tapVisible(tester, find.text("Captures d'écran"));
+
+    await tester.tap(find.byTooltip('Supprimer'));
+    await settle(tester);
+    await tester.tap(find.byTooltip('Garder'));
+    await settle(tester);
+    expect(find.text('Toutes les captures sont triées !'), findsOneWidget);
+    // La capture supprimée attend au panier, comme dans le tri normal.
+    expect(find.text('1 · 1 Ko'), findsOneWidget);
 
     await closeApp(tester);
   });

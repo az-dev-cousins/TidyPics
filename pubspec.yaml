@@ -24,6 +24,7 @@ dependencies:
   video_player: ^2.14.1
   # Empreinte visuelle des photos (doublons, rafales), calculée sur le téléphone.
   image: ^4.12.0
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:

@@ -27,20 +27,34 @@ enum SwipeChoice {
 /// Ce qu'on trie : toute la galerie, ou un seul mois (tri ciblé, F2).
 @immutable
 class SwipeScope {
-  const SwipeScope.all() : year = null, month = null;
-  const SwipeScope.month(int this.year, int this.month);
+  const SwipeScope.all() : year = null, month = null, screenshots = false;
+  const SwipeScope.month(int this.year, int this.month) : screenshots = false;
+
+  /// Seulement les captures d'écran (V2).
+  const SwipeScope.screenshots()
+    : year = null,
+      month = null,
+      screenshots = true;
 
   final int? year;
   final int? month;
+  final bool screenshots;
 
   bool get isMonth => year != null;
 
-  @override
-  bool operator ==(Object other) =>
-      other is SwipeScope && other.year == year && other.month == month;
+  /// Une partie de la galerie seulement (un mois, les captures) : on y entre
+  /// depuis le menu et on y revient à la fin.
+  bool get isFocused => isMonth || screenshots;
 
   @override
-  int get hashCode => Object.hash(year, month);
+  bool operator ==(Object other) =>
+      other is SwipeScope &&
+      other.year == year &&
+      other.month == month &&
+      other.screenshots == screenshots;
+
+  @override
+  int get hashCode => Object.hash(year, month, screenshots);
 }
 
 @immutable
@@ -188,7 +202,7 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
       nextCheckpointAt: _threshold,
       threshold: _threshold,
       waitingForGallery:
-          !scope.isMonth &&
+          !scope.isFocused &&
           queue.isEmpty &&
           ref.read(gallerySyncProvider) != SyncStatus.done,
     );
@@ -203,6 +217,13 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
     final photos = scope.isMonth
         ? await library.monthPhotos(scope.year!, scope.month!)
         : await library.unsortedPhotos(SortOrder.oldestFirst);
+    // Captures d'écran : une par une, de la plus ancienne à la plus récente.
+    if (scope.screenshots) {
+      return [
+        for (final p in photos)
+          if (p.isScreenshot) PhotoItem.single(p),
+      ];
+    }
     // Une paire JPG + RAW arrive comme une seule carte : on peut supprimer
     // les deux d'un coup. Le tri des RAW reste là pour décider du RAW seul.
     final items = groupPhotos(

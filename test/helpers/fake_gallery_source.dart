@@ -77,7 +77,18 @@ class FakeGallerySource implements GallerySource {
 
   /// Pas de lecteur vidéo dans les tests : la carte garde sa miniature.
   @override
-  Future<File?> videoFile(String id) async => null;
+  Future<File?> mediaFile(String id) async => null;
+
+  final openedInGallery = <String>[];
+
+  @override
+  bool get canOpenInGallery => true;
+
+  @override
+  Future<bool> openInGallery(String id) async {
+    openedInGallery.add(id);
+    return true;
+  }
 
   @override
   Future<bool> setFavorite(String id, {required bool favorite}) async {

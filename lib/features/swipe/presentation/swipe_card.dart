@@ -25,6 +25,7 @@ class SwipeCardFrame extends StatelessWidget {
     this.trailing = const [],
     this.stamp,
     this.strength = 0,
+    this.onMore,
   });
 
   final Widget image;
@@ -32,6 +33,9 @@ class SwipeCardFrame extends StatelessWidget {
 
   /// Dossier d'origine, pour retrouver la photo dans la galerie.
   final String? folder;
+
+  /// Bouton « ⋯ » : partager, ouvrir dans la galerie.
+  final VoidCallback? onMore;
   final List<Widget> trailing;
   final SwipeChoice? stamp;
   final double strength;
@@ -110,6 +114,16 @@ class SwipeCardFrame extends StatelessWidget {
                     ),
                   ),
                   ...trailing,
+                  if (onMore != null)
+                    IconButton(
+                      tooltip: AppLocalizations.of(context).photoMore,
+                      visualDensity: VisualDensity.compact,
+                      icon: Icon(
+                        Icons.more_horiz_rounded,
+                        color: tidy.inkMuted,
+                      ),
+                      onPressed: onMore,
+                    ),
                 ],
               ),
             ),
@@ -128,6 +142,7 @@ class PhotoSwipeCard extends ConsumerWidget {
     this.stamp,
     this.strength = 0,
     this.play = false,
+    this.onMore,
   });
 
   final GalleryPhoto photo;
@@ -137,6 +152,8 @@ class PhotoSwipeCard extends ConsumerWidget {
   /// Vidéo : lecture sur la carte du dessus seulement.
   final bool play;
 
+  final VoidCallback? onMore;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (photo.isVideo) {
@@ -145,6 +162,7 @@ class PhotoSwipeCard extends ConsumerWidget {
         play: play,
         stamp: stamp,
         strength: strength,
+        onMore: onMore,
       );
     }
     final l10n = AppLocalizations.of(context);
@@ -161,6 +179,7 @@ class PhotoSwipeCard extends ConsumerWidget {
       folder: photo.folderName,
       stamp: stamp,
       strength: strength,
+      onMore: onMore,
       trailing: [
         if (photo.isRaw) _Badge(text: l10n.swipeRaw),
         if (photo.isFavorite) ...[
@@ -196,6 +215,7 @@ class ItemSwipeCard extends ConsumerWidget {
     this.strength = 0,
     this.onPickBest,
     this.play = false,
+    this.onMore,
   });
 
   final PhotoItem item;
@@ -208,6 +228,9 @@ class ItemSwipeCard extends ConsumerWidget {
   /// Rafale : ouvre le tri photo par photo.
   final VoidCallback? onPickBest;
 
+  /// « ⋯ » : actions sur la photo de couverture.
+  final VoidCallback? onMore;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (item.kind == PhotoItemKind.single) {
@@ -216,6 +239,7 @@ class ItemSwipeCard extends ConsumerWidget {
         stamp: stamp,
         strength: strength,
         play: play,
+        onMore: onMore,
       );
     }
     final l10n = AppLocalizations.of(context);
@@ -232,6 +256,7 @@ class ItemSwipeCard extends ConsumerWidget {
     final card = SwipeCardFrame(
       caption: caption,
       folder: item.cover.folderName,
+      onMore: onMore,
       stamp: stamp,
       strength: strength,
       image: Stack(
@@ -331,12 +356,14 @@ class VideoSwipeCard extends ConsumerStatefulWidget {
     this.play = false,
     this.stamp,
     this.strength = 0,
+    this.onMore,
   });
 
   final GalleryPhoto video;
   final bool play;
   final SwipeChoice? stamp;
   final double strength;
+  final VoidCallback? onMore;
 
   @override
   ConsumerState<VideoSwipeCard> createState() => _VideoSwipeCardState();
@@ -379,7 +406,7 @@ class _VideoSwipeCardState extends ConsumerState<VideoSwipeCard> {
     if (_loading) return;
     _loading = true;
     final id = widget.video.id;
-    final file = await ref.read(gallerySourceProvider).videoFile(id);
+    final file = await ref.read(gallerySourceProvider).mediaFile(id);
     if (!mounted || file == null || id != widget.video.id) {
       _loading = false;
       _failed = file == null;
@@ -458,6 +485,7 @@ class _VideoSwipeCardState extends ConsumerState<VideoSwipeCard> {
     return SwipeCardFrame(
       caption: caption,
       folder: video.folderName,
+      onMore: widget.onMore,
       stamp: widget.stamp,
       strength: widget.strength,
       trailing: [

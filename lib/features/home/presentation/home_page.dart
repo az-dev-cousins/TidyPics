@@ -31,6 +31,7 @@ class HomePage extends ConsumerWidget {
     final duplicates = ref.watch(duplicatesProvider).value ?? const [];
     final hashing = ref.watch(hashProgressProvider).value;
     final achievements = ref.watch(achievementsProvider);
+    final screenshots = ref.watch(screenshotsToSortProvider).value ?? 0;
 
     void backToSorting() =>
         context.canPop() ? context.pop() : context.go(AppRoutes.swipe);
@@ -130,6 +131,14 @@ class HomePage extends ConsumerWidget {
                           ? l10n.menuRawSortNone
                           : l10n.menuRawSortDetail(rawToSort.length),
                       onTap: () => context.push(AppRoutes.rawSort),
+                    ),
+                    _Tile(
+                      icon: Icons.screenshot_outlined,
+                      title: l10n.menuScreenshots,
+                      subtitle: screenshots == 0
+                          ? l10n.menuScreenshotsNone
+                          : l10n.menuScreenshotsDetail(screenshots),
+                      onTap: () => context.push(AppRoutes.screenshots),
                     ),
                     _Tile(
                       icon: Icons.emoji_events_outlined,
