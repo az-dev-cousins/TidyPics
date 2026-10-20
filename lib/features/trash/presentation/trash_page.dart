@@ -30,7 +30,13 @@ class TrashPage extends ConsumerWidget {
     // La photo est de retour dans la galerie : on la réindexe.
     unawaited(ref.read(gallerySyncProvider.notifier).scan());
     messenger.showSnackBar(
-      SnackBar(content: Text(l10n.trashRestored(l10n.photoCount(count)))),
+      SnackBar(
+        content: Text(
+          l10n.trashRestored(
+            entry.photo.isVideo ? l10n.videoCount(1) : l10n.photoCount(1),
+          ),
+        ),
+      ),
     );
   }
 
@@ -42,7 +48,8 @@ class TrashPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final tidy = TidyColors.of(context);
-    final photos = l10n.photoCount(entries.length);
+    final videos = entries.where((e) => e.photo.isVideo).length;
+    final photos = l10n.items(photos: entries.length - videos, videos: videos);
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -65,7 +72,14 @@ class TrashPage extends ConsumerWidget {
     final count = await ref.read(trashRepositoryProvider).emptyNow(entries);
     if (count == 0) return;
     messenger.showSnackBar(
-      SnackBar(content: Text(l10n.trashEmptied(l10n.photoCount(count)))),
+      SnackBar(
+        content: Text(
+          l10n.trashEmptied(
+            // Tout est parti d'un coup, sauf refus partiel (rare).
+            count == entries.length ? photos : l10n.photoCount(count),
+          ),
+        ),
+      ),
     );
   }
 

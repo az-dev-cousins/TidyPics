@@ -30,7 +30,28 @@
   "@photoCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "videoCount": "{count, plural, =0{aucune vidéo} =1{1 vidéo} other{{count} vidéos}}",
+  "@videoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "mediaCount": "{photos} et {videos}",
+  "@mediaCount": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      },
+      "videos": {
+        "type": "String"
       }
     }
   },
@@ -85,11 +106,11 @@
       }
     }
   },
-  "checkpointPendingTitle": "{count, plural, =1{1 photo en attente} other{{count} photos en attente}}",
+  "checkpointPendingTitle": "{items} en attente",
   "@checkpointPendingTitle": {
     "placeholders": {
-      "count": {
-        "type": "int"
+      "items": {
+        "type": "String"
       }
     }
   },
@@ -107,11 +128,11 @@
   "checkpointHint": "Touche une photo pour ne pas la supprimer : elle reviendra plus tard dans le tri.",
   "checkpointSafetyAndroid": "Elles vont dans la corbeille du téléphone : récupérables pendant 30 jours.",
   "checkpointSafetyIos": "Elles vont dans « Récemment supprimés » : récupérables pendant 30 jours.",
-  "checkpointDelete": "{count, plural, =1{Supprimer 1 photo ({size})} other{Supprimer {count} photos ({size})}}",
+  "checkpointDelete": "Supprimer {items} ({size})",
   "@checkpointDelete": {
     "placeholders": {
-      "count": {
-        "type": "int"
+      "items": {
+        "type": "String"
       },
       "size": {
         "type": "String"

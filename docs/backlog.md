@@ -1,6 +1,6 @@
 # Backlog V1
 
-Liste des issues à créer sur GitHub : une milestone par lot, une case = une issue.
+Une case = une tâche. Vue d'ensemble et ordre des étapes : [roadmap](roadmap.md).
 Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 
 ## Lot 0 — Socle
@@ -81,4 +81,31 @@ Pistes et choix : https://claude.ai/artifact/D4jveh5gf2pPxWirwQxVsC. Menu A + C,
 - [x] F10 Lecture automatique sans le son, pause et son
 - [x] F10 Marque « ▶ durée » sur les miniatures, segment « Vidéos » du stockage
 - [ ] F10 iOS : vérifier le temps de départ des vidéos iCloud / HEVC sur un vrai iPhone
-- [ ] Textes : « 3 photos » compte aussi les vidéos (dire « 2 photos et 1 vidéo » ?)
+- [x] Récap et corbeille : « 2 photos et 1 vidéo », nombres avec séparateur (« 3 000 »)
+
+## Lot 8 — Tests sur appareils
+
+- [ ] Pixel 10 : 60 fps au swipe, vidéos fluides
+- [ ] Pixel 10 : Google Photos garde-t-il la copie cloud ? (voir lot 0bis)
+- [ ] Pixel 10 : paires JPG + RAW, rafales, « Gestion des médias », envoi en quittant l'app
+- [ ] Pixel 10 : scan d'une vraie galerie (temps, taille de la base)
+- [ ] iPhone : JPG + RAW, suppression d'un seul fichier (voir lot 0bis)
+- [ ] iPhone : rafales natives `burstIdentifier` (voir lot 6)
+- [ ] iPhone : vidéos iCloud (voir lot 7), accès limité, « Récemment supprimés »
+- [ ] iPad : mise en page tablette, portrait et paysage
+
+## Lot 9 — Finitions V1
+
+- [ ] Accessibilité : TalkBack, VoiceOver, grand texte, contrastes
+- [ ] Stats : « photos supprimées » compte aussi les vidéos
+- [ ] Relire les textes anglais
+- [ ] Cas limites : galerie vide, permission retirée, vidéo illisible, téléphone plein
+- [ ] Écran « À propos » : version, vie privée, licences
+- [ ] Démarrage à froid < 2 s, mémoire avec 50 000 éléments
+
+## Lot 10 — Publication V1
+
+- [ ] Android : clé de signature, `appbundle`, fiche Play Store, « Sécurité des données », test fermé
+- [ ] iOS : compte développeur, TestFlight, fiche App Store, « App Privacy »
+- [ ] Politique de confidentialité en ligne
+- [ ] Version 1.0.0, CHANGELOG, tag

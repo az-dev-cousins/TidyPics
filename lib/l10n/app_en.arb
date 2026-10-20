@@ -6,6 +6,34 @@
   "sizeMb": "{value} MB",
   "sizeGb": "{value} GB",
   "photoCount": "{count, plural, =0{no photos} =1{1 photo} other{{count} photos}}",
+  "@photoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "videoCount": "{count, plural, =0{no videos} =1{1 video} other{{count} videos}}",
+  "@videoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "mediaCount": "{photos} and {videos}",
+  "@mediaCount": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      },
+      "videos": {
+        "type": "String"
+      }
+    }
+  },
   "actionNext": "Next",
   "actionCancel": "Cancel",
   "onboardingSwipeTitle": "Sort with a swipe",
@@ -57,12 +85,29 @@
       }
     }
   },
-  "checkpointPendingTitle": "{count, plural, =1{1 photo waiting} other{{count} photos waiting}}",
+  "checkpointPendingTitle": "{items} waiting",
+  "@checkpointPendingTitle": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
   "checkpointSummary": "{photos} · {size} to free",
   "checkpointHint": "Tap a photo to not delete it: it will come back later in sorting.",
   "checkpointSafetyAndroid": "They go to the phone's trash: recoverable for 30 days.",
   "checkpointSafetyIos": "They go to \"Recently Deleted\": recoverable for 30 days.",
-  "checkpointDelete": "{count, plural, =1{Delete 1 photo ({size})} other{Delete {count} photos ({size})}}",
+  "checkpointDelete": "Delete {items} ({size})",
+  "@checkpointDelete": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "checkpointContinue": "Keep sorting",
   "checkpointLater": "Later",
   "checkpointEmpty": "The bin is empty.",

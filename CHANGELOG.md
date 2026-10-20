@@ -6,6 +6,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Docs : [roadmap](docs/roadmap.md) complète, cahier des charges v1.4, README à jour.
+- Récap et corbeille : « 2 photos et 1 vidéo » au lieu de tout compter en photos ; « 3 000 » avec séparateur.
 - Vidéos (F10) : triées avec les photos, les grosses (plus de 100 Mo) en tête dans le désordre. Lecture automatique sans le son, avec pause et son. Marque « ▶ durée » sur les miniatures, segment « Vidéos » dans la barre de stockage.
 - `make videos-android` / `videos-android-big` / `videos-android-clean` : vidéos de test sur l'émulateur.
 - Tablette en paysage : panneau à droite de la carte avec la session en cours, l'avancée vers le récap et les dernières photos du panier.
@@ -24,6 +26,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 - Le tri propose les rafales et les paires JPG + RAW comme un seul élément.
 
 ### Corrigé
+- Carte d'une rafale : vignettes carrées de taille fixe (avec deux photos, elles s'étiraient en bandes illisibles).
 - Envoi de gros paniers bien plus rapide (3 000 photos : moins d'une minute au lieu de 4 sur émulateur) : miniatures lues 8 par 8.
 - Des fichiers sans date de prise de vue copiés d'un coup ne forment plus des « rafales » géantes (50 photos au plus).
 - Les paires JPG + RAW des Pixel (`….RAW-01.COVER.jpg` + `….RAW-02.ORIGINAL.dng`) étaient prises pour des rafales.

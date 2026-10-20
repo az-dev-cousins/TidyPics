@@ -28,12 +28,20 @@ class TrashEntry {
 
 /// Résultat d'un envoi à la corbeille.
 class TrashOutcome {
-  const TrashOutcome({required this.count, required this.bytes});
+  const TrashOutcome({
+    required this.count,
+    required this.bytes,
+    this.videos = 0,
+  });
 
   static const none = TrashOutcome(count: 0, bytes: 0);
 
+  /// Éléments envoyés, vidéos comprises.
   final int count;
   final int bytes;
+  final int videos;
+
+  int get photos => count - videos;
 }
 
 /// Statistiques depuis l'installation (F7).
@@ -186,7 +194,11 @@ class TrashRepository {
         await (_db.delete(_db.photos)..where((t) => t.id.isIn(chunk))).go();
       }
     });
-    return TrashOutcome(count: trashed.length, bytes: bytes);
+    return TrashOutcome(
+      count: trashed.length,
+      bytes: bytes,
+      videos: trashed.where((p) => p.isVideo).length,
+    );
   }
 
   /// Android : sort des photos de la corbeille. Elles comptent comme gardées.

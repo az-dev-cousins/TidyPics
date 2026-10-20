@@ -546,22 +546,31 @@ class _Strip extends StatelessWidget {
 
   final List<GalleryPhoto> photos;
 
+  /// Vignettes carrées de taille fixe : avec deux photos seulement, elles
+  /// ne s'étirent pas en bandes où l'on ne reconnaît rien.
+  static const _side = 56.0;
+
   @override
   Widget build(BuildContext context) {
     const shown = 4;
     final extra = photos.length - shown;
     final scheme = Theme.of(context).colorScheme;
     return SizedBox(
-      height: 48,
+      height: _side,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           for (final (i, photo) in photos.take(shown).indexed) ...[
             if (i > 0) const SizedBox(width: 6),
-            Expanded(child: PhotoThumbnail(photo: photo, size: 120)),
+            SizedBox.square(
+              dimension: _side,
+              child: PhotoThumbnail(photo: photo, size: 160),
+            ),
           ],
           if (extra > 0) ...[
             const SizedBox(width: 6),
-            Expanded(
+            SizedBox.square(
+              dimension: _side,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainer.withValues(alpha: 0.85),

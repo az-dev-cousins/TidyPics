@@ -87,6 +87,12 @@ class _CheckpointPageState extends ConsumerState<CheckpointPage> {
   List<CartEntry> _selected(List<CartEntry> cart) =>
       cart.where((e) => !_excluded.contains(e.photo.id)).toList();
 
+  /// « 2 photos et 1 vidéo ».
+  String _items(AppLocalizations l10n, List<CartEntry> entries) {
+    final videos = entries.where((e) => e.photo.isVideo).length;
+    return l10n.items(photos: entries.length - videos, videos: videos);
+  }
+
   void _toggle(CartEntry entry) {
     setState(() {
       if (!_excluded.remove(entry.photo.id)) _excluded.add(entry.photo.id);
@@ -143,7 +149,7 @@ class _CheckpointPageState extends ConsumerState<CheckpointPage> {
         SnackBar(
           content: Text(
             l10n.checkpointDone(
-              l10n.photoCount(outcome.count),
+              l10n.items(photos: outcome.photos, videos: outcome.videos),
               l10n.fileSize(outcome.bytes),
             ),
           ),
@@ -183,7 +189,7 @@ class _CheckpointPageState extends ConsumerState<CheckpointPage> {
         appBar: AppBar(
           title: Text(
             widget.origin == CheckpointOrigin.launch
-                ? l10n.checkpointPendingTitle(cart?.length ?? 0)
+                ? l10n.checkpointPendingTitle(_items(l10n, cart ?? const []))
                 : l10n.checkpointTitle,
           ),
         ),
@@ -213,7 +219,7 @@ class _CheckpointPageState extends ConsumerState<CheckpointPage> {
                             children: [
                               Text(
                                 l10n.checkpointSummary(
-                                  l10n.photoCount(count),
+                                  _items(l10n, selected),
                                   l10n.fileSize(bytes),
                                 ),
                                 style: theme.textTheme.titleMedium,
@@ -312,7 +318,7 @@ class _CheckpointPageState extends ConsumerState<CheckpointPage> {
                                         (_progress! * 100).floor(),
                                       )
                               : l10n.checkpointDelete(
-                                  count,
+                                  _items(l10n, selected),
                                   l10n.fileSize(bytes),
                                 ),
                         ),

@@ -28,6 +28,13 @@ extension Formatters on AppLocalizations {
     return sizeKb(kb.format(bytes / 1e3));
   }
 
+  /// « 2 photos et 1 vidéo », « 3 photos », « 1 vidéo ».
+  String items({required int photos, required int videos}) {
+    if (videos == 0) return photoCount(photos);
+    if (photos == 0) return videoCount(videos);
+    return mediaCount(photoCount(photos), videoCount(videos));
+  }
+
   /// Durée d'une vidéo : « 0:42 », « 12:05 », « 1:02:03 ».
   String videoLength(Duration duration) {
     String two(int v) => v.toString().padLeft(2, '0');

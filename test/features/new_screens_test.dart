@@ -261,6 +261,13 @@ void main() {
     await settle(tester);
     expect(find.text('1 · 300 Mo'), findsOneWidget);
 
+    // Le récap compte photos et vidéos à part.
+    await tester.tap(find.byTooltip('Supprimer'));
+    await settle(tester);
+    await tester.tap(find.text('2 · 300 Mo'));
+    await settle(tester);
+    expect(find.text('Supprimer 1 photo et 1 vidéo (300 Mo)'), findsOneWidget);
+
     await closeApp(tester);
   });
 }

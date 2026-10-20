@@ -1,7 +1,7 @@
 # 📸 TidyPics — Cahier des charges
 
-> Version 1.3 — 20/10/2026 (retours sur la première version)
-> Statut : **périmètre V1 validé**
+> Version 1.4 — 20/10/2026 (vidéos, tablette, mesures sur 20 000 photos)
+> Statut : **périmètre V1 validé, fonctionnalités terminées** — reste les tests sur appareils, les finitions et la publication ([roadmap](roadmap.md))
 > Source de vérité : ce document, avec les décisions de [`docs/adr/`](adr/README.md) et la direction artistique de [`docs/design/`](design/direction-artistique.md).
 
 ---
@@ -39,9 +39,9 @@ Les galeries de smartphone accumulent des milliers de photos inutiles : rafales,
 - ❌ Desktop et web
 - ❌ Envoi de photos vers un cloud par l'app elle-même (cela demanderait un compte Google)
 
-### Plus tard
-- V2 : succès, notifications locales, envoi vers le cloud via le menu de partage
-- V3 : tous les types de fichiers, IA (flou, screenshots, meilleure photo)
+### Plus tard (détail dans la [roadmap](roadmap.md))
+- V2 : doublons exacts, succès, notifications locales, envoi vers le cloud via le menu de partage
+- V3 : tous les types de fichiers, IA sur le téléphone (flou, screenshots, meilleure photo)
 
 ---
 
@@ -72,7 +72,7 @@ Référence : [Android — Access media files from shared storage](https://devel
 
 | Permission | Plateforme | Quand on la demande | Si l'utilisateur refuse |
 |---|---|---|---|
-| Lecture des photos (`READ_MEDIA_IMAGES`) | Android | Fin de l'onboarding | L'app ne peut rien faire : écran expliquant comment l'autoriser dans les réglages |
+| Lecture des photos et des vidéos (`READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`) | Android | Fin de l'onboarding | L'app ne peut rien faire : écran expliquant comment l'autoriser dans les réglages |
 | Accès partiel « photos sélectionnées » | Android 14+ | Choix proposé par le système | On trie seulement ces photos, avec un bandeau « Autoriser toutes les photos » |
 | Photothèque (complet ou limité) | iOS | Fin de l'onboarding | Idem Android |
 | **Gestion des médias** (`MANAGE_MEDIA`) | Android 12+ | **Au premier checkpoint**, avec une explication (« Supprime sans confirmation à chaque fois ») | Une popup système s'affiche à chaque lot. Rien n'est bloqué |
@@ -113,7 +113,7 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 
 - Chaque geste a aussi un bouton équivalent, pour l'accessibilité.
 - Une animation confirme chaque décision (poubelle, check, étoile).
-- Sur la carte : date, taille, badges « RAW », « Rafale » ou « iCloud » s'il y a lieu.
+- Sur la carte : date, taille, badges « RAW », « Rafale », « Vidéo · durée » ou « iCloud » s'il y a lieu.
 - Un compteur de session est visible : photos triées et Mo dans le panier.
 - Une photo gardée **n'est plus reproposée**. Un réglage permet de remettre à zéro les photos gardées.
 - ✅ **L'app s'ouvre directement sur le tri** (après l'onboarding et à chaque lancement). Le menu (stats, panier, réglages…) s'ouvre depuis une icône en haut à gauche, sans passer par le récap.
@@ -139,7 +139,8 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 1. Le swipe gauche met la photo dans le **panier**, enregistré sur le téléphone **immédiatement**.
 2. Le **checkpoint** est un écran récap qui affiche la grille du panier, l'espace à libérer et permet de **décocher** une photo d'un tap.
    - ✅ Une photo décochée reste affichée (grisée), pour pouvoir la recocher avant de valider.
-   - ✅ En validant ou en quittant, une photo décochée n'est **ni supprimée ni gardée** : elle retourne dans le tri et sera reproposée plus tard. Son bouton « Supprimer N photos (X Mo) » envoie tout le panier à la corbeille système **en un seul lot**.
+   - ✅ En validant ou en quittant, une photo décochée n'est **ni supprimée ni gardée** : elle retourne dans le tri et sera reproposée plus tard.
+   - Le bouton « Supprimer 2 photos et 1 vidéo (X Mo) » envoie le panier à la corbeille système (voir §6 pour les lots). Photos et vidéos sont comptées à part ✅. Pendant l'envoi, le bouton affiche l'avancée en pourcentage ✅.
 3. Une photo du panier n'est pas encore supprimée : elle est toujours dans la galerie.
 
 #### Quand le checkpoint s'affiche
@@ -204,7 +205,7 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 
 ### F8 — Paramètres
 - Mode de tri : aléatoire, ou ordonné (ancien vers récent, ou l'inverse)
-- Taille du lot avant checkpoint (50 par défaut)
+- Nombre de photos triées avant le récap (25 par défaut : 10, 25, 50 ou 100)
 - Écart en secondes pour les rafales, et regroupement on/off
 - Android : accès à « Gestion des médias », envoi automatique en quittant l'app, suppression définitive directe
 - Remettre à zéro les photos gardées
@@ -243,10 +244,10 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 ## 6. Suppression en masse : fonctionnement détaillé
 
 1. Au checkpoint, l'app prépare la liste des photos du panier.
-2. **Android** : un seul `createTrashRequest` avec tous les éléments.
-   - Android 11, ou 12+ sans « Gestion des médias » : **une seule popup** (« Autoriser TidyPics à placer 50 éléments dans la corbeille ? »).
-   - Android 12+ avec « Gestion des médias » : aucune popup.
-   - Si le lot est très gros, il sera découpé en interne (taille à mesurer lors du prototype à cause d'une limite technique d'Android). Avec « Gestion des médias », ce découpage est invisible. Sans, il peut y avoir plus d'une popup.
+2. **Android** : `createTrashRequest` par lots.
+   - Android 11, ou 12+ sans « Gestion des médias » : **une popup par lot** (« Autoriser TidyPics à placer 50 éléments dans la corbeille ? »). Lots de **3 000** : une seule popup dans la pratique.
+   - Android 12+ avec « Gestion des médias » : aucune popup. Lots de **250**, pour faire avancer la barre.
+   - ✅ Mesuré sur émulateur (Android 16) : un lot de 3 000 photos passe sans erreur. Envoi de 3 000 photos : moins d'une minute (les miniatures du journal sont lues 8 par 8).
 3. **iOS** : un seul `deleteAssets`, donc **une seule popup** (« Autoriser TidyPics à supprimer 50 photos ? », avec la mention « de tous vos appareils » si iCloud est activé).
 4. Une fois l'opération acceptée, les photos sont inscrites dans le journal (F4), les stats sont mises à jour (F7) et le panier est vidé.
 5. Si l'opération est refusée ou échoue, rien ne change et le panier est conservé.
@@ -258,7 +259,7 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 | Domaine | Exigence |
 |---|---|
 | Vie privée | Aucune requête réseau faite par l'app, aucune donnée collectée, pas d'analytics en V1 |
-| Performance | Premier affichage < 2 s. Scan d'une galerie de 20 000 photos en tâche de fond, sans bloquer l'UI. Miniatures uniquement dans les listes |
+| Performance | Premier affichage < 2 s. Scan d'une galerie de 20 000 photos en tâche de fond, sans bloquer l'UI ✅ (mesuré : ~3 s, file de tri prête en 0,6 s). Miniatures uniquement dans les listes |
 | Fiabilité | Le panier, les décisions, le journal et les stats survivent à un crash ou à un kill |
 | Accessibilité | Un bouton pour chaque geste, compatibilité avec le grand affichage système, couleurs doublées d'icônes |
 | Langues | Français en V1, structure prête pour l'anglais (fichiers ARB) |
@@ -269,9 +270,10 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 ## 8. Architecture technique
 
 ### 8.1 Stack
-- Flutter (Dart 3.5+), Material 3
-- `photo_manager` pour la galerie, les miniatures, les suppressions et les favoris
-- **Code natif Android en Kotlin** pour ce que `photo_manager` ne fait pas : lire la corbeille, restaurer, vider, « Gestion des médias »
+- Flutter 3.47 (Dart 3.13), Material 3
+- `photo_manager` pour la galerie, les miniatures, l'envoi à la corbeille, la restauration, les favoris et « Gestion des médias » ([ADR 0007](adr/0007-photo-manager-pour-la-corbeille.md))
+- **Code natif Kotlin** (canal `tidypics/device`) pour le reste : lire la corbeille, la vider, les tailles de tous les fichiers en une requête, la place des photos et des vidéos. En Swift : capacité et espace libre.
+- `video_player` pour lire les vidéos ([ADR 0008](adr/0008-video-player.md))
 - Stockage local : **Drift** (SQLite) pour les décisions, le panier, le journal, les groupes et les stats, `shared_preferences` pour les réglages
 - Gestion de l'état : **Riverpod** ✅ ([ADR 0004](adr/0004-riverpod.md))
 - Navigation : **go_router** ([ADR 0005](adr/0005-go-router.md))
@@ -303,24 +305,28 @@ lib/
 │   └── utils/
 ├── l10n/                 # app_fr.arb, app_en.arb (textes traduits)
 ├── data/
-│   ├── models/           # Photo, PhotoGroup, TrashEntry, Stats
-│   ├── sources/          # gallery_source, native_trash_source (Android), local_db
-│   └── repositories/     # gallery, deletion, stats
+│   ├── models/           # GalleryPhoto (photo ou vidéo), PhotoItem (seule, rafale, paire)
+│   ├── sources/          # gallery_source (photo_manager + canal natif), local_db (Drift)
+│   └── repositories/     # library (index, décisions, panier), trash (corbeille, stats), settings
 ├── features/             # un dossier par écran : <feature>/presentation, <feature>/application
-│   ├── onboarding/  home/  swipe/  browse/  cart/
+│   ├── onboarding/  home/  swipe/  months/  cart/  gallery/
 │   ├── trash/  raw_pairs/  stats/  settings/
 └── shared/widgets/       # widgets réutilisables
 ```
 
 ### 8.4 Données locales
 
+Base Drift, version 2 (migration v1 → v2 testée).
+
 | Table | Contenu |
 |---|---|
-| `photo_decision` | asset_id, décision (kept / favorite / in_cart / trashed), date |
-| `photo_group` | group_id, type (burst / raw_pair), asset_ids |
-| `cart` | asset_id, taille, date d'ajout |
-| `trash_log` | asset_id, miniature (~10 Ko), taille, date d'envoi |
-| `stats_event` | type, octets, nb photos, date |
+| `photos` | index de la galerie : id, date, nom, dimensions, taille, favori, durée (vidéos) |
+| `photo_decisions` | asset_id, décision (kept / favorite / trashed), date, favori d'avant |
+| `cart_items` | asset_id, taille, date d'ajout |
+| `trash_log` | asset_id, nom, miniature (~10 Ko), taille, durée, date d'envoi |
+| `stats_events` | type (envoyée / restaurée), octets, nombre, date |
+
+Les groupes (rafales, paires) ne sont pas stockés : ils sont recalculés à l'ouverture du tri (quelques millisecondes).
 
 ---
 
@@ -332,10 +338,10 @@ lib/
   - `docs/adr/` (une fiche courte par décision technique, ex. « 0001 — Riverpod »)
   - Les anciennes notes sont archivées ou supprimées.
 - **README** : court. Pitch, captures, comment lancer le projet, liens vers les docs.
-- **Suivi** : GitHub Issues (une par fonctionnalité Fx ou par tâche), Milestones (un par lot, voir §11), GitHub Project en kanban, labels (`feature`, `bug`, `tech`, `design`, `android`, `ios`).
-- **Git** : `main` protégée, branches `feat/…`, `fix/…`, `chore/…`, fusion par PR (même seul, pour garder l'historique et faire passer la CI). Pas de branche `dev` : inutile pour un développeur seul.
+- **Suivi** : [roadmap](roadmap.md) et [backlog](backlog.md) dans le dépôt. GitHub Issues et kanban : à décider avant la publication.
+- **Git** : ✅ travail **direct sur `main`** (développeur seul, versionnement depuis Android Studio), branche seulement pour un changement risqué. Voir `CONTRIBUTING.md`.
 - **Commits** : Conventional Commits (`feat:`, `fix:`, `chore:`…), versions en SemVer, `CHANGELOG.md`.
-- **CI** (GitHub Actions) : `dart format --set-exit-if-changed`, `flutter analyze`, `flutter test`, build Android à chaque PR.
+- **CI** (GitHub Actions) : `dart format --set-exit-if-changed`, `flutter analyze`, `flutter test`, build Android à chaque push sur `main` et à chaque PR.
 - **Qualité** : règles de lint plus strictes, `CLAUDE.md` pour documenter les conventions.
 
 ---
@@ -364,11 +370,17 @@ lib/
 | Lot | Contenu | Résultat attendu |
 |---|---|---|
 | 0 — Socle | Organisation (§9), DA et logo, nettoyage du template, dépendances, thème, CI | L'app démarre avec la bonne identité visuelle |
-| 0bis — Prototypes | Tests techniques : corbeille Android et « Gestion des médias », Google Photos, JPG + RAW sur iOS | Points 9 et 10 tranchés |
+| 0bis — Prototypes | Tests techniques : corbeille Android et « Gestion des médias », Google Photos, JPG + RAW sur iOS | Points 10 et 11 tranchés |
 | 1 — Galerie | Permissions, onboarding, scan, base locale | La galerie est indexée |
 | 2 — Swipe | F1 et F2 (aléatoire, ordonné, annuler, favori) | On peut trier |
 | 3 — Suppression | F3, F4 et §6 | On libère réellement de l'espace |
 | 4 — Stats | F7 et accueil final | Les gains sont visibles |
 | 5 — Ciblé | Tri par année et mois | Tri ciblé possible |
-| 6 — Groupes | F5 et F6 | **MVP complet** |
-| 7+ | Succès, notifications, partage vers le cloud, IA | V2 / V3 |
+| 6 — Groupes | F5 et F6 | **MVP complet** ✅ |
+| 7 — Vidéos | F10 | Photos et vidéos triées ensemble ✅ |
+| 8 — Tests sur appareils | Pixel 10, iPhone, iPad : points 10 et 11, fluidité, vidéos iCloud | La V1 marche sur de vrais téléphones |
+| 9 — Finitions | Accessibilité, textes, cas limites, « À propos » | V1 prête |
+| 10 — Publication | Play Store, App Store, politique de confidentialité | **V1 publiée** |
+| V2 / V3 | Voir la [roadmap](roadmap.md) | |
+
+Lots 0 à 7 : ✅ faits (détail dans le [backlog](backlog.md)).
