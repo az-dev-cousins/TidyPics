@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tidypics/data/models/gallery_photo.dart';
 
@@ -205,6 +207,26 @@ void main() {
     await tester.tap(find.byTooltip('Supprimer'));
     await settle(tester);
     expect(find.text('3 · 3 Ko'), findsOneWidget);
+
+    await closeApp(tester);
+  });
+
+  testWidgets('tablette en paysage : session et panier à droite', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      gallery: FakeGallerySource(photos: samplePhotos(3)),
+      // 1280 × 800 points.
+      size: const Size(3200, 2000),
+    );
+    expect(find.text('CETTE SESSION'), findsOneWidget);
+    expect(find.text('Les photos glissées à gauche arrivent ici.'), findsOne);
+
+    await tester.tap(find.byTooltip('Supprimer'));
+    await settle(tester);
+    expect(find.text('1 · 1 Ko'), findsOneWidget);
+    expect(find.text('Voir le récap'), findsOneWidget);
 
     await closeApp(tester);
   });

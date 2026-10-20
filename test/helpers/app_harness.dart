@@ -41,10 +41,11 @@ Future<void> pumpApp(
   LocalDb? db,
   Map<String, Object> settings = const {'onboarding_done': true},
   Locale locale = const Locale('fr'),
+  Size size = const Size(1080, 2400),
 }) async {
   tester.platformDispatcher.localesTestValue = [locale];
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
-  tester.view.physicalSize = const Size(1080, 2400);
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 2.5;
   addTearDown(tester.view.reset);
 

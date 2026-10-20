@@ -17,6 +17,7 @@ import '../../cart/presentation/checkpoint_page.dart';
 import '../../gallery/application/gallery_controller.dart';
 import '../../settings/application/settings_controller.dart';
 import '../application/swipe_session.dart';
+import 'session_panel.dart';
 import 'swipe_card.dart';
 import 'swipe_deck.dart';
 
@@ -200,29 +201,53 @@ class _SwipePageState extends ConsumerState<SwipePage> {
         body: SafeArea(
           top: false,
           child: switch (session) {
-            AsyncData(value: final state) => Center(
-              child: ConstrainedBox(
-                // Tablette : la carte reste centrée, avec une largeur maximum.
-                constraints: const BoxConstraints(maxWidth: 560),
-                child: Column(
-                  children: [
-                    _SessionBar(
-                      state: state,
-                      cartBytes: cartBytes,
-                      onCartTap: () => _openCheckpoint(CheckpointOrigin.home),
+            AsyncData(value: final state) => LayoutBuilder(
+              builder: (context, constraints) {
+                // Tablette en paysage : le panier et la session à droite.
+                final wide = SessionPanel.fits(constraints);
+                final deck = Center(
+                  child: ConstrainedBox(
+                    // Tablette : la carte reste centrée, avec une largeur
+                    // maximum.
+                    constraints: const BoxConstraints(maxWidth: 560),
+                    child: Column(
+                      children: [
+                        if (!wide)
+                          _SessionBar(
+                            state: state,
+                            cartBytes: cartBytes,
+                            onCartTap: () =>
+                                _openCheckpoint(CheckpointOrigin.home),
+                          ),
+                        Expanded(child: _content(state)),
+                        _ActionBar(
+                          enabled: state.current != null,
+                          canUndo: state.canUndo,
+                          canSkip: state.queue.length > 1,
+                          onPress: _press,
+                          onUndo: _undo,
+                          onSkip: _session.skip,
+                        ),
+                      ],
                     ),
-                    Expanded(child: _content(state)),
-                    _ActionBar(
-                      enabled: state.current != null,
-                      canUndo: state.canUndo,
-                      canSkip: state.queue.length > 1,
-                      onPress: _press,
-                      onUndo: _undo,
-                      onSkip: _session.skip,
+                  ),
+                );
+                if (!wide) return deck;
+                return Row(
+                  children: [
+                    Expanded(child: deck),
+                    const VerticalDivider(width: 1),
+                    SizedBox(
+                      width: SessionPanel.width,
+                      child: SessionPanel(
+                        state: state,
+                        onOpenCart: () =>
+                            _openCheckpoint(CheckpointOrigin.home),
+                      ),
                     ),
                   ],
-                ),
-              ),
+                );
+              },
             ),
             AsyncError() => _Message(
               icon: Icons.error_outline_rounded,

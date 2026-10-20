@@ -69,6 +69,17 @@
   "swipeEmptyBody": "Ta galerie ne contient aucune photo à trier.",
   "swipeImageError": "Photo illisible",
   "checkpointTitle": "Récap avant de supprimer",
+  "panelSession": "Cette session",
+  "panelCartHint": "Les photos glissées à gauche arrivent ici.",
+  "panelOpenRecap": "Voir le récap",
+  "panelMore": "+{count}",
+  "@panelMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "checkpointPendingTitle": "{count, plural, =1{1 photo en attente} other{{count} photos en attente}}",
   "@checkpointPendingTitle": {
     "placeholders": {

@@ -118,7 +118,7 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 - Une photo gardée **n'est plus reproposée**. Un réglage permet de remettre à zéro les photos gardées.
 - ✅ **L'app s'ouvre directement sur le tri** (après l'onboarding et à chaque lancement). Le menu (stats, panier, réglages…) s'ouvre depuis une icône en haut à gauche, sans passer par le récap.
 - En haut du tri : nombre de photos triées, pastille du panier (photos et Mo, touchable) et une barre qui avance vers le prochain récap.
-- **Tablette** : la carte est centrée avec une largeur maximum. En paysage, un panneau latéral affiche le panier et les stats de la session.
+- **Tablette** : la carte est centrée avec une largeur maximum. En paysage, un panneau latéral affiche le panier et les stats de la session. ✅ À partir de 840 × 480 points : un téléphone couché garde la mise en page normale.
 - **Plus tard (V2)** : un appui long sur un favori proposera « Envoyer vers… » (menu de partage du système, vers Google Photos, Drive, etc.). L'utilisateur n'a pas besoin de se connecter dans l'app.
 
 **Critères d'acceptation**

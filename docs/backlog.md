@@ -43,7 +43,7 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 - [x] F1 Annuler (10 dernières décisions), « Passer »
 - [x] F1 Favori système (Android `createFavoriteRequest`, iOS `isFavorite`)
 - [x] F2 Mode aléatoire (par défaut) et mode ordonné
-- [ ] F1 Mise en page tablette (panneau latéral en paysage)
+- [x] F1 Mise en page tablette (panneau latéral en paysage, à partir de 840 × 480 points)
 
 ## Lot 3 — Suppression
 

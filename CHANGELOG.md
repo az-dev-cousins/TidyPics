@@ -6,6 +6,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Tablette en paysage : panneau à droite de la carte avec la session en cours, l'avancée vers le récap et les dernières photos du panier.
 - Récap : pourcentage d'avancée pendant l'envoi à la corbeille.
 - `tool/generate_bulk_photos.dart` : génère des milliers de petites photos pour les mesures.
 - Tri des RAW : signale les RAW sans JPG gardé. Dans le tri normal, une paire JPG + RAW reste une seule carte ; badge RAW au récap.

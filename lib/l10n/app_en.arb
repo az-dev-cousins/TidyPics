@@ -41,6 +41,17 @@
   "swipeEmptyBody": "Your gallery has no photos to sort.",
   "swipeImageError": "Can't read this photo",
   "checkpointTitle": "Review before deleting",
+  "panelSession": "This session",
+  "panelCartHint": "Photos you swipe left land here.",
+  "panelOpenRecap": "Open the recap",
+  "panelMore": "+{count}",
+  "@panelMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "checkpointPendingTitle": "{count, plural, =1{1 photo waiting} other{{count} photos waiting}}",
   "checkpointSummary": "{photos} · {size} to free",
   "checkpointHint": "Tap a photo to not delete it: it will come back later in sorting.",
