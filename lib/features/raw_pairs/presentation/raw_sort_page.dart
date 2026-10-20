@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -24,7 +25,7 @@ import '../../swipe/presentation/swipe_page.dart' show SwipeRoundButton;
 /// Tri des RAW (F6) : le même swipe que le tri principal, mais on ne décide
 /// que du fichier RAW. Le JPG de la même photo n'est jamais touché.
 ///
-/// L'écran est en thème sombre, façon chambre noire, pour qu'on voie tout de
+/// L'écran a un fond vert, en clair comme en sombre, pour qu'on voie tout de
 /// suite qu'on n'est pas dans le tri habituel.
 class RawSortPage extends ConsumerStatefulWidget {
   const RawSortPage({super.key});
@@ -79,11 +80,7 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      backgroundColor: AppTheme.dark.colorScheme.surfaceContainer,
-      // La feuille s'ouvre au-dessus de l'app : on lui redonne le thème
-      // sombre de l'écran.
-      builder: (context) =>
-          Theme(data: AppTheme.dark, child: const _RawIntro()),
+      builder: (context) => const _RawIntro(),
     );
     await ref.read(settingsProvider.notifier).markRawIntroSeen();
     // On montre le geste une fois, sur la première carte.
@@ -137,14 +134,6 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Thème sombre quel que soit le réglage : c'est le signe du mode RAW.
-    return Theme(
-      data: AppTheme.dark,
-      child: Builder(builder: _build),
-    );
-  }
-
-  Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final tidy = TidyColors.of(context);
@@ -153,9 +142,14 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
     final current = queue?.firstOrNull;
     final next = (queue?.length ?? 0) > 1 ? queue![1] : null;
 
+    final onRaw = tidy.onRawBackdrop;
     return Scaffold(
-      backgroundColor: scheme.surface,
+      backgroundColor: tidy.rawBackdrop,
       appBar: AppBar(
+        backgroundColor: tidy.rawBackdrop,
+        foregroundColor: onRaw,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        titleTextStyle: theme.textTheme.titleLarge?.copyWith(color: onRaw),
         leading: IconButton(
           tooltip: l10n.swipeClose,
           icon: const Icon(Icons.close_rounded),
@@ -163,6 +157,11 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
         ),
         title: Text(l10n.rawSortTitle),
         actions: [
+          IconButton(
+            tooltip: l10n.rawSortDetails,
+            icon: const Icon(Icons.view_list_rounded),
+            onPressed: () => context.push(AppRoutes.rawPairs),
+          ),
           IconButton(
             tooltip: l10n.rawSortHelp,
             icon: const Icon(Icons.help_outline_rounded),
@@ -182,7 +181,7 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
             child: queue == null
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator(color: onRaw))
                 : current == null
                 ? _Done(
                     count: _trashedCount,
@@ -191,6 +190,7 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
                       AppRoutes.checkpoint(CheckpointOrigin.home),
                     ),
                     onClose: () => context.pop(),
+                    onDetails: () => context.push(AppRoutes.rawPairs),
                   )
                 : Column(
                     children: [
@@ -201,20 +201,22 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
                             Icon(
                               Icons.lock_outline_rounded,
                               size: 18,
-                              color: tidy.inkMuted,
+                              color: onRaw,
                             ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 l10n.rawSortJpgSafe,
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: tidy.inkMuted,
+                                  color: onRaw.withValues(alpha: 0.9),
                                 ),
                               ),
                             ),
                             Text(
                               l10n.rawSortLeft(queue.length),
-                              style: theme.textTheme.labelLarge,
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: onRaw,
+                              ),
                             ),
                           ],
                         ),
@@ -251,6 +253,7 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             _LabelledButton(
+                              color: onRaw,
                               label: l10n.rawSortDelete,
                               child: SwipeRoundButton(
                                 tooltip: l10n.rawSortDelete,
@@ -271,16 +274,20 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
                               ),
                             ),
                             _LabelledButton(
+                              color: onRaw,
                               label: l10n.rawSortKeep,
                               child: SwipeRoundButton(
                                 tooltip: l10n.rawSortKeep,
                                 size: 64,
                                 onPressed: () =>
                                     _deck.currentState?.swipe(SwipeChoice.keep),
-                                background: tidy.keep,
+                                // Sur le fond vert, un bouton vert
+                                // disparaîtrait : fond clair, coche verte.
+                                border: BorderSide(color: tidy.keep, width: 2),
+                                background: scheme.surfaceContainer,
                                 child: Icon(
                                   Icons.check_rounded,
-                                  color: tidy.onKeep,
+                                  color: tidy.keep,
                                   size: 32,
                                 ),
                               ),
@@ -367,9 +374,14 @@ class _RawCard extends ConsumerWidget {
 }
 
 class _LabelledButton extends StatelessWidget {
-  const _LabelledButton({required this.label, required this.child});
+  const _LabelledButton({
+    required this.label,
+    required this.color,
+    required this.child,
+  });
 
   final String label;
+  final Color color;
   final Widget child;
 
   @override
@@ -380,7 +392,11 @@ class _LabelledButton extends StatelessWidget {
         child,
         const SizedBox(height: 8),
         ExcludeSemantics(
-          child: Text(label, style: Theme.of(context).textTheme.labelMedium),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium
+                ?.copyWith(color: color),
+          ),
         ),
       ],
     );
@@ -452,33 +468,32 @@ class _Done extends StatelessWidget {
     required this.bytes,
     required this.onReview,
     required this.onClose,
+    required this.onDetails,
   });
 
   final int count;
   final int bytes;
   final VoidCallback onReview;
   final VoidCallback onClose;
+  final VoidCallback onDetails;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final tidy = TidyColors.of(context);
+    final onRaw = tidy.onRawBackdrop;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.check_circle_outline_rounded,
-              size: 56,
-              color: theme.colorScheme.primary,
-            ),
+            Icon(Icons.check_circle_outline_rounded, size: 56, color: onRaw),
             const SizedBox(height: 16),
             Text(
               l10n.rawSortDone,
-              style: theme.textTheme.titleLarge,
+              style: theme.textTheme.titleLarge?.copyWith(color: onRaw),
               textAlign: TextAlign.center,
             ),
             if (count > 0) ...[
@@ -487,17 +502,30 @@ class _Done extends StatelessWidget {
                 l10n.rawSortDoneBody(count, l10n.fileSize(bytes)),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: tidy.inkMuted,
+                  color: onRaw.withValues(alpha: 0.9),
                 ),
               ),
               const SizedBox(height: 24),
               FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: theme.colorScheme.surfaceContainer,
+                  foregroundColor: theme.colorScheme.primary,
+                ),
                 onPressed: onReview,
                 child: Text(l10n.rawSortReview),
               ),
             ],
             const SizedBox(height: 8),
-            TextButton(onPressed: onClose, child: Text(l10n.actionBack)),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: onRaw),
+              onPressed: onDetails,
+              child: Text(l10n.rawSortDetails),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: onRaw),
+              onPressed: onClose,
+              child: Text(l10n.actionBack),
+            ),
           ],
         ),
       ),

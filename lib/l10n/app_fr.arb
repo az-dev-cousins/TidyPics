@@ -306,15 +306,6 @@
       }
     }
   },
-  "menuRawNone": "Aucune paire",
-  "menuRawDetail": "{count, plural, =1{1 paire} other{{count} paires}}",
-  "@menuRawDetail": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "menuTrash": "Corbeille",
   "monthsTitle": "Trier par mois",
   "monthsYearSummary": "{count, plural, =1{1 photo} other{{count} photos}} · {percent} % triées",
@@ -441,12 +432,21 @@
     }
   },
   "rawSortReview": "Voir le récap",
-  "rawSortCta": "Trier les RAW un par un",
-  "rawSortCtaBody": "Au swipe : garde ou supprime chaque RAW, le JPG reste.",
   "rawIntroTitle": "Trier les RAW",
   "rawIntroBody": "Ici, chaque carte est le fichier RAW d'une photo que tu as aussi en JPG.",
   "rawIntroLeft": "Glisse à gauche : le RAW va au panier.",
   "rawIntroRight": "Glisse à droite : tu gardes le RAW.",
   "rawIntroJpg": "Le JPG n'est jamais touché, quoi que tu choisisses.",
-  "rawIntroStart": "C'est parti"
+  "rawIntroStart": "C'est parti",
+  "rawSortDetails": "Détail des paires JPG + RAW",
+  "menuRawSort": "Trier les RAW",
+  "menuRawSortNone": "Tout est trié",
+  "menuRawSortDetail": "{count, plural, =1{1 RAW à trier} other{{count} RAW à trier}}",
+  "@menuRawSortDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

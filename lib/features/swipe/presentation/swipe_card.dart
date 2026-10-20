@@ -53,10 +53,7 @@ class SwipeCardFrame extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  ColoredBox(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
-                    child: image,
-                  ),
+                  ColoredBox(color: tidy.photoBackdrop, child: image),
                   if (stamp != null && strength > 0)
                     SwipeStamp(choice: stamp!, strength: strength),
                 ],

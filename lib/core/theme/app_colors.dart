@@ -19,17 +19,27 @@ abstract final class AppPalette {
   // « Autre » dans la barre de stockage : neutre, toujours légendé.
   static const stone = Color(0xFF9E998C);
 
+  // Fond derrière une photo (bandes au-dessus et en dessous).
+  static const photoBackdrop = Color(0xFFEFEEE8);
+
   // Sombre
-  static const night = Color(0xFF121615);
-  static const nightSurface = Color(0xFF1B2120);
+  static const night = Color(0xFF101413);
+  static const nightSurface = Color(0xFF1A2221);
   static const nightInk = Color(0xFFE8ECEA);
   static const nightInkMuted = Color(0xFF9AA5A1);
-  static const nightLine = Color(0xFF33403C);
+  static const nightLine = Color(0xFF2E3B37);
   static const nightMint = Color(0xFF1F3B33);
   static const brightMint = Color(0xFF6FD3B1);
   static const onBrightMint = Color(0xFF0E2A22);
   static const nightTomato = Color(0xFFFF7B63);
   static const nightStone = Color(0xFF7F8C87);
+  // Carte d'en-tête (espace libéré) en sombre : vert profond, pas d'aplat vif.
+  static const nightHero = Color(0xFF173A30);
+  static const nightPhotoBackdrop = Color(0xFF0B0F0E);
+
+  // Mode RAW : fond vert, reconnaissable en clair comme en sombre.
+  static const rawFir = Color(0xFF1E7A64);
+  static const nightRawFir = Color(0xFF145243);
 }
 
 /// Couleurs propres à TidyPics, absentes du ColorScheme Material.
@@ -49,6 +59,11 @@ class TidyColors extends ThemeExtension<TidyColors> {
     required this.inkMuted,
     required this.line,
     required this.chartNeutral,
+    required this.hero,
+    required this.onHero,
+    required this.photoBackdrop,
+    required this.rawBackdrop,
+    required this.onRawBackdrop,
   });
 
   final Color delete;
@@ -66,6 +81,17 @@ class TidyColors extends ThemeExtension<TidyColors> {
   /// Catégorie « Autre » des graphiques (ex. stockage hors photos).
   final Color chartNeutral;
 
+  /// Fond de la carte d'en-tête (espace libéré) et son texte.
+  final Color hero;
+  final Color onHero;
+
+  /// Fond derrière une photo, dans les cartes.
+  final Color photoBackdrop;
+
+  /// Fond du tri des RAW et son texte.
+  final Color rawBackdrop;
+  final Color onRawBackdrop;
+
   static const light = TidyColors(
     delete: AppPalette.tomato,
     keep: AppPalette.fir,
@@ -77,6 +103,11 @@ class TidyColors extends ThemeExtension<TidyColors> {
     inkMuted: AppPalette.inkMuted,
     line: AppPalette.line,
     chartNeutral: AppPalette.stone,
+    hero: AppPalette.fir,
+    onHero: AppPalette.surface,
+    photoBackdrop: AppPalette.photoBackdrop,
+    rawBackdrop: AppPalette.rawFir,
+    onRawBackdrop: AppPalette.surface,
   );
 
   static const dark = TidyColors(
@@ -90,6 +121,11 @@ class TidyColors extends ThemeExtension<TidyColors> {
     inkMuted: AppPalette.nightInkMuted,
     line: AppPalette.nightLine,
     chartNeutral: AppPalette.nightStone,
+    hero: AppPalette.nightHero,
+    onHero: AppPalette.mint,
+    photoBackdrop: AppPalette.nightPhotoBackdrop,
+    rawBackdrop: AppPalette.nightRawFir,
+    onRawBackdrop: AppPalette.nightInk,
   );
 
   /// Raccourci : `TidyColors.of(context).delete`.
@@ -108,10 +144,15 @@ class TidyColors extends ThemeExtension<TidyColors> {
       other.onMint == onMint &&
       other.inkMuted == inkMuted &&
       other.line == line &&
-      other.chartNeutral == chartNeutral;
+      other.chartNeutral == chartNeutral &&
+      other.hero == hero &&
+      other.onHero == onHero &&
+      other.photoBackdrop == photoBackdrop &&
+      other.rawBackdrop == rawBackdrop &&
+      other.onRawBackdrop == onRawBackdrop;
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     delete,
     keep,
     onKeep,
@@ -122,7 +163,12 @@ class TidyColors extends ThemeExtension<TidyColors> {
     inkMuted,
     line,
     chartNeutral,
-  );
+    hero,
+    onHero,
+    photoBackdrop,
+    rawBackdrop,
+    onRawBackdrop,
+  ]);
 
   @override
   TidyColors copyWith({
@@ -136,6 +182,11 @@ class TidyColors extends ThemeExtension<TidyColors> {
     Color? inkMuted,
     Color? line,
     Color? chartNeutral,
+    Color? hero,
+    Color? onHero,
+    Color? photoBackdrop,
+    Color? rawBackdrop,
+    Color? onRawBackdrop,
   }) {
     return TidyColors(
       delete: delete ?? this.delete,
@@ -148,6 +199,11 @@ class TidyColors extends ThemeExtension<TidyColors> {
       inkMuted: inkMuted ?? this.inkMuted,
       line: line ?? this.line,
       chartNeutral: chartNeutral ?? this.chartNeutral,
+      hero: hero ?? this.hero,
+      onHero: onHero ?? this.onHero,
+      photoBackdrop: photoBackdrop ?? this.photoBackdrop,
+      rawBackdrop: rawBackdrop ?? this.rawBackdrop,
+      onRawBackdrop: onRawBackdrop ?? this.onRawBackdrop,
     );
   }
 
@@ -165,6 +221,11 @@ class TidyColors extends ThemeExtension<TidyColors> {
       inkMuted: Color.lerp(inkMuted, other.inkMuted, t)!,
       line: Color.lerp(line, other.line, t)!,
       chartNeutral: Color.lerp(chartNeutral, other.chartNeutral, t)!,
+      hero: Color.lerp(hero, other.hero, t)!,
+      onHero: Color.lerp(onHero, other.onHero, t)!,
+      photoBackdrop: Color.lerp(photoBackdrop, other.photoBackdrop, t)!,
+      rawBackdrop: Color.lerp(rawBackdrop, other.rawBackdrop, t)!,
+      onRawBackdrop: Color.lerp(onRawBackdrop, other.onRawBackdrop, t)!,
     );
   }
 }

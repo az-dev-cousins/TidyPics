@@ -61,7 +61,7 @@ class _StatsPageState extends ConsumerState<StatsPage> {
               children: [
                 DecoratedBox(
                   decoration: BoxDecoration(
-                    color: scheme.primary,
+                    color: tidy.hero,
                     borderRadius: BorderRadius.circular(22),
                   ),
                   child: Padding(
@@ -72,20 +72,20 @@ class _StatsPageState extends ConsumerState<StatsPage> {
                         Text(
                           l10n.statsSinceInstall.toUpperCase(),
                           style: theme.textTheme.labelSmall?.copyWith(
-                            color: scheme.onPrimary.withValues(alpha: 0.8),
+                            color: tidy.onHero.withValues(alpha: 0.8),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           l10n.fileSize(freed.bytes),
                           style: theme.textTheme.displaySmall?.copyWith(
-                            color: scheme.onPrimary,
+                            color: tidy.onHero,
                           ),
                         ),
                         Text(
                           l10n.statsHeroDeleted(freed.photos),
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: scheme.onPrimary.withValues(alpha: 0.85),
+                            color: tidy.onHero.withValues(alpha: 0.85),
                           ),
                         ),
                       ],

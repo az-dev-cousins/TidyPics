@@ -91,9 +91,16 @@ void main() {
       // Tailles lues par l'app à l'ouverture de l'écran.
       sizes: {'r1': 25000000, 'r2': 25000000},
     );
-    await pumpApp(tester, gallery: gallery);
+    await pumpApp(
+      tester,
+      gallery: gallery,
+      settings: const {'onboarding_done': true, 'raw_intro_seen': true},
+    );
     await openMenu(tester);
-    await tapVisible(tester, find.text('JPG + RAW'));
+    await tapVisible(tester, find.text('Trier les RAW'));
+    // Le détail des paires s'ouvre depuis le tri des RAW.
+    await tester.tap(find.byTooltip('Détail des paires JPG + RAW'));
+    await settle(tester);
 
     expect(find.text('50 Mo à libérer'), findsOneWidget);
     // Une paire passe à « Les deux » : seul l'autre RAW partira.
@@ -156,12 +163,11 @@ void main() {
     );
     await pumpApp(tester, gallery: gallery);
     await openMenu(tester);
-    await tapVisible(tester, find.text('JPG + RAW'));
-    await tester.tap(find.text('Trier les RAW un par un'));
-    await settle(tester);
+    expect(find.text('2 RAW à trier'), findsOneWidget);
+    await tapVisible(tester, find.text('Trier les RAW'));
 
     // Première fois : l'explication du mode.
-    expect(find.text('Trier les RAW'), findsOneWidget);
+    expect(find.text("C'est parti"), findsOneWidget);
     await tester.tap(find.text("C'est parti"));
     await settle(tester);
     expect(find.text('2 restants'), findsOneWidget);

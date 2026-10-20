@@ -26,7 +26,7 @@ class HomePage extends ConsumerWidget {
     final access = ref.watch(galleryAccessProvider).value;
     final trash = ref.watch(trashLogProvider).value ?? const [];
     final months = ref.watch(monthsProvider).value ?? const [];
-    final pairs = ref.watch(rawPairsProvider).value ?? const [];
+    final rawToSort = ref.watch(rawToSortProvider).value ?? const [];
 
     void backToSorting() =>
         context.canPop() ? context.pop() : context.go(AppRoutes.swipe);
@@ -100,11 +100,11 @@ class HomePage extends ConsumerWidget {
                     ),
                     _Tile(
                       icon: Icons.filter_none_rounded,
-                      title: l10n.swipeRawPairBadge,
-                      subtitle: pairs.isEmpty
-                          ? l10n.menuRawNone
-                          : l10n.menuRawDetail(pairs.length),
-                      onTap: () => context.push(AppRoutes.rawPairs),
+                      title: l10n.menuRawSort,
+                      subtitle: rawToSort.isEmpty
+                          ? l10n.menuRawSortNone
+                          : l10n.menuRawSortDetail(rawToSort.length),
+                      onTap: () => context.push(AppRoutes.rawSort),
                     ),
                     _Tile(
                       icon: Icons.restore_from_trash_outlined,
@@ -142,7 +142,6 @@ class _FreedHero extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
     final freed = ref.watch(freedStatsProvider).value ?? FreedStats.zero;
     final weeks = ref.watch(freedHistoryProvider(StatsPeriod.week)).value;
     final summary = ref.watch(librarySummaryProvider).value;
@@ -155,9 +154,10 @@ class _FreedHero extends ConsumerWidget {
       for (final w in weeks ?? const <FreedBucket>[]) running += w.bytes,
     ];
 
-    final onHero = scheme.onPrimary;
+    final tidy = TidyColors.of(context);
+    final onHero = tidy.onHero;
     return Material(
-      color: scheme.primary,
+      color: tidy.hero,
       borderRadius: BorderRadius.circular(22),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

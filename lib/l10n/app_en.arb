@@ -144,8 +144,6 @@
   "storageFree": "Free",
   "menuMonths": "By month",
   "menuMonthsDetail": "{count, plural, =0{No months} =1{1 month} other{{count} months}}",
-  "menuRawNone": "No pairs",
-  "menuRawDetail": "{count, plural, =1{1 pair} other{{count} pairs}}",
   "menuTrash": "Trash",
   "monthsTitle": "Sort by month",
   "monthsYearSummary": "{count, plural, =1{1 photo} other{{count} photos}} · {percent}% sorted",
@@ -190,12 +188,14 @@
   "rawSortDone": "All RAW files sorted",
   "rawSortDoneBody": "{count, plural, =1{1 RAW in the bin · {size}} other{{count} RAW in the bin · {size}}}",
   "rawSortReview": "See the review",
-  "rawSortCta": "Sort RAW files one by one",
-  "rawSortCtaBody": "Swipe: keep or delete each RAW, the JPG stays.",
   "rawIntroTitle": "Sort RAW files",
   "rawIntroBody": "Here, each card is the RAW file of a photo you also have as a JPG.",
   "rawIntroLeft": "Swipe left: the RAW goes to the bin.",
   "rawIntroRight": "Swipe right: you keep the RAW.",
   "rawIntroJpg": "The JPG is never touched, whatever you choose.",
-  "rawIntroStart": "Let's go"
+  "rawIntroStart": "Let's go",
+  "rawSortDetails": "JPG + RAW pair details",
+  "menuRawSort": "Sort RAW files",
+  "menuRawSortNone": "All sorted",
+  "menuRawSortDetail": "{count, plural, =1{1 RAW to sort} other{{count} RAW to sort}}"
 }

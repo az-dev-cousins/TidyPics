@@ -3,11 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:go_router/go_router.dart';
-
-import '../../../app/router.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/gallery_photo.dart';
 import '../../../data/models/photo_groups.dart';
@@ -183,60 +179,7 @@ class _RawPairsPageState extends ConsumerState<RawPairsPage> {
                             : l10n.rawToFree(l10n.fileSize(bytes)),
                         style: theme.textTheme.titleMedium,
                       ),
-                      const SizedBox(height: 16),
-                      // Le tri au swipe, RAW par RAW : même thème sombre que
-                      // l'écran qu'il ouvre.
-                      Theme(
-                        data: AppTheme.dark,
-                        child: Builder(
-                          builder: (context) {
-                            final dark = Theme.of(context);
-                            final muted = TidyColors.of(context).inkMuted;
-                            return Material(
-                              color: dark.colorScheme.surface,
-                              borderRadius: BorderRadius.circular(18),
-                              clipBehavior: Clip.antiAlias,
-                              child: InkWell(
-                                onTap: () => context.push(AppRoutes.rawSort),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.swipe_rounded,
-                                        color: dark.colorScheme.primary,
-                                      ),
-                                      const SizedBox(width: 14),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              l10n.rawSortCta,
-                                              style: dark.textTheme.titleMedium,
-                                            ),
-                                            Text(
-                                              l10n.rawSortCtaBody,
-                                              style: dark.textTheme.bodySmall
-                                                  ?.copyWith(color: muted),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.chevron_right_rounded,
-                                        color: muted,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
                       Text(
                         l10n.rawForAll.toUpperCase(),
                         style: theme.textTheme.labelSmall?.copyWith(

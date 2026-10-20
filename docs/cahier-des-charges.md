@@ -188,7 +188,7 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 ### F6 — Doublons JPG + RAW
 - Une **paire** = même nom de fichier (hors extension) et même date de prise de vue, en JPG/HEIC d'un côté et en RAW de l'autre (`.dng`, `.cr2`, `.nef`, `.arw`…).
 - **Mode dédié** depuis le menu (version A des maquettes) : liste des paires et espace récupérable, un choix « Garder JPG / Garder RAW / Les deux » pour toutes les paires, modifiable d'un tap paire par paire. Les fichiers écartés partent à la corbeille en un seul lot.
-  - ✅ **Tri des RAW au swipe**, lancé à tout moment depuis cet écran : chaque carte est le RAW d'une paire (aperçu tiré du JPG). Droite = garder le RAW, gauche = le RAW au panier. Le JPG n'est jamais touché. Écran en thème sombre pour le distinguer du tri habituel, explication à la première ouverture (puis via « ? »), annulation possible.
+  - ✅ **Tri des RAW au swipe**, ouvert directement depuis le menu (tuile « Trier les RAW », avec le nombre restant) ; le détail des paires et le choix groupé s'ouvrent depuis cet écran : chaque carte est le RAW d'une paire (aperçu tiré du JPG). Droite = garder le RAW, gauche = le RAW au panier. Le JPG n'est jamais touché. Écran sur fond vert (en clair comme en sombre) pour le distinguer du tri habituel, explication à la première ouverture (puis via « ? »), annulation possible.
 - En session de swipe : une carte unique avec le badge « JPG + RAW ».
 - ⚠️ **iOS** : un import JPG + RAW forme souvent **un seul élément avec deux fichiers**. Il faut vérifier par un test si l'on peut n'en supprimer qu'un. Sinon, la fonction ne sert que sur Android en V1.
 

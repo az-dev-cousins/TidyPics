@@ -16,13 +16,17 @@ Ces valeurs sont la source de vérité pour `lib/core/theme/app_colors.dart`.
 
 | Nom | Clair | Sombre | Usage |
 |---|---|---|---|
-| Papier / Nuit | `#F6F5F0` | `#121615` | Fond de l'app |
-| Surface | `#FFFFFF` | `#1B2120` | Cartes, feuilles |
+| Papier / Nuit | `#F6F5F0` | `#101413` | Fond de l'app |
+| Surface | `#FFFFFF` | `#1A2221` | Cartes, feuilles |
 | Encre | `#22272B` | `#E8ECEA` | Texte principal |
 | Encre douce | `#5C666D` | `#9AA5A1` | Texte secondaire (contraste ≥ 4.5:1) |
-| Trait | `#DAD7CC` | `#33403C` | Bordures, séparateurs |
+| Trait | `#DAD7CC` | `#2E3B37` | Bordures, séparateurs |
 | Menthe | `#BFE8D6` | `#1F3B33` | Surfaces d'accent, puces |
 | Sapin / Menthe vive | `#1E7A64` | `#6FD3B1` | Couleur principale, liens, boutons |
+| En-tête | `#1E7A64` (texte blanc) | `#173A30` (texte menthe `#BFE8D6`) | Grande carte « espace libéré » (menu, stats). En sombre, jamais d'aplat menthe vive : il éblouit |
+| Fond de photo | `#EFEEE8` | `#0B0F0E` | Autour d'une photo dans une carte (bandes haut et bas) |
+| Fond RAW | `#1E7A64` | `#145243` | Tri des RAW : fond vert dans les deux thèmes, pour le distinguer du tri habituel |
+| Neutre graphique | `#9E998C` | `#7F8C87` | Catégorie « Autre » des graphiques, toujours légendée |
 
 ### Actions (fixes, quelle que soit l'évolution de la marque)
 
