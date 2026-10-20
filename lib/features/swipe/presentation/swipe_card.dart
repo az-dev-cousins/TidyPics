@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/gallery_photo.dart';
+import '../../../data/models/photo_groups.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/photo_image.dart';
 import '../application/swipe_session.dart';
@@ -135,6 +136,195 @@ class PhotoSwipeCard extends ConsumerWidget {
             Text(l10n.swipeImageError, style: TextStyle(color: tidy.inkMuted)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Carte d'un élément à trier : photo seule, paire JPG + RAW ou rafale.
+class ItemSwipeCard extends ConsumerWidget {
+  const ItemSwipeCard({
+    super.key,
+    required this.item,
+    this.stamp,
+    this.strength = 0,
+    this.onPickBest,
+  });
+
+  final PhotoItem item;
+  final SwipeChoice? stamp;
+  final double strength;
+
+  /// Rafale : ouvre le tri photo par photo.
+  final VoidCallback? onPickBest;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (item.kind == PhotoItemKind.single) {
+      return PhotoSwipeCard(
+        photo: item.cover,
+        stamp: stamp,
+        strength: strength,
+      );
+    }
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final tidy = TidyColors.of(context);
+    final images = ref.watch(photoImagesProvider);
+    final size = item.sizeBytes;
+    final burst = item.kind == PhotoItemKind.burst;
+    final caption = [
+      l10n.shortDate(item.takenAt),
+      if (size > 0) l10n.fileSize(size).toUpperCase(),
+    ].join(' · ');
+
+    final card = SwipeCardFrame(
+      caption: caption,
+      stamp: stamp,
+      strength: strength,
+      image: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image(
+            image: images.large(item.cover),
+            fit: BoxFit.contain,
+            gaplessPlayback: true,
+            semanticLabel: caption,
+            errorBuilder: (context, _, _) =>
+                const PhotoPlaceholder(icon: Icons.broken_image_outlined),
+          ),
+          Positioned(
+            left: 16,
+            top: 16,
+            child: _Chip(
+              icon: burst
+                  ? Icons.burst_mode_outlined
+                  : Icons.filter_none_rounded,
+              text: burst
+                  ? l10n.swipeBurstBadge(item.photos.length)
+                  : l10n.swipeRawPairBadge,
+            ),
+          ),
+          if (burst)
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 16,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _Strip(photos: item.photos),
+                  if (onPickBest != null) ...[
+                    const SizedBox(height: 10),
+                    Center(
+                      child: FilledButton.tonalIcon(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: tidy.mint,
+                          foregroundColor: tidy.onMint,
+                        ),
+                        onPressed: onPickBest,
+                        icon: const Icon(Icons.checklist_rounded),
+                        label: Text(l10n.swipeBurstPick),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+    if (!burst) return card;
+
+    // Rafale : deux cartes en éventail derrière, pour montrer le groupe.
+    Widget layer(double angle) => Transform.rotate(
+      angle: angle,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(AppTheme.radiusSwipeCard),
+          border: Border.all(color: tidy.line),
+        ),
+      ),
+    );
+    return Stack(
+      fit: StackFit.expand,
+      clipBehavior: Clip.none,
+      children: [
+        Padding(padding: const EdgeInsets.all(8), child: layer(-0.06)),
+        Padding(padding: const EdgeInsets.all(8), child: layer(0.045)),
+        card,
+      ],
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  const _Chip({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: theme.colorScheme.primary),
+            const SizedBox(width: 6),
+            Text(text, style: theme.textTheme.labelLarge),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Les premières photos d'une rafale, en vignettes.
+class _Strip extends StatelessWidget {
+  const _Strip({required this.photos});
+
+  final List<GalleryPhoto> photos;
+
+  @override
+  Widget build(BuildContext context) {
+    const shown = 4;
+    final extra = photos.length - shown;
+    final scheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      height: 48,
+      child: Row(
+        children: [
+          for (final (i, photo) in photos.take(shown).indexed) ...[
+            if (i > 0) const SizedBox(width: 6),
+            Expanded(child: PhotoThumbnail(photo: photo, size: 120)),
+          ],
+          if (extra > 0) ...[
+            const SizedBox(width: 6),
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainer.withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusThumbnail),
+                ),
+                child: Center(
+                  child: Text(
+                    '+$extra',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

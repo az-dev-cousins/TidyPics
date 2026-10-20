@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../models/gallery_photo.dart';
+import '../models/photo_groups.dart';
 import '../sources/local_db.dart';
 
 /// Ordre dans lequel les photos à trier sont proposées (F2).
@@ -43,11 +44,15 @@ class MonthSummary {
     required this.month,
     required this.total,
     required this.sorted,
+    this.cover,
   });
 
   final int year;
   final int month;
   final int total;
+
+  /// Une photo du mois, pour illustrer sa carte.
+  final GalleryPhoto? cover;
 
   /// Photos du mois gardées ou au panier.
   final int sorted;
@@ -186,12 +191,15 @@ class LibraryRepository {
     ])).watch().map((rows) {
       // Regroupé en Dart, en heure locale : 20 000 lignes restent rapides.
       final byMonth = <(int, int), (int, int)>{};
+      final covers = <(int, int), GalleryPhoto>{};
       for (final row in rows) {
-        final date = row.readTable(p).takenAt.toLocal();
+        final photo = row.readTable(p);
+        final date = photo.takenAt.toLocal();
         final sorted =
             row.readTableOrNull(_db.photoDecisions) != null ||
             row.readTableOrNull(_db.cartItems) != null;
         final key = (date.year, date.month);
+        covers.putIfAbsent(key, () => _toPhoto(photo));
         final (total, done) = byMonth[key] ?? (0, 0);
         byMonth[key] = (total + 1, done + (sorted ? 1 : 0));
       }
@@ -204,9 +212,20 @@ class LibraryRepository {
             month: key.$2,
             total: byMonth[key]!.$1,
             sorted: byMonth[key]!.$2,
+            cover: covers[key],
           ),
       ];
     });
+  }
+
+  /// Paires JPG + RAW de la galerie (F6), hors photos au panier.
+  Future<List<PhotoItem>> rawPairs() async {
+    final p = _db.photos;
+    final query = _db.select(p).join([
+      leftOuterJoin(_db.cartItems, _db.cartItems.assetId.equalsExp(p.id)),
+    ])..where(_db.cartItems.assetId.isNull());
+    final photos = await query.map((r) => _toPhoto(r.readTable(p))).get();
+    return findRawPairs(photos)..sort((a, b) => b.takenAt.compareTo(a.takenAt));
   }
 
   /// Toutes les photos d'un mois, même déjà vues ou gardées (tri ciblé).
@@ -269,8 +288,13 @@ class LibraryRepository {
     );
   }
 
-  Future<void> addToCart(GalleryPhoto photo, {DateTime? at}) {
-    return _db
+  /// Au panier. Une décision précédente (tri par mois : photo déjà gardée)
+  /// est effacée : la photo ne compte qu'une fois.
+  Future<void> addToCart(GalleryPhoto photo, {DateTime? at}) async {
+    await (_db.delete(
+      _db.photoDecisions,
+    )..where((t) => t.assetId.equals(photo.id))).go();
+    await _db
         .into(_db.cartItems)
         .insertOnConflictUpdate(
           CartItemsCompanion.insert(

@@ -157,4 +157,12 @@ void main() {
       expect((await library.watchSummary().first).cartCount, 0);
     },
   );
+
+  test('une miniature illisible ne bloque pas la suppression', () async {
+    gallery.unreadableThumbnails.add('p1');
+    final outcome = await trash.trash(photos);
+    expect(outcome.count, 3);
+    final log = await trash.watchLog().first;
+    expect(log.firstWhere((e) => e.photo.id == 'p1').thumbnail, isNull);
+  });
 }

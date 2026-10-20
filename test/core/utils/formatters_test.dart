@@ -15,6 +15,7 @@ void main() {
     expect(fr.fileSize(820000), '820 Ko');
     expect(fr.fileSize(3200000), '3,2 Mo');
     expect(fr.fileSize(12400000000), '12,4 Go');
+    expect(fr.fileSize(30000000000), '30 Go');
   });
 
   test('tailles en anglais', () {

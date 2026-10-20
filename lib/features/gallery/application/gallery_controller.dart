@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/gallery_photo.dart';
+import '../../../data/models/photo_groups.dart';
 import '../../../data/providers.dart';
 import '../../../data/repositories/library_repository.dart';
 import '../../../data/repositories/trash_repository.dart';
@@ -120,4 +121,26 @@ final freedStatsProvider = StreamProvider<FreedStats>(
 
 final trashLogProvider = StreamProvider<List<TrashEntry>>(
   (ref) => ref.watch(trashRepositoryProvider).watchLog(),
+);
+
+final monthsProvider = StreamProvider<List<MonthSummary>>(
+  (ref) => ref.watch(libraryRepositoryProvider).watchMonths(),
+);
+
+final freedHistoryProvider =
+    StreamProvider.family<List<FreedBucket>, StatsPeriod>(
+      (ref, period) => ref.watch(trashRepositoryProvider).watchHistory(period),
+    );
+
+/// Paires JPG + RAW, relues quand la galerie ou le panier changent.
+final rawPairsProvider = FutureProvider.autoDispose<List<PhotoItem>>((ref) {
+  ref
+    ..watch(librarySummaryProvider)
+    ..watch(cartProvider);
+  return ref.watch(libraryRepositoryProvider).rawPairs();
+});
+
+/// Stockage du téléphone, relu à chaque ouverture du menu.
+final deviceStorageProvider = FutureProvider.autoDispose<DeviceStorage?>(
+  (ref) => ref.watch(gallerySourceProvider).deviceStorage(),
 );

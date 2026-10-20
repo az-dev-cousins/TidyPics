@@ -4,13 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/gallery_photo.dart';
+import '../../../data/models/photo_groups.dart';
 import '../../../data/providers.dart';
 import '../../../data/repositories/library_repository.dart';
 import '../../../data/sources/local_db.dart';
 import '../../gallery/application/gallery_controller.dart';
 import '../../settings/application/settings_controller.dart';
 
-/// Ce que l'utilisateur fait d'une photo pendant le tri (F1).
+/// Ce que l'utilisateur fait d'un élément pendant le tri (F1).
 enum SwipeChoice {
   /// Swipe droite.
   keep,
@@ -22,13 +23,42 @@ enum SwipeChoice {
   trash,
 }
 
+/// Ce qu'on trie : toute la galerie, ou un seul mois (tri ciblé, F2).
+@immutable
+class SwipeScope {
+  const SwipeScope.all() : year = null, month = null;
+  const SwipeScope.month(int this.year, int this.month);
+
+  final int? year;
+  final int? month;
+
+  bool get isMonth => year != null;
+
+  @override
+  bool operator ==(Object other) =>
+      other is SwipeScope && other.year == year && other.month == month;
+
+  @override
+  int get hashCode => Object.hash(year, month);
+}
+
 @immutable
 class SwipeRecord {
-  const SwipeRecord(this.photo, this.choice);
+  const SwipeRecord(this.item, this.choice) : keptIds = null;
 
-  /// La photo telle qu'elle était avant la décision.
-  final GalleryPhoto photo;
-  final SwipeChoice choice;
+  /// Rafale triée photo par photo : [keptIds] gardées, les autres au panier.
+  const SwipeRecord.resolved(this.item, Set<String> this.keptIds)
+    : choice = null;
+
+  /// L'élément tel qu'il était avant la décision.
+  final PhotoItem item;
+  final SwipeChoice? choice;
+  final Set<String>? keptIds;
+
+  /// Photos de l'élément parties au panier.
+  Iterable<GalleryPhoto> get trashed => item.photos.where(
+    (p) => choice == SwipeChoice.trash || (keptIds?.contains(p.id) == false),
+  );
 }
 
 @immutable
@@ -43,8 +73,8 @@ class SwipeState {
     this.waitingForGallery = false,
   });
 
-  /// Photos restant à trier. La première est la carte affichée.
-  final List<GalleryPhoto> queue;
+  /// Éléments restant à trier. Le premier est la carte affichée.
+  final List<PhotoItem> queue;
 
   /// Dernières décisions, la plus récente à la fin.
   final List<SwipeRecord> history;
@@ -64,7 +94,7 @@ class SwipeState {
   /// Premier lancement : la galerie n'est pas encore lue.
   final bool waitingForGallery;
 
-  GalleryPhoto? get current => queue.firstOrNull;
+  PhotoItem? get current => queue.firstOrNull;
   bool get isDone => queue.isEmpty && !waitingForGallery;
   bool get canUndo => history.isNotEmpty;
   bool get checkpointDue => cartCount > 0 && sortedCount >= nextCheckpointAt;
@@ -74,7 +104,7 @@ class SwipeState {
       (1 - (nextCheckpointAt - sortedCount) / threshold).clamp(0, 1).toDouble();
 
   SwipeState copyWith({
-    List<GalleryPhoto>? queue,
+    List<PhotoItem>? queue,
     List<SwipeRecord>? history,
     int? sortedCount,
     int? cartCount,
@@ -90,15 +120,19 @@ class SwipeState {
   );
 }
 
-/// Une session de tri : la file de photos et les décisions prises.
+/// Une session de tri : la file d'éléments et les décisions prises.
 ///
 /// L'état change tout de suite, et chaque décision est enregistrée sur le
 /// téléphone dans la foulée : un kill de l'app ne perd rien.
 class SwipeSession extends AsyncNotifier<SwipeState> {
+  SwipeSession(this.scope);
+
+  final SwipeScope scope;
+
   /// Nombre de décisions que l'on peut annuler.
   static const undoDepth = 10;
 
-  /// Photos dont on lit la taille à l'avance.
+  /// Éléments dont on lit la taille à l'avance.
   static const prefetch = 3;
 
   /// Écritures en cours : le panier en base peut être en retard sur l'état.
@@ -139,12 +173,11 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
       });
 
     final library = ref.read(libraryRepositoryProvider);
-    final order = ref.read(settingsProvider).sortOrder;
-    var queue = await library.unsortedPhotos(order);
+    var queue = await _loadQueue(library);
     final cartCount = (await library.cart()).length;
     // Le scan s'est terminé pendant la lecture : on relit la file.
     if (queue.isEmpty && scanEndedWhileBuilding) {
-      queue = await library.unsortedPhotos(order);
+      queue = await _loadQueue(library);
     }
     building = false;
 
@@ -154,10 +187,32 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
       nextCheckpointAt: _threshold,
       threshold: _threshold,
       waitingForGallery:
-          queue.isEmpty && ref.read(gallerySyncProvider) != SyncStatus.done,
+          !scope.isMonth &&
+          queue.isEmpty &&
+          ref.read(gallerySyncProvider) != SyncStatus.done,
     );
     unawaited(_prefetchSizes(initial.queue, generation));
     return initial;
+  }
+
+  /// Les éléments à trier : groupés (rafales, JPG + RAW), dans l'ordre voulu.
+  Future<List<PhotoItem>> _loadQueue(LibraryRepository library) async {
+    final settings = ref.read(settingsProvider);
+    final photos = scope.isMonth
+        ? await library.monthPhotos(scope.year!, scope.month!)
+        : await library.unsortedPhotos(SortOrder.oldestFirst);
+    final items = groupPhotos(
+      photos,
+      bursts: settings.groupBursts,
+      burstGap: Duration(seconds: settings.burstGapSeconds),
+    );
+    // Un mois se trie dans l'ordre chronologique.
+    if (scope.isMonth) return items;
+    return switch (settings.sortOrder) {
+      SortOrder.random => items..shuffle(),
+      SortOrder.oldestFirst => items,
+      SortOrder.newestFirst => items.reversed.toList(),
+    };
   }
 
   SwipeState? get _ready => state.value;
@@ -171,19 +226,17 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
     }
   }
 
-  Future<void> decide(SwipeChoice choice) async {
-    final current = _ready;
-    final photo = current?.current;
-    if (current == null || photo == null) return;
-
-    final history = [...current.history, SwipeRecord(photo, choice)];
+  /// Applique la décision à l'élément courant et passe au suivant.
+  void _advance(SwipeRecord record) {
+    final current = _ready!;
+    final history = [...current.history, record];
     if (history.length > undoDepth) history.removeAt(0);
     final queue = current.queue.sublist(1);
     var next = current.copyWith(
       queue: queue,
       history: history,
-      sortedCount: current.sortedCount + 1,
-      cartCount: current.cartCount + (choice == SwipeChoice.trash ? 1 : 0),
+      sortedCount: current.sortedCount + record.item.photos.length,
+      cartCount: current.cartCount + record.trashed.length,
     );
     // Seuil atteint sans rien au panier : pas de récap, on repousse.
     if (next.sortedCount >= next.nextCheckpointAt && next.cartCount == 0) {
@@ -191,64 +244,98 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
     }
     state = AsyncData(next);
     unawaited(_prefetchSizes(queue, _generation));
+  }
+
+  Future<void> decide(SwipeChoice choice) async {
+    final item = _ready?.current;
+    if (item == null) return;
+    _advance(SwipeRecord(item, choice));
 
     final library = ref.read(libraryRepositoryProvider);
     final gallery = ref.read(gallerySourceProvider);
     await _write(() async {
       switch (choice) {
         case SwipeChoice.keep:
-          await library.decide(photo, Decision.kept);
+          for (final photo in item.photos) {
+            await library.decide(photo, Decision.kept);
+          }
         case SwipeChoice.favorite:
-          await library.decide(photo, Decision.favorite);
-          if (!photo.isFavorite) {
-            await gallery.setFavorite(photo.id, favorite: true);
+          // Rafale : seule la photo de couverture devient favorite. Paire
+          // JPG + RAW : c'est la même photo, les deux fichiers le deviennent.
+          final favorites = item.kind == PhotoItemKind.burst
+              ? [item.cover]
+              : item.photos;
+          for (final photo in item.photos) {
+            final fav = favorites.contains(photo);
+            await library.decide(
+              photo,
+              fav ? Decision.favorite : Decision.kept,
+            );
+            if (fav && !photo.isFavorite) {
+              await gallery.setFavorite(photo.id, favorite: true);
+            }
           }
         case SwipeChoice.trash:
-          final sized = await _withSize(photo);
-          await library.addToCart(sized);
+          for (final photo in item.photos) {
+            await library.addToCart(await _withSize(photo));
+          }
       }
     });
   }
 
-  /// « Passer » : pas de décision, la photo reviendra en fin de file.
+  /// Rafale triée photo par photo : [keptIds] gardées, les autres au panier.
+  Future<void> resolveGroup(Set<String> keptIds) async {
+    final item = _ready?.current;
+    if (item == null) return;
+    _advance(SwipeRecord.resolved(item, keptIds));
+    final library = ref.read(libraryRepositoryProvider);
+    await _write(() async {
+      for (final photo in item.photos) {
+        if (keptIds.contains(photo.id)) {
+          await library.decide(photo, Decision.kept);
+        } else {
+          await library.addToCart(await _withSize(photo));
+        }
+      }
+    });
+  }
+
+  /// « Passer » : pas de décision, l'élément reviendra en fin de file.
   void skip() {
     final current = _ready;
     if (current == null || current.queue.length < 2) return;
-    state = AsyncData(
-      current.copyWith(
-        queue: [...current.queue.sublist(1), current.queue.first],
-      ),
-    );
+    final queue = [...current.queue.sublist(1), current.queue.first];
+    state = AsyncData(current.copyWith(queue: queue));
+    unawaited(_prefetchSizes(queue, _generation));
   }
 
-  /// Annule la dernière décision : la photo revient en tête de file.
+  /// Annule la dernière décision : l'élément revient en tête de file.
   Future<void> undo() async {
     final current = _ready;
     if (current == null || !current.canUndo) return;
     final last = current.history.last;
-    final wasTrash = last.choice == SwipeChoice.trash;
     state = AsyncData(
       current.copyWith(
-        queue: [last.photo, ...current.queue],
+        queue: [last.item, ...current.queue],
         history: current.history.sublist(0, current.history.length - 1),
-        sortedCount: current.sortedCount - 1,
-        cartCount: current.cartCount - (wasTrash ? 1 : 0),
+        sortedCount: current.sortedCount - last.item.photos.length,
+        cartCount: current.cartCount - last.trashed.length,
       ),
     );
 
     final library = ref.read(libraryRepositoryProvider);
     final gallery = ref.read(gallerySourceProvider);
+    final trashed = last.trashed.map((p) => p.id).toSet();
     await _write(() async {
-      switch (last.choice) {
-        case SwipeChoice.keep:
-          await library.undecide(last.photo);
-        case SwipeChoice.favorite:
-          await library.undecide(last.photo);
-          if (!last.photo.isFavorite) {
-            await gallery.setFavorite(last.photo.id, favorite: false);
-          }
-        case SwipeChoice.trash:
-          await library.removeFromCart(last.photo.id);
+      for (final photo in last.item.photos) {
+        if (trashed.contains(photo.id)) {
+          await library.removeFromCart(photo.id);
+          continue;
+        }
+        await library.undecide(photo);
+        if (last.choice == SwipeChoice.favorite && !photo.isFavorite) {
+          await gallery.setFavorite(photo.id, favorite: false);
+        }
       }
     });
   }
@@ -273,9 +360,7 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
     // Une photo partie à la corbeille ou rendue au tri ne peut plus être
     // annulée depuis la session.
     final history = current.history
-        .where(
-          (r) => r.choice != SwipeChoice.trash || inCart.contains(r.photo.id),
-        )
+        .where((r) => r.trashed.every((p) => inCart.contains(p.id)))
         .toList();
     if (cart.length == current.cartCount &&
         history.length == current.history.length) {
@@ -300,38 +385,53 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
     return photo.copyWith(sizeBytes: size);
   }
 
-  /// Lit la taille des prochaines photos, pour l'afficher sur la carte.
-  Future<void> _prefetchSizes(List<GalleryPhoto> queue, int generation) async {
+  PhotoItem _withSizes(PhotoItem item, Map<String, GalleryPhoto> sized) {
+    if (!item.photos.any((p) => sized.containsKey(p.id))) return item;
+    final photos = [for (final p in item.photos) sized[p.id] ?? p];
+    return switch (item.kind) {
+      PhotoItemKind.single => PhotoItem.single(photos.single),
+      PhotoItemKind.burst => PhotoItem.burst(photos),
+      PhotoItemKind.rawPair => PhotoItem.rawPair(
+        jpg: photos[0],
+        raw: photos[1],
+      ),
+    };
+  }
+
+  /// Lit la taille des prochains éléments, pour l'afficher sur la carte.
+  Future<void> _prefetchSizes(List<PhotoItem> queue, int generation) async {
     final missing = queue
         .take(prefetch)
+        .expand((i) => i.photos)
         .where((p) => p.sizeBytes == null)
         .toList();
+    if (missing.isEmpty) return;
+    final sized = <String, GalleryPhoto>{};
     for (final photo in missing) {
-      final GalleryPhoto sized;
       try {
-        sized = await _withSize(photo);
+        sized[photo.id] = await _withSize(photo);
       } on Object catch (error) {
         // Simple confort d'affichage : on n'interrompt pas le tri pour ça.
         debugPrint('Taille illisible pour ${photo.id} : $error');
         return;
       }
-      if (!ref.mounted) return;
-      final latest = _ready;
-      if (latest == null || generation != _generation) return;
-      state = AsyncData(
-        latest.copyWith(
-          queue: [for (final p in latest.queue) p.id == sized.id ? sized : p],
-          history: [
-            for (final r in latest.history)
-              r.photo.id == sized.id ? SwipeRecord(sized, r.choice) : r,
-          ],
-        ),
-      );
     }
+    if (!ref.mounted) return;
+    final latest = _ready;
+    if (latest == null || generation != _generation) return;
+    state = AsyncData(
+      latest.copyWith(
+        queue: [for (final i in latest.queue) _withSizes(i, sized)],
+        history: [
+          for (final r in latest.history)
+            r.keptIds == null
+                ? SwipeRecord(_withSizes(r.item, sized), r.choice)
+                : SwipeRecord.resolved(_withSizes(r.item, sized), r.keptIds!),
+        ],
+      ),
+    );
   }
 }
 
-final swipeSessionProvider =
-    AsyncNotifierProvider.autoDispose<SwipeSession, SwipeState>(
-      SwipeSession.new,
-    );
+final swipeSessionProvider = AsyncNotifierProvider.autoDispose
+    .family<SwipeSession, SwipeState, SwipeScope>(SwipeSession.new);

@@ -16,6 +16,8 @@ abstract final class AppPalette {
   static const tomato = Color(0xFFE04A32);
   static const sun = Color(0xFFFFC21A);
   static const sunOutline = Color(0xFFD99A00);
+  // « Autre » dans la barre de stockage : neutre, toujours légendé.
+  static const stone = Color(0xFF9E998C);
 
   // Sombre
   static const night = Color(0xFF121615);
@@ -27,6 +29,7 @@ abstract final class AppPalette {
   static const brightMint = Color(0xFF6FD3B1);
   static const onBrightMint = Color(0xFF0E2A22);
   static const nightTomato = Color(0xFFFF7B63);
+  static const nightStone = Color(0xFF7F8C87);
 }
 
 /// Couleurs propres à TidyPics, absentes du ColorScheme Material.
@@ -45,6 +48,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
     required this.onMint,
     required this.inkMuted,
     required this.line,
+    required this.chartNeutral,
   });
 
   final Color delete;
@@ -59,6 +63,9 @@ class TidyColors extends ThemeExtension<TidyColors> {
   final Color inkMuted;
   final Color line;
 
+  /// Catégorie « Autre » des graphiques (ex. stockage hors photos).
+  final Color chartNeutral;
+
   static const light = TidyColors(
     delete: AppPalette.tomato,
     keep: AppPalette.fir,
@@ -69,6 +76,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
     onMint: AppPalette.mintInk,
     inkMuted: AppPalette.inkMuted,
     line: AppPalette.line,
+    chartNeutral: AppPalette.stone,
   );
 
   static const dark = TidyColors(
@@ -81,6 +89,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
     onMint: AppPalette.mint,
     inkMuted: AppPalette.nightInkMuted,
     line: AppPalette.nightLine,
+    chartNeutral: AppPalette.nightStone,
   );
 
   /// Raccourci : `TidyColors.of(context).delete`.
@@ -98,7 +107,8 @@ class TidyColors extends ThemeExtension<TidyColors> {
       other.mint == mint &&
       other.onMint == onMint &&
       other.inkMuted == inkMuted &&
-      other.line == line;
+      other.line == line &&
+      other.chartNeutral == chartNeutral;
 
   @override
   int get hashCode => Object.hash(
@@ -111,6 +121,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
     onMint,
     inkMuted,
     line,
+    chartNeutral,
   );
 
   @override
@@ -124,6 +135,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
     Color? onMint,
     Color? inkMuted,
     Color? line,
+    Color? chartNeutral,
   }) {
     return TidyColors(
       delete: delete ?? this.delete,
@@ -135,6 +147,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
       onMint: onMint ?? this.onMint,
       inkMuted: inkMuted ?? this.inkMuted,
       line: line ?? this.line,
+      chartNeutral: chartNeutral ?? this.chartNeutral,
     );
   }
 
@@ -151,6 +164,7 @@ class TidyColors extends ThemeExtension<TidyColors> {
       onMint: Color.lerp(onMint, other.onMint, t)!,
       inkMuted: Color.lerp(inkMuted, other.inkMuted, t)!,
       line: Color.lerp(line, other.line, t)!,
+      chartNeutral: Color.lerp(chartNeutral, other.chartNeutral, t)!,
     );
   }
 }

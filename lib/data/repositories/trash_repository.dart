@@ -87,7 +87,13 @@ class TrashRepository {
     final thumbnails = <String, Uint8List?>{};
     if (!permanent) {
       for (final photo in photos) {
-        thumbnails[photo.id] = await _gallery.thumbnail(photo.id, size: 160);
+        try {
+          thumbnails[photo.id] = await _gallery.thumbnail(photo.id, size: 160);
+        } on Object {
+          // Miniature illisible (ex. certains RAW) : la photo part quand même,
+          // le journal affichera une vignette neutre.
+          thumbnails[photo.id] = null;
+        }
       }
     }
 

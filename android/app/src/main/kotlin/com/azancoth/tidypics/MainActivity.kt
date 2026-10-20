@@ -17,6 +17,7 @@ import io.flutter.plugin.common.MethodChannel
  * - `trashedIds` : parmi des photos envoyées à la corbeille, celles qui y sont
  *   encore (l'utilisateur a pu les restaurer ou vider la corbeille ailleurs).
  * - `deleteForever` : vide la corbeille pour ces photos (« Vider maintenant »).
+ * - `storage` : capacité du téléphone, espace libre et place des photos.
  */
 class MainActivity : FlutterActivity() {
     private var pendingDelete: Pair<MethodChannel.Result, List<String>>? = null
@@ -29,9 +30,29 @@ class MainActivity : FlutterActivity() {
                     "sdkInt" -> result.success(Build.VERSION.SDK_INT)
                     "trashedIds" -> result.success(trashedIds(call.argument<List<String>>("ids").orEmpty()))
                     "deleteForever" -> deleteForever(call.argument<List<String>>("ids").orEmpty(), result)
+                    "storage" -> result.success(storage())
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    private fun storage(): Map<String, Long> {
+        val stat = android.os.StatFs(android.os.Environment.getDataDirectory().path)
+        var photos = 0L
+        contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.MediaColumns.SIZE),
+            null,
+            null,
+            null,
+        )?.use { cursor ->
+            while (cursor.moveToNext()) photos += cursor.getLong(0)
+        }
+        return mapOf(
+            "total" to stat.totalBytes,
+            "free" to stat.availableBytes,
+            "photos" to photos,
+        )
     }
 
     private fun trashedIds(ids: List<String>): List<String> {

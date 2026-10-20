@@ -16,11 +16,15 @@ void main() {
     await openMenu(tester);
 
     expect(find.bySemanticsLabel('TidyPics'), findsOneWidget);
-    expect(find.text('Prêt à faire de la place ?'), findsOneWidget);
-    expect(find.text('0 triées sur 3'), findsOneWidget);
+    expect(find.text('ESPACE LIBÉRÉ'), findsOneWidget);
+    expect(find.text('0 % triées'), findsOneWidget);
+    // Barre de stockage : photos, autre, libre.
+    expect(find.text('Stockage du téléphone'), findsOneWidget);
+    expect(find.text('Photos · 30 Go'), findsOneWidget);
+    expect(find.text('Libre · 40 Go'), findsOneWidget);
 
     // « Reprendre le tri » ramène à l'écran principal.
-    await tester.tap(find.text('Reprendre le tri'));
+    await tester.tap(find.byTooltip('Reprendre le tri'));
     await settle(tester);
     expect(find.byTooltip('Garder'), findsOneWidget);
 
@@ -46,7 +50,7 @@ void main() {
     );
     expect(find.text("I'll stop here"), findsOneWidget);
     await openMenu(tester);
-    expect(find.text('0 of 2 sorted'), findsOneWidget);
+    expect(find.text('0% sorted'), findsOneWidget);
 
     await closeApp(tester);
   });

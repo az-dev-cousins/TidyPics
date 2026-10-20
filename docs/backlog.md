@@ -55,21 +55,22 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 - [x] F4 « En cours de suppression » : journal, jours restants, restaurer (Android), aide guidée (iOS)
 - [x] F4 Android : lire la vraie corbeille et « Vider maintenant »
 
-## Écrans en attente du choix de design
+## Choix de design
 
-Pistes : https://claude.ai/artifact/D4jveh5gf2pPxWirwQxVsC (menu, par mois, stats, rafales, JPG + RAW). La logique est prête et testée.
+Pistes et choix : https://claude.ai/artifact/D4jveh5gf2pPxWirwQxVsC. Menu A + C, Par mois A + C, Stats A + B, Rafales A, JPG + RAW A : faits.
 
 ## Lot 4 — Stats
 
-- [ ] F7 Espace libéré depuis l'installation, par période, courbe
-- [ ] F9 Accueil définitif : chiffre clé, progression, accès rapides
+- [x] F7 Espace libéré depuis l'installation, par période, courbe
+- [x] F9 Accueil définitif : chiffre clé, progression, accès rapides
 
 ## Lot 5 — Tri ciblé
 
-- [ ] F2 Navigation par année et par mois, avec la progression de chacun
+- [x] F2 Navigation par année et par mois, avec la progression de chacun
 
 ## Lot 6 — Groupes
 
-- [ ] F5 Rafales : regroupement (écart réglable, `burstIdentifier` iOS), carte de groupe, sélection
-- [ ] F6 Paires JPG + RAW : détection, mode dédié, carte en session
+- [x] F5 Rafales : regroupement (écart réglable), carte de groupe, sélection
+- [ ] F5 iOS : reconnaître les rafales natives (`burstIdentifier`)
+- [x] F6 Paires JPG + RAW : détection, mode dédié, carte en session
 - [x] F8 Paramètres complets

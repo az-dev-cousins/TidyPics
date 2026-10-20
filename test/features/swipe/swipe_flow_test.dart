@@ -49,7 +49,8 @@ void main() {
     expect(gallery.trashed, hasLength(2));
     expect(find.text('2 photos à la corbeille · 2 Ko libérés'), findsOneWidget);
     // Session terminée : le menu s'ouvre, avec le gros chiffre.
-    expect(find.text('2 Ko libérés'), findsOneWidget);
+    expect(find.text('ESPACE LIBÉRÉ'), findsOneWidget);
+    expect(find.text('2 Ko'), findsOneWidget);
 
     await closeApp(tester);
   });
@@ -80,7 +81,7 @@ void main() {
 
     expect(gallery.trashed, hasLength(1));
     // L'autre n'est ni supprimée ni gardée : elle reviendra dans le tri.
-    expect(find.text('0 triées sur 3'), findsOneWidget);
+    expect(find.text('0 % triées'), findsOneWidget);
 
     await closeApp(tester);
   });

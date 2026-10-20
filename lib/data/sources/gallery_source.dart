@@ -22,6 +22,19 @@ enum GalleryAccess {
   denied,
 }
 
+/// Stockage du téléphone, pour la barre du menu.
+class DeviceStorage {
+  const DeviceStorage({required this.total, required this.free, this.photos});
+
+  final int total;
+  final int free;
+
+  /// Place prise par les photos, si le système la donne (Android).
+  final int? photos;
+
+  int get used => total - free;
+}
+
 /// Accès à la galerie du téléphone. Seule implémentation réelle :
 /// [PhotoManagerGallerySource]. Les tests en utilisent une fausse.
 abstract interface class GallerySource {
@@ -60,6 +73,9 @@ abstract interface class GallerySource {
   /// Android : efface définitivement ces photos de la corbeille (une popup,
   /// aucune avec « Gestion des médias »). Renvoie les identifiants effacés.
   Future<List<String>> deleteForever(List<String> ids);
+
+  /// Capacité et espace libre du téléphone (`null` si inconnus).
+  Future<DeviceStorage?> deviceStorage();
 
   /// Android 12+ : la permission « Gestion des médias » existe.
   Future<bool> supportsManageMedia();
@@ -262,6 +278,23 @@ class PhotoManagerGallerySource implements GallerySource {
       'ids': ids,
     });
     return done ?? const [];
+  }
+
+  @override
+  Future<DeviceStorage?> deviceStorage() async {
+    try {
+      final values = await _device.invokeMapMethod<String, Object?>('storage');
+      final total = (values?['total'] as num?)?.toInt() ?? 0;
+      if (total <= 0) return null;
+      return DeviceStorage(
+        total: total,
+        free: (values?['free'] as num?)?.toInt() ?? 0,
+        photos: (values?['photos'] as num?)?.toInt(),
+      );
+    } on Object catch (error) {
+      debugPrint('Stockage illisible : $error');
+      return null;
+    }
   }
 
   @override

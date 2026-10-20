@@ -6,6 +6,16 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Écrans choisis sur les maquettes :
+  - Menu : courbe de l'espace libéré, barre de stockage du téléphone (part des photos), tuiles panier / par mois / JPG + RAW / corbeille.
+  - Tri par mois : années en onglets, cartes avec photo et barre de complétion ; un mois propose toutes ses photos, même déjà vues.
+  - Statistiques : total, barres par semaine ou par mois, cumul, chiffres clés.
+  - Rafales : carte en éventail dans le tri, puis « Choisir les meilleures » photo par photo, avec bande de vignettes et récap avant de valider.
+  - Doublons JPG + RAW : choix pour toutes les paires ou paire par paire, envoi groupé à la corbeille.
+- Le tri propose les rafales et les paires JPG + RAW comme un seul élément.
+
+### Corrigé
+- Une miniature illisible (certains RAW) bloquait l'envoi à la corbeille.
 - « En cours de suppression » sur Android : bouton « Vider maintenant » (effacement définitif, une popup ou aucune avec « Gestion des médias »), et journal aligné sur la vraie corbeille (photo restaurée ou effacée depuis l'app Galerie).
 - Réglages : rafales (regroupement, écart de 1 à 10 s), envoi du panier en quittant l'app (Android 12+ avec « Gestion des médias » ; Android le termine au retour dans l'app), effacement sans corbeille (option avancée, avec avertissement).
 - Logique prête pour les prochains écrans : rafales et paires JPG + RAW (`photo_groups.dart`), mois avec leur avancée, historique de l'espace libéré par semaine et par mois.

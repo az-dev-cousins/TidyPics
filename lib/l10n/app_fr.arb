@@ -36,8 +36,6 @@
   },
   "actionNext": "Suivant",
   "actionCancel": "Annuler",
-  "actionUndo": "Annuler",
-  "actionBackHome": "Retour à l'accueil",
   "onboardingSwipeTitle": "Trie d'un geste",
   "onboardingPrivacyTitle": "Tes photos restent sur ton téléphone",
   "onboardingPrivacyBody": "Pas de compte, pas de connexion. Rien n'est envoyé nulle part.",
@@ -48,53 +46,12 @@
   "permissionBody": "Sans accès à la galerie, l'app ne peut rien trier. Autorise l'accès aux photos dans les réglages du téléphone, puis reviens ici.",
   "permissionOpenSettings": "Ouvrir les réglages",
   "permissionRetry": "Réessayer",
-  "homeFreed": "{size} libérés",
-  "@homeFreed": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
-  "homeFreedSubtitle": "{count, plural, =1{1 photo supprimée depuis l'installation} other{{count} photos supprimées depuis l'installation}}",
-  "@homeFreedSubtitle": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeFreedNone": "Prêt à faire de la place ?",
-  "homeProgress": "{sorted} triées sur {total}",
-  "@homeProgress": {
-    "placeholders": {
-      "sorted": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "homeScanning": "Lecture de ta galerie…",
   "homeScanFailed": "Impossible de lire la galerie.",
   "homeNoPhotos": "Aucune photo dans ta galerie.",
   "homeSort": "Reprendre le tri",
-  "homeAllSorted": "Tout est trié",
   "homeCart": "Panier",
-  "homeCartDetail": "{photos} · {size}",
-  "@homeCartDetail": {
-    "placeholders": {
-      "photos": {
-        "type": "String"
-      },
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "homeCartEmpty": "Vide",
-  "homeTrash": "En cours de suppression",
   "homeTrashEmpty": "Rien pour l'instant",
   "homeLimitedTitle": "Tu as autorisé seulement certaines photos.",
   "homeLimitedAction": "Choisir plus de photos",
@@ -188,12 +145,10 @@
   "trashAndroidNote": "Le téléphone les efface définitivement au bout de 30 jours.",
   "trashIosNote": "Pour libérer l'espace tout de suite : Photos › Albums › Récemment supprimés › Sélectionner › Tout supprimer.",
   "settingsTitle": "Réglages",
-  "settingsSortOrder": "Ordre du tri",
   "settingsSortRandom": "Au hasard",
   "settingsSortOldest": "Les plus anciennes d'abord",
   "settingsSortNewest": "Les plus récentes d'abord",
   "settingsThreshold": "Récap toutes les … photos triées",
-  "settingsTheme": "Thème",
   "settingsThemeSystem": "Auto",
   "settingsThemeLight": "Clair",
   "settingsThemeDark": "Sombre",
@@ -274,5 +229,182 @@
   "settingsDeleteDirectlyWarningTitle": "Effacer pour de bon ?",
   "settingsDeleteDirectlyWarningBody": "Les photos ne passeront plus par la corbeille : impossible de les récupérer, même tout de suite après.",
   "settingsDeleteDirectlyEnable": "Activer",
-  "checkpointSafetyPermanent": "Elles seront effacées définitivement : la corbeille est désactivée dans les réglages."
+  "checkpointSafetyPermanent": "Elles seront effacées définitivement : la corbeille est désactivée dans les réglages.",
+  "swipeBurstBadge": "Rafale · {count} photos",
+  "@swipeBurstBadge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "swipeRawPairBadge": "JPG + RAW",
+  "swipeBurstPick": "Choisir les meilleures",
+  "swipeClose": "Fermer",
+  "burstHint": "Glisse à droite pour garder, à gauche pour mettre au panier.",
+  "burstKeepAll": "Tout garder",
+  "burstRecapTitle": "Rafale triée",
+  "burstRecapBody": "{kept, plural, =0{Aucune gardée} =1{1 gardée} other{{kept} gardées}} · {trashed, plural, =0{aucune au panier} =1{1 au panier} other{{trashed} au panier}}",
+  "@burstRecapBody": {
+    "placeholders": {
+      "kept": {
+        "type": "int"
+      },
+      "trashed": {
+        "type": "int"
+      }
+    }
+  },
+  "burstAllTrashed": "Aucune photo gardée : toute la rafale ira au panier.",
+  "burstValidate": "Valider",
+  "burstReview": "Revoir",
+  "burstStateKept": "Gardée",
+  "burstStateTrashed": "Au panier",
+  "burstStateUndecided": "Pas encore triée",
+  "monthDoneTitle": "Mois trié !",
+  "monthBack": "Retour aux mois",
+  "menuFreedLabel": "Espace libéré",
+  "menuCurveLabel": "Espace libéré cumulé sur les 8 dernières semaines",
+  "menuSortedChip": "{percent} % triées",
+  "@menuSortedChip": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "menuDeletedChip": "{count, plural, =0{aucune supprimée} =1{1 supprimée} other{{count} supprimées}}",
+  "@menuDeletedChip": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storageTitle": "Stockage du téléphone",
+  "storageFreeOf": "{free} libres sur {total}",
+  "@storageFreeOf": {
+    "placeholders": {
+      "free": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "storagePhotos": "Photos",
+  "storageOther": "Autre",
+  "storageUsed": "Utilisé",
+  "storageFree": "Libre",
+  "menuMonths": "Par mois",
+  "menuMonthsDetail": "{count, plural, =0{Aucun mois} =1{1 mois} other{{count} mois}}",
+  "@menuMonthsDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "menuRawNone": "Aucune paire",
+  "menuRawDetail": "{count, plural, =1{1 paire} other{{count} paires}}",
+  "@menuRawDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "menuTrash": "Corbeille",
+  "monthsTitle": "Trier par mois",
+  "monthsYearSummary": "{count, plural, =1{1 photo} other{{count} photos}} · {percent} % triées",
+  "@monthsYearSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "monthsHint": "Dans un mois, toutes ses photos sont proposées, même celles déjà vues.",
+  "monthsDone": "Trié",
+  "statsTitle": "Statistiques",
+  "statsSinceInstall": "Depuis l'installation",
+  "statsByWeek": "Par semaine",
+  "statsByMonth": "Par mois",
+  "statsFreedPerWeek": "Espace libéré par semaine",
+  "statsFreedPerMonth": "Espace libéré par mois",
+  "statsCumulative": "Cumul de l'espace libéré",
+  "statsPhotosDeleted": "Photos supprimées",
+  "statsPhotosSorted": "Photos triées",
+  "statsBestWeek": "Meilleure semaine",
+  "statsBestMonth": "Meilleur mois",
+  "statsRecoverable": "Encore récupérable en corbeille",
+  "statsNote": "L'espace est compté une fois les photos envoyées à la corbeille. Une photo restaurée est décomptée.",
+  "rawWhatRaw": "RAW",
+  "rawWhatJpg": "JPG",
+  "rawEmpty": "Aucune paire JPG + RAW dans ta galerie.",
+  "rawIntro": "{count, plural, =1{1 paire : la même photo en deux fichiers.} other{{count} paires : la même photo en deux fichiers.}}",
+  "@rawIntro": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rawNothingToFree": "Rien à libérer en gardant les deux",
+  "rawToFree": "{size} à libérer",
+  "@rawToFree": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "rawForAll": "Pour toutes les paires",
+  "rawKeepJpg": "Garder JPG",
+  "rawKeepRaw": "Garder RAW",
+  "rawKeepBoth": "Les deux",
+  "rawTapHint": "Touche une paire pour changer son choix.",
+  "rawKeepAllCta": "Garder les deux",
+  "rawDeleteCta": "Supprimer les {what} ({size})",
+  "@rawDeleteCta": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "rawDeleteFilesCta": "{count, plural, =1{Supprimer 1 fichier ({size})} other{Supprimer {count} fichiers ({size})}}",
+  "@rawDeleteFilesCta": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "percent": "{value} %",
+  "@percent": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "statsHeroDeleted": "{count, plural, =0{aucune photo supprimée} =1{1 photo supprimée} other{{count} photos supprimées}}",
+  "@statsHeroDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

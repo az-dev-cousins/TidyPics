@@ -2,14 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/models/photo_groups.dart';
 import '../data/sources/gallery_source.dart';
 import '../features/cart/presentation/checkpoint_page.dart';
 import '../features/gallery/application/gallery_controller.dart';
 import '../features/home/presentation/home_page.dart';
+import '../features/months/presentation/months_page.dart';
 import '../features/onboarding/presentation/onboarding_page.dart';
 import '../features/onboarding/presentation/permission_page.dart';
+import '../features/raw_pairs/presentation/raw_pairs_page.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../features/settings/presentation/settings_page.dart';
+import '../features/stats/presentation/stats_page.dart';
+import '../features/swipe/application/swipe_session.dart';
+import '../features/swipe/presentation/burst_page.dart';
 import '../features/swipe/presentation/swipe_page.dart';
 import '../features/trash/presentation/trash_page.dart';
 
@@ -21,7 +27,15 @@ abstract final class AppRoutes {
   static const permission = '/permission';
   static const trash = '/trash';
   static const settings = '/settings';
+  static const burst = '/burst';
+  static const months = '/months';
+  static const stats = '/stats';
+  static const rawPairs = '/raw-pairs';
   static const _checkpoint = '/checkpoint';
+  static const _month = '/month';
+
+  /// Tri d'un seul mois.
+  static String month(int year, int month) => '$_month/$year/$month';
 
   static String checkpoint(CheckpointOrigin origin) =>
       '$_checkpoint?from=${origin.name}';
@@ -85,6 +99,31 @@ final routerProvider = Provider<GoRouter>((ref) {
               .firstOrNull;
           return CheckpointPage(origin: origin ?? CheckpointOrigin.home);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.burst,
+        builder: (context, state) => BurstPage(item: state.extra! as PhotoItem),
+      ),
+      GoRoute(
+        path: AppRoutes.months,
+        builder: (context, state) => const MonthsPage(),
+      ),
+      GoRoute(
+        path: '${AppRoutes._month}/:year/:month',
+        builder: (context, state) => SwipePage(
+          scope: SwipeScope.month(
+            int.parse(state.pathParameters['year']!),
+            int.parse(state.pathParameters['month']!),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.stats,
+        builder: (context, state) => const StatsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.rawPairs,
+        builder: (context, state) => const RawPairsPage(),
       ),
       GoRoute(
         path: AppRoutes.trash,

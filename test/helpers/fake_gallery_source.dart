@@ -58,9 +58,16 @@ class FakeGallerySource implements GallerySource {
   @override
   Future<int> fileSize(String id) async => sizes[id] ?? 1000;
 
+  /// Photos dont la miniature est illisible (ex. certains RAW).
+  final unreadableThumbnails = <String>{};
+
   @override
-  Future<Uint8List?> thumbnail(String id, {int size = 200}) async =>
-      Uint8List.fromList([1, 2, 3]);
+  Future<Uint8List?> thumbnail(String id, {int size = 200}) async {
+    if (unreadableThumbnails.contains(id)) {
+      throw StateError('Miniature illisible');
+    }
+    return Uint8List.fromList([1, 2, 3]);
+  }
 
   @override
   Future<bool> setFavorite(String id, {required bool favorite}) async {
@@ -105,6 +112,15 @@ class FakeGallerySource implements GallerySource {
     systemTrash.removeAll(ids);
     return ids;
   }
+
+  DeviceStorage? storage = const DeviceStorage(
+    total: 128000000000,
+    free: 40000000000,
+    photos: 30000000000,
+  );
+
+  @override
+  Future<DeviceStorage?> deviceStorage() async => storage;
 
   @override
   Future<bool> supportsManageMedia() async => manageMediaSupported;

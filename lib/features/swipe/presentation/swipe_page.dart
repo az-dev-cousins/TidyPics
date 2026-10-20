@@ -9,6 +9,7 @@ import '../../../app/router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/gallery_photo.dart';
+import '../../../data/models/photo_groups.dart';
 import '../../../data/providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/photo_image.dart';
@@ -37,9 +38,12 @@ final launchCheckpointProvider = NotifierProvider<LaunchCheckpoint, bool>(
   LaunchCheckpoint.new,
 );
 
-/// Écran de tri par swipe (F1) : l'écran principal de l'app.
+/// Écran de tri par swipe (F1) : l'écran principal de l'app, ou le tri
+/// d'un seul mois (F2) quand [scope] le précise.
 class SwipePage extends ConsumerStatefulWidget {
-  const SwipePage({super.key});
+  const SwipePage({super.key, this.scope = const SwipeScope.all()});
+
+  final SwipeScope scope;
 
   @override
   ConsumerState<SwipePage> createState() => _SwipePageState();
@@ -49,12 +53,14 @@ class _SwipePageState extends ConsumerState<SwipePage> {
   final _deck = GlobalKey<SwipeDeckState>();
   bool _checkpointOpen = false;
 
-  SwipeSession get _session => ref.read(swipeSessionProvider.notifier);
+  SwipeScope get _scope => widget.scope;
+  bool get _isMonth => _scope.isMonth;
+  SwipeSession get _session => ref.read(swipeSessionProvider(_scope).notifier);
 
   @override
   void initState() {
     super.initState();
-    unawaited(_maybeShowPendingCart());
+    if (!_isMonth) unawaited(_maybeShowPendingCart());
   }
 
   /// Ouverture de l'app avec des photos encore au panier : récap.
@@ -80,19 +86,25 @@ class _SwipePageState extends ConsumerState<SwipePage> {
     }
     await _session.refreshCart();
     if (!mounted) return;
-    if (origin == CheckpointOrigin.stop) {
-      // Session terminée : la prochaine repartira de zéro.
-      ref.invalidate(swipeSessionProvider);
-      unawaited(context.push(AppRoutes.home));
-    }
+    if (origin == CheckpointOrigin.stop) _endSession();
   }
 
-  /// « Je m'arrête là » : récap si le panier n'est pas vide, puis le menu.
+  /// Fin de session : un mois revient à la liste des mois, sinon le menu.
+  void _endSession() {
+    if (_isMonth) {
+      context.pop();
+      return;
+    }
+    // La prochaine session repartira de zéro.
+    ref.invalidate(swipeSessionProvider(_scope));
+    unawaited(context.push(AppRoutes.home));
+  }
+
+  /// « Je m'arrête là » : récap si le panier n'est pas vide.
   Future<void> _stop() async {
-    final cart = ref.read(swipeSessionProvider).value?.cartCount ?? 0;
+    final cart = ref.read(swipeSessionProvider(_scope)).value?.cartCount ?? 0;
     if (cart == 0) {
-      ref.invalidate(swipeSessionProvider);
-      await context.push(AppRoutes.home);
+      _endSession();
       return;
     }
     await _openCheckpoint(CheckpointOrigin.stop);
@@ -101,10 +113,20 @@ class _SwipePageState extends ConsumerState<SwipePage> {
   void _press(SwipeChoice choice) => _deck.currentState?.swipe(choice);
 
   Future<void> _undo() async {
-    final last = ref.read(swipeSessionProvider).value?.history.lastOrNull;
+    final last = ref
+        .read(swipeSessionProvider(_scope))
+        .value
+        ?.history
+        .lastOrNull;
     if (last == null) return;
-    _deck.currentState?.prepareReturn(last.choice);
+    _deck.currentState?.prepareReturn(last.choice ?? SwipeChoice.keep);
     await _session.undo();
+  }
+
+  /// Rafale : tri photo par photo, puis on passe à l'élément suivant.
+  Future<void> _pickBest(PhotoItem item) async {
+    final kept = await context.push<Set<String>>(AppRoutes.burst, extra: item);
+    if (kept != null && mounted) await _session.resolveGroup(kept);
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
@@ -127,20 +149,28 @@ class _SwipePageState extends ConsumerState<SwipePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final session = ref.watch(swipeSessionProvider);
+    final provider = swipeSessionProvider(_scope);
+    final session = ref.watch(provider);
     final cartBytes = ref.watch(librarySummaryProvider).value?.cartBytes ?? 0;
 
     ref
-      ..listen(swipeSessionProvider, (previous, next) {
+      ..listen(provider, (previous, next) {
         final was = previous?.value?.checkpointDue ?? false;
         if (!was && (next.value?.checkpointDue ?? false)) {
           unawaited(_openCheckpoint(CheckpointOrigin.threshold));
         }
       })
-      // Ordre du tri ou seuil changés dans les réglages : nouvelle session.
+      // Réglages du tri changés : nouvelle session.
       ..listen(
-        settingsProvider.select((s) => (s.sortOrder, s.checkpointThreshold)),
-        (_, _) => ref.invalidate(swipeSessionProvider),
+        settingsProvider.select(
+          (s) => (
+            s.sortOrder,
+            s.checkpointThreshold,
+            s.groupBursts,
+            s.burstGapSeconds,
+          ),
+        ),
+        (_, _) => ref.invalidate(provider),
       );
 
     final state = session.value;
@@ -149,11 +179,16 @@ class _SwipePageState extends ConsumerState<SwipePage> {
       onKeyEvent: _onKey,
       child: Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            tooltip: l10n.swipeMenu,
-            icon: const Icon(Icons.menu_rounded),
-            onPressed: () => context.push(AppRoutes.home),
-          ),
+          leading: _isMonth
+              ? const BackButton()
+              : IconButton(
+                  tooltip: l10n.swipeMenu,
+                  icon: const Icon(Icons.menu_rounded),
+                  onPressed: () => context.push(AppRoutes.home),
+                ),
+          title: _isMonth
+              ? Text(l10n.monthName(DateTime(_scope.year!, _scope.month!)))
+              : null,
           actions: [
             TextButton(
               onPressed: state == null ? null : _stop,
@@ -220,9 +255,21 @@ class _SwipePageState extends ConsumerState<SwipePage> {
         icon: nothingSorted
             ? Icons.photo_library_outlined
             : Icons.check_circle_outline_rounded,
-        title: nothingSorted ? l10n.swipeEmptyTitle : l10n.swipeDoneTitle,
-        body: nothingSorted ? l10n.swipeEmptyBody : l10n.swipeDoneBody,
-        action: state.cartCount > 0 ? l10n.swipeStop : l10n.swipeMenu,
+        title: _isMonth
+            ? l10n.monthDoneTitle
+            : nothingSorted
+            ? l10n.swipeEmptyTitle
+            : l10n.swipeDoneTitle,
+        body: _isMonth
+            ? ''
+            : nothingSorted
+            ? l10n.swipeEmptyBody
+            : l10n.swipeDoneBody,
+        action: state.cartCount > 0
+            ? l10n.swipeStop
+            : _isMonth
+            ? l10n.monthBack
+            : l10n.swipeMenu,
         onAction: _stop,
       );
     }
@@ -230,16 +277,21 @@ class _SwipePageState extends ConsumerState<SwipePage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
       child: _Precache(
-        photo: next,
+        photo: next?.cover,
         child: SwipeDeck(
           key: _deck,
           currentKey: current.id,
           nextKey: next?.id,
           currentCard: (context, {required isCurrent, stamp, strength = 0}) =>
-              PhotoSwipeCard(photo: current, stamp: stamp, strength: strength),
+              ItemSwipeCard(
+                item: current,
+                stamp: stamp,
+                strength: strength,
+                onPickBest: () => _pickBest(current),
+              ),
           nextCard: next == null
               ? null
-              : (context) => PhotoSwipeCard(photo: next),
+              : (context) => ItemSwipeCard(item: next),
           onSwiped: _session.decide,
         ),
       ),

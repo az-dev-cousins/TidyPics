@@ -175,13 +175,19 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 ### F5 — Photos similaires (rafales)
 - Une **rafale** = des photos prises à **moins de N secondes** d'intervalle (3 s par défaut, réglable de 1 à 10 s). Les rafales iOS natives (`burstIdentifier`) sont aussi reconnues.
 - Les groupes sont calculés une fois, lors du scan de la galerie (sur la liste triée par date), puis mis à jour au fil des nouvelles photos. Le mode aléatoire tire ensuite ces groupes comme un seul élément.
-- **Carte « Rafale (n) »** : elle ouvre une grille ou un carrousel où l'on coche **une ou plusieurs photos à garder**, puis « Garder la sélection, supprimer les autres ».
+- **Carte « Rafale (n) »** dans le tri : photos en éventail, vignettes et bouton « Choisir les meilleures ».
+- ✅ **Choisir les meilleures** (version A des maquettes) :
+  1. Les photos de la rafale défilent une par une : swipe droite = garder, gauche = au panier.
+  2. Une bande de vignettes en bas montre l'état de chaque photo (gardée, au panier, pas encore triée) ; un tap y revient pour changer d'avis.
+  3. Après la dernière photo, un récap (« 1 gardée · 2 au panier ») propose Valider ou Revoir. Rien n'est enregistré avant de valider.
+  4. Aucune photo n'est présélectionnée. On peut n'en garder aucune : le récap prévient alors que toute la rafale ira au panier.
+  5. « Tout garder » en haut de l'écran.
 - Raccourci : swipe gauche sur le groupe = tout au panier, swipe droit = tout garder.
 - Option : regroupement activé ou désactivé.
 
 ### F6 — Doublons JPG + RAW
 - Une **paire** = même nom de fichier (hors extension) et même date de prise de vue, en JPG/HEIC d'un côté et en RAW de l'autre (`.dng`, `.cr2`, `.nef`, `.arw`…).
-- **Mode dédié** depuis l'accueil : liste des paires et espace récupérable avec « Garder JPG / Garder RAW / Garder les deux », en masse ou paire par paire.
+- **Mode dédié** depuis le menu (version A des maquettes) : liste des paires et espace récupérable, un choix « Garder JPG / Garder RAW / Les deux » pour toutes les paires, modifiable d'un tap paire par paire. Les fichiers écartés partent à la corbeille en un seul lot.
 - En session de swipe : une carte unique avec le badge « JPG + RAW ».
 - ⚠️ **iOS** : un import JPG + RAW forme souvent **un seul élément avec deux fichiers**. Il faut vérifier par un test si l'on peut n'en supprimer qu'un. Sinon, la fonction ne sert que sur Android en V1.
 
@@ -189,7 +195,8 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 - **Depuis l'installation** : espace libéré, photos supprimées, photos triées, sessions.
 - **Par période** : semaine, mois, et courbe dans le temps.
 - L'espace n'est compté qu'après l'envoi réel à la corbeille. Une photo restaurée est décomptée.
-- Accueil : un gros chiffre « X Go libérés » et la progression du tri (% de la galerie triée).
+- ✅ Écran Stats (A + B des maquettes) : le total depuis l'installation, puis par semaine ou par mois des barres (valeur au toucher) et la courbe du cumul, et les chiffres clés (photos supprimées, triées, meilleure période, encore récupérable).
+- ✅ Menu (A + C) : en tête, l'espace libéré et sa courbe sur 8 semaines (un tap ouvre les stats), avec « % triées » et « photos supprimées ».
 
 ### F8 — Paramètres
 - Mode de tri : aléatoire, ou ordonné (ancien vers récent, ou l'inverse)
@@ -204,6 +211,8 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
   - ✅ Le premier écran est un **tutoriel interactif** : trois photos d'exemple dessinées par l'app (floue → gauche, belle balade → droite, coucher de soleil → haut). La carte esquisse le geste attendu ; un mauvais geste la ramène au centre. On peut passer le tutoriel.
   - Animations à l'entrée de chaque écran.
 - **Menu** (ouvert depuis le tri) : bouton « Reprendre le tri », tri par année/mois, doublons JPG + RAW, « En cours de suppression », stats, paramètres. Badge sur le panier s'il y a des photos en attente.
+  - ✅ Barre de stockage façon réglages du téléphone : capacité, espace libre et part des photos (Android ; sur iOS, seulement utilisé / libre). Prévue pour accueillir les vidéos en V2.
+  - ✅ Tri par mois (A + C) : les années en onglets, une carte par mois avec une photo, le pourcentage trié et une barre de complétion.
 
 ---
 
