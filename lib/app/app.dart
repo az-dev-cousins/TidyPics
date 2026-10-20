@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/app_theme.dart';
+import '../features/cart/application/checkpoint_controller.dart';
 import '../features/gallery/application/gallery_controller.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../l10n/app_localizations.dart';
@@ -25,6 +26,8 @@ class _TidyPicsAppState extends ConsumerState<TidyPicsApp> {
       await ref.read(galleryAccessProvider.notifier).refresh();
       unawaited(ref.read(gallerySyncProvider.notifier).scan());
     },
+    // Option Android 12+ : le panier part à la corbeille quand on quitte.
+    onHide: () => unawaited(ref.read(checkpointActionsProvider).trashOnLeave()),
   );
 
   @override

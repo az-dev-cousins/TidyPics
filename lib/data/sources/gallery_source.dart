@@ -53,6 +53,14 @@ abstract interface class GallerySource {
   /// Android seulement : la corbeille système est lisible et restaurable.
   bool get hasRestorableTrash;
 
+  /// Android : parmi ces photos envoyées à la corbeille, celles qui y sont
+  /// encore (elles ont pu être restaurées ou effacées ailleurs).
+  Future<Set<String>> stillInTrash(List<String> ids);
+
+  /// Android : efface définitivement ces photos de la corbeille (une popup,
+  /// aucune avec « Gestion des médias »). Renvoie les identifiants effacés.
+  Future<List<String>> deleteForever(List<String> ids);
+
   /// Android 12+ : la permission « Gestion des médias » existe.
   Future<bool> supportsManageMedia();
   Future<bool> canManageMedia();
@@ -237,6 +245,24 @@ class PhotoManagerGallerySource implements GallerySource {
 
   @override
   bool get hasRestorableTrash => Platform.isAndroid;
+
+  @override
+  Future<Set<String>> stillInTrash(List<String> ids) async {
+    if (!Platform.isAndroid || ids.isEmpty) return const {};
+    final found = await _device.invokeListMethod<String>('trashedIds', {
+      'ids': ids,
+    });
+    return {...?found};
+  }
+
+  @override
+  Future<List<String>> deleteForever(List<String> ids) async {
+    if (!Platform.isAndroid || ids.isEmpty) return const [];
+    final done = await _device.invokeListMethod<String>('deleteForever', {
+      'ids': ids,
+    });
+    return done ?? const [];
+  }
 
   @override
   Future<bool> supportsManageMedia() async {

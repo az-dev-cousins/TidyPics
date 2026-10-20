@@ -113,4 +113,44 @@ void main() {
     expect(named('IMG_1.JPG').isRaw, isFalse);
     expect(named(null).isRaw, isFalse);
   });
+
+  group('par mois', () {
+    List<GalleryPhoto> spread() => [
+      GalleryPhoto(id: 'a', takenAt: DateTime(2025, 3, 2)),
+      GalleryPhoto(id: 'b', takenAt: DateTime(2025, 3, 30, 23)),
+      GalleryPhoto(id: 'c', takenAt: DateTime(2025, 4, 1)),
+      GalleryPhoto(id: 'd', takenAt: DateTime(2024, 12, 25)),
+    ];
+
+    test('chaque mois avec son nombre de photos et sa part triée', () async {
+      final photos = spread();
+      await library.sync(photos);
+      await library.decide(photos[0], Decision.kept);
+      await library.addToCart(photos[1]);
+
+      final months = await library.watchMonths().first;
+      expect(months.map((m) => '${m.year}-${m.month}:${m.sorted}/${m.total}'), [
+        '2025-4:0/1',
+        '2025-3:2/2',
+        '2024-12:0/1',
+      ]);
+      expect(months[1].isDone, isTrue);
+    });
+
+    test(
+      'un mois propose toutes ses photos, même gardées, sauf le panier',
+      () async {
+        final photos = spread();
+        await library.sync(photos);
+        await library.decide(photos[0], Decision.kept);
+
+        expect((await library.monthPhotos(2025, 3)).map((p) => p.id), [
+          'a',
+          'b',
+        ]);
+        await library.addToCart(photos[1]);
+        expect((await library.monthPhotos(2025, 3)).map((p) => p.id), ['a']);
+      },
+    );
+  });
 }

@@ -81,4 +81,80 @@ void main() {
     // Les stats, elles, restent.
     expect((await trash.watchFreed().first).bytes, 3000);
   });
+
+  test(
+    '« Vider maintenant » efface pour de bon, sans toucher aux stats',
+    () async {
+      await trash.trash(photos);
+      final log = await trash.watchLog().first;
+
+      expect(await trash.emptyNow(log), 3);
+      expect(gallery.systemTrash, isEmpty);
+      expect(await trash.watchLog().first, isEmpty);
+      expect((await trash.watchFreed().first).bytes, 3000);
+    },
+  );
+
+  test('vidage refusé : le journal reste', () async {
+    await trash.trash(photos);
+    gallery.refuseDeleteForever = true;
+    expect(await trash.emptyNow(await trash.watchLog().first), 0);
+    expect(await trash.watchLog().first, hasLength(3));
+  });
+
+  test(
+    'le journal suit la corbeille : restaurée ou effacée ailleurs',
+    () async {
+      await trash.trash(photos);
+      // p0 restaurée depuis l'app Galerie, p1 effacée pour de bon.
+      gallery.systemTrash.removeAll(['p0', 'p1']);
+
+      await trash.syncWithSystemTrash({'p0', 'p2-other'});
+
+      final log = await trash.watchLog().first;
+      expect(log.map((e) => e.photo.id), ['p2']);
+      // Seule la restaurée est décomptée.
+      expect((await trash.watchFreed().first).bytes, 2000);
+    },
+  );
+
+  test('historique par semaine, semaines vides comprises', () async {
+    final monday = DateTime(2026, 10, 12);
+    await trash.trash([photos[0]], at: monday.add(const Duration(hours: 9)));
+    await trash.trash([
+      photos[1],
+      photos[2],
+    ], at: monday.subtract(const Duration(days: 6)));
+
+    final weeks = await trash
+        .watchHistory(StatsPeriod.week, count: 3, now: DateTime(2026, 10, 15))
+        .first;
+    expect(weeks.map((w) => w.start), [
+      DateTime(2026, 9, 28),
+      DateTime(2026, 10, 5),
+      DateTime(2026, 10, 12),
+    ]);
+    expect(weeks.map((w) => w.bytes), [0, 2000, 1000]);
+  });
+
+  test('historique par mois', () async {
+    await trash.trash(photos, at: DateTime(2026, 9, 20));
+    final months = await trash
+        .watchHistory(StatsPeriod.month, count: 2, now: DateTime(2026, 10, 3))
+        .first;
+    expect(months.map((m) => m.start), [DateTime(2026, 9), DateTime(2026, 10)]);
+    expect(months.map((m) => m.photos), [3, 0]);
+  });
+
+  test(
+    'effacement direct : pas de journal, mais compté dans les stats',
+    () async {
+      final outcome = await trash.trash(photos, permanent: true);
+      expect(outcome.count, 3);
+      expect(gallery.trashed, isEmpty);
+      expect(await trash.watchLog().first, isEmpty);
+      expect((await trash.watchFreed().first).bytes, 3000);
+      expect((await library.watchSummary().first).cartCount, 0);
+    },
+  );
 }

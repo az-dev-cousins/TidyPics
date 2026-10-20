@@ -37,8 +37,22 @@ class CheckpointActions {
   Future<void> declineManageMedia() =>
       _ref.read(settingsProvider.notifier).markManageMediaAsked();
 
+  /// Une suppression est en cours : la popup système met l'app en pause, il
+  /// ne faut pas qu'une autre (envoi en quittant l'app) parte en même temps.
+  static bool _busy = false;
+
   /// Envoie tout le panier à la corbeille système, en un seul lot.
   Future<TrashOutcome> trashAll(List<CartEntry> cart) async {
+    if (_busy) return TrashOutcome.none;
+    _busy = true;
+    try {
+      return await _trashAll(cart);
+    } finally {
+      _busy = false;
+    }
+  }
+
+  Future<TrashOutcome> _trashAll(List<CartEntry> cart) async {
     final gallery = _ref.read(gallerySourceProvider);
     final library = _ref.read(libraryRepositoryProvider);
     final photos = <GalleryPhoto>[];
@@ -51,7 +65,25 @@ class CheckpointActions {
       }
       photos.add(photo);
     }
-    return _ref.read(trashRepositoryProvider).trash(photos);
+    final permanent =
+        _ref.read(settingsProvider).deleteDirectly &&
+        gallery.hasRestorableTrash;
+    return _ref
+        .read(trashRepositoryProvider)
+        .trash(photos, permanent: permanent);
+  }
+
+  /// Tout le panier, tel qu'il est en base.
+  Future<TrashOutcome> trashAllFromCart() async =>
+      trashAll(await _ref.read(libraryRepositoryProvider).cart());
+
+  /// Option Android 12+ : en quittant l'app, le panier part à la corbeille,
+  /// sans popup grâce à « Gestion des médias ». Rien ne se passe sinon.
+  Future<TrashOutcome> trashOnLeave() async {
+    if (!_ref.read(settingsProvider).autoTrashOnLeave) return TrashOutcome.none;
+    final gallery = _ref.read(gallerySourceProvider);
+    if (!await gallery.canManageMedia()) return TrashOutcome.none;
+    return trashAllFromCart();
   }
 }
 

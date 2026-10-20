@@ -36,6 +36,26 @@ class LibrarySummary {
   int get unsorted => total - sorted - cartCount;
 }
 
+/// Un mois de la galerie et l'avancée de son tri (F2, tri ciblé).
+class MonthSummary {
+  const MonthSummary({
+    required this.year,
+    required this.month,
+    required this.total,
+    required this.sorted,
+  });
+
+  final int year;
+  final int month;
+  final int total;
+
+  /// Photos du mois gardées ou au panier.
+  final int sorted;
+
+  double get progress => total == 0 ? 0 : sorted / total;
+  bool get isDone => total > 0 && sorted >= total;
+}
+
 /// Une photo du panier, avec ce qu'il faut pour l'afficher et la supprimer.
 class CartEntry {
   const CartEntry({required this.photo, required this.addedAt});
@@ -152,6 +172,60 @@ class LibraryRepository {
     final rows = await query.map((r) => _toPhoto(r.readTable(p))).get();
     if (order == SortOrder.random) rows.shuffle();
     return rows;
+  }
+
+  /// Les mois qui ont des photos, du plus récent au plus ancien.
+  Stream<List<MonthSummary>> watchMonths() {
+    final p = _db.photos;
+    return (_db.select(p).join([
+      leftOuterJoin(
+        _db.photoDecisions,
+        _db.photoDecisions.assetId.equalsExp(p.id),
+      ),
+      leftOuterJoin(_db.cartItems, _db.cartItems.assetId.equalsExp(p.id)),
+    ])).watch().map((rows) {
+      // Regroupé en Dart, en heure locale : 20 000 lignes restent rapides.
+      final byMonth = <(int, int), (int, int)>{};
+      for (final row in rows) {
+        final date = row.readTable(p).takenAt.toLocal();
+        final sorted =
+            row.readTableOrNull(_db.photoDecisions) != null ||
+            row.readTableOrNull(_db.cartItems) != null;
+        final key = (date.year, date.month);
+        final (total, done) = byMonth[key] ?? (0, 0);
+        byMonth[key] = (total + 1, done + (sorted ? 1 : 0));
+      }
+      final keys = byMonth.keys.toList()
+        ..sort((a, b) => a.$1 != b.$1 ? b.$1 - a.$1 : b.$2 - a.$2);
+      return [
+        for (final key in keys)
+          MonthSummary(
+            year: key.$1,
+            month: key.$2,
+            total: byMonth[key]!.$1,
+            sorted: byMonth[key]!.$2,
+          ),
+      ];
+    });
+  }
+
+  /// Toutes les photos d'un mois, même déjà vues ou gardées (tri ciblé).
+  /// Seules celles au panier sont exclues : elles attendent le récap.
+  Future<List<GalleryPhoto>> monthPhotos(int year, int month) async {
+    final p = _db.photos;
+    final start = DateTime(year, month);
+    final end = DateTime(year, month + 1);
+    final query =
+        _db.select(p).join([
+            leftOuterJoin(_db.cartItems, _db.cartItems.assetId.equalsExp(p.id)),
+          ])
+          ..where(
+            p.takenAt.isBiggerOrEqualValue(start) &
+                p.takenAt.isSmallerThanValue(end) &
+                _db.cartItems.assetId.isNull(),
+          )
+          ..orderBy([OrderingTerm.asc(p.takenAt)]);
+    return query.map((r) => _toPhoto(r.readTable(p))).get();
   }
 
   Future<void> setSize(String id, int bytes) async {

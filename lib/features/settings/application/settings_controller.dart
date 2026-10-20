@@ -29,6 +29,24 @@ class SettingsController extends Notifier<AppSettings> {
 
   Future<void> setThemeMode(ThemeMode mode) =>
       _save(state.copyWith(themeMode: mode));
+
+  Future<void> setGroupBursts(bool value) =>
+      _save(state.copyWith(groupBursts: value));
+
+  Future<void> setBurstGap(int seconds) => _save(
+    state.copyWith(
+      burstGapSeconds: seconds.clamp(
+        AppSettings.minBurstGap,
+        AppSettings.maxBurstGap,
+      ),
+    ),
+  );
+
+  Future<void> setAutoTrashOnLeave(bool value) =>
+      _save(state.copyWith(autoTrashOnLeave: value));
+
+  Future<void> setDeleteDirectly(bool value) =>
+      _save(state.copyWith(deleteDirectly: value));
 }
 
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(

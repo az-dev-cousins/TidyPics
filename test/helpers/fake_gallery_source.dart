@@ -74,6 +74,7 @@ class FakeGallerySource implements GallerySource {
     if (refuseTrash) return const [];
     final ids = list.map((p) => p.id).toList();
     trashed.addAll(ids);
+    systemTrash.addAll(ids);
     photos.removeWhere((p) => ids.contains(p.id));
     return ids;
   }
@@ -82,12 +83,28 @@ class FakeGallerySource implements GallerySource {
   Future<List<String>> restoreFromTrash(List<GalleryPhoto> list) async {
     final ids = list.map((p) => p.id).toList();
     restored.addAll(ids);
+    systemTrash.removeAll(ids);
     photos.addAll(list);
     return ids;
   }
 
   @override
   bool get hasRestorableTrash => true;
+
+  /// Photos dans la corbeille système (simulée).
+  final systemTrash = <String>{};
+  bool refuseDeleteForever = false;
+
+  @override
+  Future<Set<String>> stillInTrash(List<String> ids) async =>
+      ids.where(systemTrash.contains).toSet();
+
+  @override
+  Future<List<String>> deleteForever(List<String> ids) async {
+    if (refuseDeleteForever) return const [];
+    systemTrash.removeAll(ids);
+    return ids;
+  }
 
   @override
   Future<bool> supportsManageMedia() async => manageMediaSupported;

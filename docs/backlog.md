@@ -20,7 +20,7 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 ## Lot 0bis — Prototypes techniques
 
 - [x] Android : `createTrashRequest` et restauration (via `photo_manager`, [ADR 0007](adr/0007-photo-manager-pour-la-corbeille.md))
-- [ ] Android : lecture de la corbeille (`QUERY_ARG_MATCH_TRASHED`) et vidage (`createDeleteRequest`), en Kotlin
+- [x] Android : lecture de la corbeille (`QUERY_ARG_MATCH_TRASHED`) et vidage (`createDeleteRequest`), en Kotlin
 - [x] Android 12+ : « Gestion des médias » (`MANAGE_MEDIA`) : vérifié sur l'émulateur Android 16, aucune popup à l'envoi en corbeille
 - [ ] Mesurer la taille maximum d'un lot de suppression
 - [ ] Google Photos : la copie cloud reste-t-elle après une suppression locale ?
@@ -51,9 +51,13 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 - [x] F3 Checkpoint : seuil, « Je m'arrête là », sortie du tri, ouverture de l'app
 - [x] §6 Envoi groupé : Android et iOS (lots de 500)
 - [x] F3 Demande de « Gestion des médias » au premier checkpoint
-- [ ] F3 Option Android 12+ : envoi automatique quand on quitte l'app
+- [x] F3 Option Android 12+ : envoi automatique quand on quitte l'app (Android le termine au retour dans l'app)
 - [x] F4 « En cours de suppression » : journal, jours restants, restaurer (Android), aide guidée (iOS)
-- [ ] F4 Android : lire la vraie corbeille et « Vider maintenant »
+- [x] F4 Android : lire la vraie corbeille et « Vider maintenant »
+
+## Écrans en attente du choix de design
+
+Pistes : https://claude.ai/artifact/D4jveh5gf2pPxWirwQxVsC (menu, par mois, stats, rafales, JPG + RAW). La logique est prête et testée.
 
 ## Lot 4 — Stats
 
@@ -68,4 +72,4 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 
 - [ ] F5 Rafales : regroupement (écart réglable, `burstIdentifier` iOS), carte de groupe, sélection
 - [ ] F6 Paires JPG + RAW : détection, mode dédié, carte en session
-- [ ] F8 Paramètres complets
+- [x] F8 Paramètres complets

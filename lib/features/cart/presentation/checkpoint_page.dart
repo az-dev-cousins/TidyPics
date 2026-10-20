@@ -12,6 +12,7 @@ import '../../../data/repositories/library_repository.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/photo_image.dart';
 import '../../gallery/application/gallery_controller.dart';
+import '../../settings/application/settings_controller.dart';
 import '../application/checkpoint_controller.dart';
 import 'manage_media_sheet.dart';
 
@@ -155,6 +156,9 @@ class _CheckpointPageState extends ConsumerState<CheckpointPage> {
     final selected = cart == null ? const <CartEntry>[] : _selected(cart);
     final count = selected.length;
     final bytes = selected.fold<int>(0, (s, e) => s + e.sizeBytes);
+    final permanent =
+        ref.watch(settingsProvider.select((s) => s.deleteDirectly)) &&
+        !Platform.isIOS;
     final laterResult = _fromThreshold
         ? CheckpointResult.continued
         : CheckpointResult.later;
@@ -263,6 +267,8 @@ class _CheckpointPageState extends ConsumerState<CheckpointPage> {
                             child: Text(
                               Platform.isIOS
                                   ? l10n.checkpointSafetyIos
+                                  : permanent
+                                  ? l10n.checkpointSafetyPermanent
                                   : l10n.checkpointSafetyAndroid,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: tidy.inkMuted,

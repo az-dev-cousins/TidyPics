@@ -45,6 +45,22 @@ class FreedStats {
   final int photos;
 }
 
+/// Découpage des statistiques dans le temps (F7).
+enum StatsPeriod { week, month }
+
+/// Espace libéré (net des restaurations) sur une période.
+class FreedBucket {
+  const FreedBucket({
+    required this.start,
+    required this.bytes,
+    required this.photos,
+  });
+
+  final DateTime start;
+  final int bytes;
+  final int photos;
+}
+
 /// Envoi à la corbeille, journal et statistiques d'espace libéré.
 class TrashRepository {
   TrashRepository(this._db, this._gallery);
@@ -56,17 +72,30 @@ class TrashRepository {
   /// puis met à jour le journal, les stats et le panier.
   ///
   /// Si l'utilisateur refuse, rien ne change et le panier est conservé.
-  Future<TrashOutcome> trash(List<GalleryPhoto> photos, {DateTime? at}) async {
+  ///
+  /// [permanent] (Android, option avancée) : efface pour de bon, sans passer
+  /// par la corbeille. Rien n'est alors inscrit au journal.
+  Future<TrashOutcome> trash(
+    List<GalleryPhoto> photos, {
+    DateTime? at,
+    bool permanent = false,
+  }) async {
     if (photos.isEmpty) return TrashOutcome.none;
 
     // Les miniatures sont lues avant : une fois à la corbeille, la photo
     // n'est plus accessible.
     final thumbnails = <String, Uint8List?>{};
-    for (final photo in photos) {
-      thumbnails[photo.id] = await _gallery.thumbnail(photo.id, size: 160);
+    if (!permanent) {
+      for (final photo in photos) {
+        thumbnails[photo.id] = await _gallery.thumbnail(photo.id, size: 160);
+      }
     }
 
-    final trashedIds = (await _gallery.moveToTrash(photos)).toSet();
+    final trashedIds =
+        (permanent
+                ? await _gallery.deleteForever(photos.map((p) => p.id).toList())
+                : await _gallery.moveToTrash(photos))
+            .toSet();
     if (trashedIds.isEmpty) return TrashOutcome.none;
 
     final now = at ?? DateTime.now();
@@ -77,20 +106,22 @@ class TrashRepository {
     await _db.transaction(() async {
       await _db.batch((batch) {
         for (final photo in trashed) {
-          batch.insert(
-            _db.trashLog,
-            TrashLogCompanion.insert(
-              assetId: photo.id,
-              title: Value(photo.title),
-              takenAt: Value(photo.takenAt),
-              width: Value(photo.width),
-              height: Value(photo.height),
-              sizeBytes: Value(photo.sizeBytes ?? 0),
-              trashedAt: now,
-              thumbnail: Value(thumbnails[photo.id]),
-            ),
-            mode: InsertMode.insertOrReplace,
-          );
+          if (!permanent) {
+            batch.insert(
+              _db.trashLog,
+              TrashLogCompanion.insert(
+                assetId: photo.id,
+                title: Value(photo.title),
+                takenAt: Value(photo.takenAt),
+                width: Value(photo.width),
+                height: Value(photo.height),
+                sizeBytes: Value(photo.sizeBytes ?? 0),
+                trashedAt: now,
+                thumbnail: Value(thumbnails[photo.id]),
+              ),
+              mode: InsertMode.insertOrReplace,
+            );
+          }
           batch.insert(
             _db.photoDecisions,
             PhotoDecisionsCompanion.insert(
@@ -132,30 +163,82 @@ class TrashRepository {
     final ids = restored.map((p) => p.id).toList();
     await _db.transaction(() async {
       await (_db.delete(_db.trashLog)..where((t) => t.assetId.isIn(ids))).go();
-      await _db.batch((batch) {
-        for (final photo in restored) {
-          batch.insert(
-            _db.photoDecisions,
-            PhotoDecisionsCompanion.insert(
-              assetId: photo.id,
-              decision: Decision.kept,
-              decidedAt: now,
-            ),
-            mode: InsertMode.insertOrReplace,
-          );
-        }
-        batch.insert(
-          _db.statsEvents,
-          StatsEventsCompanion.insert(
-            type: StatsEventType.restored,
-            bytes: restored.fold<int>(0, (s, p) => s + (p.sizeBytes ?? 0)),
-            photoCount: restored.length,
-            at: now,
-          ),
-        );
-      });
+      await _recordRestored(restored, now);
     });
     return restored.length;
+  }
+
+  /// Android, « Vider maintenant » : efface pour de bon les photos envoyées
+  /// par TidyPics. L'espace était déjà compté à l'envoi en corbeille.
+  Future<int> emptyNow(List<TrashEntry> entries) async {
+    final ids = entries.map((e) => e.photo.id).toList();
+    final deleted = await _gallery.deleteForever(ids);
+    if (deleted.isEmpty) return 0;
+    for (var i = 0; i < deleted.length; i += 500) {
+      final chunk = deleted.skip(i).take(500).toList();
+      await (_db.delete(
+        _db.trashLog,
+      )..where((t) => t.assetId.isIn(chunk))).go();
+    }
+    return deleted.length;
+  }
+
+  /// Android : aligne le journal sur la vraie corbeille. Une photo qui n'y
+  /// est plus a été restaurée ailleurs (elle est de nouveau dans la galerie :
+  /// décomptée et gardée) ou effacée pour de bon (on l'oublie).
+  Future<void> syncWithSystemTrash(
+    Set<String> galleryIds, {
+    DateTime? at,
+  }) async {
+    if (!_gallery.hasRestorableTrash) return;
+    final log = await watchLog().first;
+    if (log.isEmpty) return;
+    final inTrash = await _gallery.stillInTrash(
+      log.map((e) => e.photo.id).toList(),
+    );
+    final gone = log.where((e) => !inTrash.contains(e.photo.id)).toList();
+    if (gone.isEmpty) return;
+    final restored = gone
+        .where((e) => galleryIds.contains(e.photo.id))
+        .map((e) => e.photo)
+        .toList();
+    final now = at ?? DateTime.now();
+    await _db.transaction(() async {
+      final ids = gone.map((e) => e.photo.id).toList();
+      for (var i = 0; i < ids.length; i += 500) {
+        final chunk = ids.skip(i).take(500).toList();
+        await (_db.delete(
+          _db.trashLog,
+        )..where((t) => t.assetId.isIn(chunk))).go();
+      }
+      if (restored.isNotEmpty) await _recordRestored(restored, now);
+    });
+  }
+
+  /// Photo revenue de la corbeille : gardée, et l'espace est décompté.
+  Future<void> _recordRestored(List<GalleryPhoto> restored, DateTime now) {
+    return _db.batch((batch) {
+      for (final photo in restored) {
+        batch.insert(
+          _db.photoDecisions,
+          PhotoDecisionsCompanion.insert(
+            assetId: photo.id,
+            decision: Decision.kept,
+            decidedAt: now,
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+      }
+      batch.insert(
+        _db.statsEvents,
+        StatsEventsCompanion.insert(
+          type: StatsEventType.restored,
+          bytes: restored.fold<int>(0, (s, p) => s + (p.sizeBytes ?? 0)),
+          photoCount: restored.length,
+          at: now,
+        ),
+      );
+    });
   }
 
   Stream<List<TrashEntry>> watchLog() {
@@ -186,6 +269,47 @@ class TrashRepository {
     return (_db.delete(
       _db.trashLog,
     )..where((t) => t.trashedAt.isSmallerThanValue(limit))).go();
+  }
+
+  /// Les [count] dernières semaines (ou mois), de la plus ancienne à la
+  /// plus récente, y compris celles où rien n'a été libéré.
+  Stream<List<FreedBucket>> watchHistory(
+    StatsPeriod period, {
+    int count = 8,
+    DateTime? now,
+  }) {
+    DateTime startOf(DateTime d) {
+      final day = DateTime(d.year, d.month, d.day);
+      return switch (period) {
+        StatsPeriod.week => day.subtract(Duration(days: day.weekday - 1)),
+        StatsPeriod.month => DateTime(d.year, d.month),
+      };
+    }
+
+    DateTime previous(DateTime start) => switch (period) {
+      StatsPeriod.week => DateTime(start.year, start.month, start.day - 7),
+      StatsPeriod.month => DateTime(start.year, start.month - 1),
+    };
+
+    return _db.select(_db.statsEvents).watch().map((events) {
+      final starts = <DateTime>[startOf(now ?? DateTime.now())];
+      while (starts.length < count) {
+        starts.insert(0, previous(starts.first));
+      }
+      final bytes = {for (final s in starts) s: 0};
+      final photos = {for (final s in starts) s: 0};
+      for (final event in events) {
+        final key = startOf(event.at.toLocal());
+        if (!bytes.containsKey(key)) continue;
+        final sign = event.type == StatsEventType.trashed ? 1 : -1;
+        bytes[key] = bytes[key]! + sign * event.bytes;
+        photos[key] = photos[key]! + sign * event.photoCount;
+      }
+      return [
+        for (final s in starts)
+          FreedBucket(start: s, bytes: bytes[s]!, photos: photos[s]!),
+      ];
+    });
   }
 
   Stream<FreedStats> watchFreed() {

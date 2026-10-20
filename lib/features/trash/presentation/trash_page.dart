@@ -34,6 +34,41 @@ class TrashPage extends ConsumerWidget {
     );
   }
 
+  Future<void> _emptyNow(
+    BuildContext context,
+    WidgetRef ref,
+    List<TrashEntry> entries,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final tidy = TidyColors.of(context);
+    final photos = l10n.photoCount(entries.length);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.trashEmptyConfirmTitle),
+        content: Text(l10n.trashEmptyConfirmBody(photos)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: tidy.delete),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.trashEmptyConfirm),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final count = await ref.read(trashRepositoryProvider).emptyNow(entries);
+    if (count == 0) return;
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.trashEmptied(l10n.photoCount(count)))),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
@@ -45,6 +80,21 @@ class TrashPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.trashTitle)),
+      bottomNavigationBar: canRestore && (entries?.isNotEmpty ?? false)
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: tidy.delete),
+                  ),
+                  onPressed: () => _emptyNow(context, ref, entries!),
+                  icon: Icon(Icons.delete_forever_outlined, color: tidy.delete),
+                  label: Text(l10n.trashEmptyNow),
+                ),
+              ),
+            )
+          : null,
       body: SafeArea(
         top: false,
         child: Center(

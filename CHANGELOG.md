@@ -6,6 +6,9 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- « En cours de suppression » sur Android : bouton « Vider maintenant » (effacement définitif, une popup ou aucune avec « Gestion des médias »), et journal aligné sur la vraie corbeille (photo restaurée ou effacée depuis l'app Galerie).
+- Réglages : rafales (regroupement, écart de 1 à 10 s), envoi du panier en quittant l'app (Android 12+ avec « Gestion des médias » ; Android le termine au retour dans l'app), effacement sans corbeille (option avancée, avec avertissement).
+- Logique prête pour les prochains écrans : rafales et paires JPG + RAW (`photo_groups.dart`), mois avec leur avancée, historique de l'espace libéré par semaine et par mois.
 - Retours sur la première version :
   - L'app s'ouvre directement sur le tri. Le menu s'ouvre depuis une icône en haut à gauche.
   - Onboarding : tutoriel interactif avec trois photos d'exemple, animations à l'entrée des écrans.

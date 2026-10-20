@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/models/gallery_photo.dart';
 import '../../../data/providers.dart';
 import '../../../data/repositories/library_repository.dart';
 import '../../../data/repositories/trash_repository.dart';
@@ -80,14 +81,17 @@ class GallerySyncController extends Notifier<SyncStatus> {
     final library = ref.read(libraryRepositoryProvider);
     final trash = ref.read(trashRepositoryProvider);
     try {
+      var photos = const <GalleryPhoto>[];
       do {
         _again = false;
-        final photos = await gallery.fetchAll();
+        photos = await gallery.fetchAll();
         if (!ref.mounted) return;
         await library.sync(photos);
         if (!ref.mounted) return;
       } while (_again);
       await trash.purgeExpired();
+      // Restaurées ou effacées depuis l'app Galerie : le journal suit.
+      await trash.syncWithSystemTrash(photos.map((p) => p.id).toSet());
       if (ref.mounted) state = SyncStatus.done;
     } on Object catch (error, stack) {
       debugPrint('Scan de la galerie impossible : $error\n$stack');

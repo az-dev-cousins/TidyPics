@@ -232,5 +232,47 @@
   "tutorialDone": "Bravo, tu sais trier ! Rien n'est supprimé sans ton accord.",
   "tutorialBlurryCaption": "Photo floue",
   "tutorialHikeCaption": "Belle balade",
-  "tutorialSunsetCaption": "Coucher de soleil"
+  "tutorialSunsetCaption": "Coucher de soleil",
+  "trashEmptyNow": "Vider maintenant",
+  "trashEmptyConfirmTitle": "Effacer pour de bon ?",
+  "trashEmptyConfirmBody": "{photos} seront effacées définitivement. Impossible de revenir en arrière.",
+  "@trashEmptyConfirmBody": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      }
+    }
+  },
+  "trashEmptyConfirm": "Effacer",
+  "trashEmptied": "{photos} effacées définitivement",
+  "@trashEmptied": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsSectionSorting": "Tri",
+  "settingsSectionBursts": "Rafales",
+  "settingsSectionDeletion": "Suppression",
+  "settingsSectionDisplay": "Affichage",
+  "settingsGroupBursts": "Regrouper les rafales",
+  "settingsGroupBurstsBody": "Les photos prises coup sur coup arrivent ensemble, en une seule carte.",
+  "settingsBurstGap": "Écart maximum : {seconds, plural, =1{1 seconde} other{{seconds} secondes}}",
+  "@settingsBurstGap": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsAutoTrash": "Envoyer le panier en quittant l'app",
+  "settingsAutoTrashBody": "Plus besoin de passer par le récap. Tout reste récupérable 30 jours dans la corbeille.",
+  "settingsAutoTrashNeedsManageMedia": "Demande « Gestion des médias ».",
+  "settingsDeleteDirectly": "Effacer sans passer par la corbeille",
+  "settingsDeleteDirectlyBody": "Option avancée : les photos sont effacées pour de bon au récap.",
+  "settingsDeleteDirectlyWarningTitle": "Effacer pour de bon ?",
+  "settingsDeleteDirectlyWarningBody": "Les photos ne passeront plus par la corbeille : impossible de les récupérer, même tout de suite après.",
+  "settingsDeleteDirectlyEnable": "Activer",
+  "checkpointSafetyPermanent": "Elles seront effacées définitivement : la corbeille est désactivée dans les réglages."
 }
