@@ -20,8 +20,8 @@
 | Lot 7 — Vidéos | Même fil que les photos, grosses vidéos en tête, lecture sans le son | ✅ · 🔬 fluidité sur le Pixel |
 | Lot 8 — Tests sur appareils | Pixel 10 en cours ; iPhone et iPad sans appareil pour l'instant | 🟡 |
 | **V2 — Lot 11 — Doublons** | Empreinte visuelle, écran « Doublons », rafales fiables | ✅ |
-| V2 — Lot 12 — Documents | Word, PDF, téléchargements qui encombrent le téléphone (Android) | ⏭️ |
-| V2 — la suite | Succès, rappels, partage vers le cloud, captures d'écran | 💡 |
+| **V2 — Lot 13 — Succès et confort** | Succès, partage et « ouvrir dans la galerie », mode captures d'écran, rappels | ⏭️ **en cours** |
+| V2 — Lot 12 — Documents | Word, PDF, téléchargements (Android, APK seulement) | ⏸️ après le lot 13 |
 | Lot 9 — Finitions | Accessibilité, textes, cas limites, « À propos » | ⏳ |
 | Lot 10 — APK pour les proches | Un APK propre à partager, avant toute publication sur les stores | ⏸️ plus tard |
 | V3 | Tous les fichiers, IA sur le téléphone, nettoyage Google Photos (si Google le permet) | 💡 |
@@ -45,18 +45,19 @@
 - **Écran « Doublons »** depuis le menu : la meilleure version est gardée (plus de pixels, moins compressée, hors dossier WhatsApp), un tap change d'avis, tout part à la corbeille en un seul lot.
 - **Rafales fiables** : même dossier obligatoire, jamais dans un dossier de photos reçues (WhatsApp, Telegram, téléchargements, captures), et empreintes proches. Les photos WhatsApp reçues à la même heure ne forment plus une rafale.
 
-### Lot 12 — Documents ⏭️
+### Lot 13 — Succès et confort ⏭️
+- **Succès** : paliers d'espace libéré, de photos triées, séries de jours de tri, et quelques premières fois (première rafale triée, premier doublon supprimé, un mois trié en entier). Un écran depuis le menu, une annonce discrète quand on en débloque un.
+- **Appui long sur une carte** : « Partager… » (menu de partage du système : Google Photos, Drive, WhatsApp…, sans compte dans l'app) et « Ouvrir dans la galerie », pour retrouver la photo.
+- **Captures d'écran** : un tri dédié depuis le menu, seulement les captures.
+- **Rappels** : notification locale facultative, désactivée par défaut (« 200 photos à trier »). La permission de notification n'est demandée qu'en l'activant.
+
+### Lot 12 — Documents ⏸️ (après le lot 13)
 Les fichiers qui encombrent le téléphone sans être des photos : PDF, Word, Excel, PowerPoint, archives, APK, gros téléchargements.
-- **Android seulement.** Lire ces fichiers demande la permission « Accès à tous les fichiers » (`MANAGE_EXTERNAL_STORAGE`). Elle se donne dans les réglages, avec une explication avant. Sans souci pour un APK partagé ; le Play Store, lui, la refuse sauf justification (gestionnaires de fichiers).
+- ✅ **Décidé** : disponible **uniquement dans l'APK** partagé (lot 10). Une future version des stores ne l'aura pas : le Play Store refuse la permission nécessaire sauf justification.
+- ✅ **Décidé** : **corbeille propre à l'app**. Les documents écartés sont mis de côté 30 jours (récupérables), puis effacés. Ils prennent encore de la place pendant ces 30 jours ; « Vider maintenant » les efface tout de suite.
+- **Android seulement.** Lire ces fichiers demande la permission « Accès à tous les fichiers » (`MANAGE_EXTERNAL_STORAGE`), donnée dans les réglages après une explication.
 - **iOS** : impossible, chaque app ne voit que ses propres fichiers.
 - Même principe que les photos : un tri au swipe, les plus gros d'abord, nom, taille, dossier et date sur la carte, aperçu de la première page des PDF.
-- Suppression : pas de corbeille système pour les documents. Il faut une corbeille propre à l'app (fichiers mis de côté 30 jours) ou une confirmation claire.
-
-### La suite 💡
-- **Succès** : paliers d'espace libéré, séries de jours de tri.
-- **Rappels** : notification locale facultative (« 200 nouvelles photos à trier »). Demande la permission de notification.
-- **Partage vers le cloud** : appui long sur un favori → menu de partage du système (Google Photos, Drive…), sans compte dans l'app.
-- **Captures d'écran** : un mode dédié, comme le tri des RAW.
 
 ## Lot 9 — Finitions ⏳
 
@@ -84,6 +85,6 @@ Avant les stores : un APK qu'on peut envoyer à ses proches.
 
 | Sujet | Quand |
 |---|---|
-| Lot 12 : corbeille propre à l'app pour les documents, ou suppression directe confirmée | Avant de commencer le lot 12 |
+
 | Protéger `main` et créer le kanban GitHub, ou continuer sans | Avant le lot 10 |
 | Compte développeur Apple (payant) pour tester sur iPhone | Quand un iPhone est disponible |

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'models/visual_hash.dart';
 
 import 'repositories/library_repository.dart';
+import 'repositories/progress_repository.dart';
 import 'repositories/settings_repository.dart';
 import 'repositories/trash_repository.dart';
 import 'sources/gallery_source.dart';
@@ -55,4 +56,8 @@ List<VisualPrint> visualPrints(List<Uint8List?> thumbnails) => [
 final visualHasherProvider = Provider<VisualHasher>(
   (ref) =>
       (thumbnails) => Isolate.run(() => visualPrints(thumbnails)),
+);
+
+final progressRepositoryProvider = Provider<ProgressRepository>(
+  (ref) => ProgressRepository(ref.watch(localDbProvider)),
 );

@@ -5,6 +5,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/app_theme.dart';
+import '../data/models/achievements.dart';
+import '../features/achievements/application/achievements_controller.dart';
+import '../features/achievements/presentation/achievement_texts.dart';
 import '../features/cart/application/checkpoint_controller.dart';
 import '../features/gallery/application/gallery_controller.dart';
 import '../features/settings/application/settings_controller.dart';
@@ -47,9 +50,51 @@ class _TidyPicsAppState extends ConsumerState<TidyPicsApp> {
     super.dispose();
   }
 
+  /// Pour annoncer un succès quel que soit l'écran ouvert.
+  final _messenger = GlobalKey<ScaffoldMessengerState>();
+
+  void _announce(List<Achievement> unlocked) {
+    final messenger = _messenger.currentState;
+    final context = _messenger.currentContext;
+    if (unlocked.isEmpty || messenger == null || context == null) return;
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    messenger.showSnackBar(
+      SnackBar(
+        persist: false,
+        content: Row(
+          children: [
+            Icon(
+              Icons.emoji_events_outlined,
+              color: theme.colorScheme.onInverseSurface,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                unlocked.length == 1
+                    ? l10n.achievementUnlocked(
+                        l10n.achievementTitle(unlocked.single),
+                      )
+                    : l10n.achievementsUnlockedMany(unlocked.length),
+              ),
+            ),
+          ],
+        ),
+        action: SnackBarAction(
+          label: l10n.achievementSee,
+          onPressed: () =>
+              ref.read(routerProvider).push(AppRoutes.achievements),
+        ),
+      ),
+    );
+    ref.read(achievementWatcherProvider.notifier).clear();
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.listen(achievementWatcherProvider, (_, next) => _announce(next));
     return MaterialApp.router(
+      scaffoldMessengerKey: _messenger,
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,

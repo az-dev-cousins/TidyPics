@@ -9,6 +9,7 @@ import '../../../app/router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../data/models/achievements.dart';
 import '../../../data/models/gallery_photo.dart';
 import '../../../data/providers.dart';
 import '../../../data/repositories/library_repository.dart';
@@ -103,6 +104,9 @@ class _RawSortPageState extends ConsumerState<RawSortPage> {
       }
     });
     final library = ref.read(libraryRepositoryProvider);
+    unawaited(
+      ref.read(progressRepositoryProvider).recordMilestone(Milestone.rawSorted),
+    );
     if (keep) {
       await library.decide(raw, Decision.kept);
     } else {

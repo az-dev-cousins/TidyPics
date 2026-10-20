@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../data/models/achievements.dart';
 import '../../../data/models/duplicates.dart';
 import '../../../data/models/gallery_photo.dart';
 import '../../../data/providers.dart';
@@ -55,6 +56,11 @@ class _DuplicatesPageState extends ConsumerState<DuplicatesPage> {
       if (outcome != null && outcome.count == 0) {
         messenger.showSnackBar(SnackBar(content: Text(l10n.checkpointRefused)));
         return;
+      }
+      if (outcome != null) {
+        await ref
+            .read(progressRepositoryProvider)
+            .recordMilestone(Milestone.duplicateDeleted);
       }
       // Les photos gardées ici ne seront plus proposées au tri.
       final library = ref.read(libraryRepositoryProvider);

@@ -11,6 +11,7 @@ import '../../../data/sources/gallery_source.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/charts.dart';
 import '../../../shared/widgets/tidy_wordmark.dart';
+import '../../achievements/application/achievements_controller.dart';
 import '../../cart/presentation/checkpoint_page.dart';
 import '../../gallery/application/gallery_controller.dart';
 
@@ -29,6 +30,7 @@ class HomePage extends ConsumerWidget {
     final rawToSort = ref.watch(rawToSortProvider).value ?? const [];
     final duplicates = ref.watch(duplicatesProvider).value ?? const [];
     final hashing = ref.watch(hashProgressProvider).value;
+    final achievements = ref.watch(achievementsProvider);
 
     void backToSorting() =>
         context.canPop() ? context.pop() : context.go(AppRoutes.swipe);
@@ -128,6 +130,17 @@ class HomePage extends ConsumerWidget {
                           ? l10n.menuRawSortNone
                           : l10n.menuRawSortDetail(rawToSort.length),
                       onTap: () => context.push(AppRoutes.rawSort),
+                    ),
+                    _Tile(
+                      icon: Icons.emoji_events_outlined,
+                      title: l10n.menuAchievements,
+                      subtitle: achievements == null
+                          ? ''
+                          : l10n.achievementsCount(
+                              achievements.where((a) => a.unlocked).length,
+                              achievements.length,
+                            ),
+                      onTap: () => context.push(AppRoutes.achievements),
                     ),
                     _Tile(
                       icon: Icons.restore_from_trash_outlined,

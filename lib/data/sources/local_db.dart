@@ -100,15 +100,54 @@ class StatsEvents extends Table {
   DateTimeColumn get at => dateTime()();
 }
 
+/// Jours où l'utilisateur a trié au moins une photo (séries de succès).
+@DataClassName('ActivityDayRow')
+class ActivityDays extends Table {
+  /// Le jour, au format AAAAMMJJ (ex. 20261020).
+  IntColumn get day => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {day};
+}
+
+/// Premières fois qui comptent pour les succès (« première rafale triée »).
+@DataClassName('MilestoneRow')
+class Milestones extends Table {
+  TextColumn get key => text()();
+  DateTimeColumn get at => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {key};
+}
+
+/// Succès débloqués : un succès gagné le reste, même si un compteur baisse.
+@DataClassName('AchievementRow')
+class AchievementLog extends Table {
+  TextColumn get id => text()();
+  DateTimeColumn get unlockedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 @DriftDatabase(
-  tables: [Photos, PhotoDecisions, CartItems, TrashLog, StatsEvents],
+  tables: [
+    Photos,
+    PhotoDecisions,
+    CartItems,
+    TrashLog,
+    StatsEvents,
+    ActivityDays,
+    Milestones,
+    AchievementLog,
+  ],
 )
 class LocalDb extends _$LocalDb {
   LocalDb([QueryExecutor? executor])
     : super(executor ?? driftDatabase(name: 'tidypics'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -124,6 +163,12 @@ class LocalDb extends _$LocalDb {
         await m.addColumn(photos, photos.visualHash);
         await m.addColumn(photos, photos.visualColor);
         await m.addColumn(photos, photos.visualDetail);
+      }
+      // v4 : succès.
+      if (from < 4) {
+        await m.createTable(activityDays);
+        await m.createTable(milestones);
+        await m.createTable(achievementLog);
       }
     },
     beforeOpen: (details) async {

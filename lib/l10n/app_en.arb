@@ -321,5 +321,125 @@
         "type": "String"
       }
     }
+  },
+  "achievementsTitle": "Achievements",
+  "achievementsCount": "{done} of {total}",
+  "@achievementsCount": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "achievementsStreak": "{count, plural, =0{No streak going} =1{Current streak: 1 day} other{Current streak: {count} days}}",
+  "@achievementsStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "achievementsFreed": "Space freed",
+  "achievementsSorted": "Photos sorted",
+  "achievementsStreaks": "Streaks",
+  "achievementsFirsts": "First times",
+  "achievementUnlockedOn": "Unlocked on {date}",
+  "@achievementUnlockedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementUnlocked": "Achievement unlocked: {title}",
+  "@achievementUnlocked": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSee": "See",
+  "achFreedTitle0": "First sweep",
+  "achFreedTitle1": "Big clean-up",
+  "achFreedTitle2": "Spotless",
+  "achFreedTitle3": "Clean slate",
+  "achFreedDetail": "Free {size}",
+  "@achFreedDetail": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "achSortedTitle0": "Warm-up",
+  "achSortedTitle1": "Cruising speed",
+  "achSortedTitle2": "Tireless",
+  "achSortedTitle3": "Sorting legend",
+  "achSortedDetail": "Sort {count} photos",
+  "@achSortedDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "achStreakTitle0": "Three days in a row",
+  "achStreakTitle1": "A whole week",
+  "achStreakTitle2": "A month without fail",
+  "achStreakDetail": "Sort {count} days in a row",
+  "@achStreakDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "achBurstTitle": "Eagle eye",
+  "achBurstDetail": "Sort a burst",
+  "achDuplicateTitle": "Duplicate hunter",
+  "achDuplicateDetail": "Delete a duplicate",
+  "achRawTitle": "RAW pro",
+  "achRawDetail": "Sort a RAW file",
+  "achMonthTitle": "Spotless month",
+  "achMonthDetail": "Sort a whole month",
+  "achGalleryTitle": "Nothing left to sort",
+  "achGalleryDetail": "Sort the whole gallery",
+  "achProgress": "{current} / {target}",
+  "@achProgress": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "achDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@achDays": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "menuAchievements": "Achievements",
+  "achievementsUnlockedMany": "{count} achievements unlocked",
+  "@achievementsUnlockedMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -385,6 +385,20 @@ class LibraryRepository {
         const PhotosCompanion(isFavorite: Value(true)),
       );
     }
+    await _recordActivity(at);
+  }
+
+  /// Note le jour pour les séries de succès (une ligne par jour).
+  Future<void> _recordActivity(DateTime? at) {
+    final d = at ?? DateTime.now();
+    return _db
+        .into(_db.activityDays)
+        .insert(
+          ActivityDaysCompanion.insert(
+            day: Value(d.year * 10000 + d.month * 100 + d.day),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
   }
 
   /// Annule une décision : la photo redevient « à trier ».
@@ -412,6 +426,7 @@ class LibraryRepository {
             addedAt: at ?? DateTime.now(),
           ),
         );
+    await _recordActivity(at);
   }
 
   Future<void> removeFromCart(String id) =>

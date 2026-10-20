@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/models/achievements.dart';
 import '../../../data/models/gallery_photo.dart';
 import '../../../data/models/photo_groups.dart';
 import '../../../data/providers.dart';
@@ -240,6 +241,16 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
 
   SwipeState? get _ready => state.value;
 
+  /// Succès « première rafale triée ».
+  void _noteBurst(PhotoItem item) {
+    if (item.kind != PhotoItemKind.burst) return;
+    unawaited(
+      ref
+          .read(progressRepositoryProvider)
+          .recordMilestone(Milestone.burstSorted),
+    );
+  }
+
   Future<T> _write<T>(Future<T> Function() write) async {
     _pendingWrites++;
     try {
@@ -276,6 +287,7 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
 
     final library = ref.read(libraryRepositoryProvider);
     final gallery = ref.read(gallerySourceProvider);
+    _noteBurst(item);
     await _write(() async {
       switch (choice) {
         case SwipeChoice.keep:
@@ -312,6 +324,7 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
     if (item == null) return;
     _advance(SwipeRecord.resolved(item, keptIds));
     final library = ref.read(libraryRepositoryProvider);
+    _noteBurst(item);
     await _write(() async {
       for (final photo in item.photos) {
         if (keptIds.contains(photo.id)) {

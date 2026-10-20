@@ -548,5 +548,125 @@
         "type": "String"
       }
     }
+  },
+  "achievementsTitle": "Succès",
+  "achievementsCount": "{done} sur {total}",
+  "@achievementsCount": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "achievementsStreak": "{count, plural, =0{Pas de série en cours} =1{Série en cours : 1 jour} other{Série en cours : {count} jours}}",
+  "@achievementsStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "achievementsFreed": "Espace libéré",
+  "achievementsSorted": "Photos triées",
+  "achievementsStreaks": "Séries",
+  "achievementsFirsts": "Premières fois",
+  "achievementUnlockedOn": "Débloqué le {date}",
+  "@achievementUnlockedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementUnlocked": "Succès débloqué : {title}",
+  "@achievementUnlocked": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSee": "Voir",
+  "achFreedTitle0": "Premier coup de balai",
+  "achFreedTitle1": "Grand ménage",
+  "achFreedTitle2": "Place nette",
+  "achFreedTitle3": "Table rase",
+  "achFreedDetail": "Libérer {size}",
+  "@achFreedDetail": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "achSortedTitle0": "Échauffement",
+  "achSortedTitle1": "Rythme de croisière",
+  "achSortedTitle2": "Infatigable",
+  "achSortedTitle3": "Légende du tri",
+  "achSortedDetail": "Trier {count} photos",
+  "@achSortedDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "achStreakTitle0": "Trois jours de suite",
+  "achStreakTitle1": "Une semaine entière",
+  "achStreakTitle2": "Un mois sans faillir",
+  "achStreakDetail": "Trier {count} jours d'affilée",
+  "@achStreakDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "achBurstTitle": "Œil de lynx",
+  "achBurstDetail": "Trier une rafale",
+  "achDuplicateTitle": "Chasse aux doublons",
+  "achDuplicateDetail": "Supprimer un doublon",
+  "achRawTitle": "Pro du RAW",
+  "achRawDetail": "Trier un fichier RAW",
+  "achMonthTitle": "Mois impeccable",
+  "achMonthDetail": "Trier un mois en entier",
+  "achGalleryTitle": "Zéro photo en attente",
+  "achGalleryDetail": "Trier toute la galerie",
+  "achProgress": "{current} / {target}",
+  "@achProgress": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "achDays": "{count, plural, =1{1 jour} other{{count} jours}}",
+  "@achDays": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "menuAchievements": "Succès",
+  "achievementsUnlockedMany": "{count} succès débloqués",
+  "@achievementsUnlockedMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

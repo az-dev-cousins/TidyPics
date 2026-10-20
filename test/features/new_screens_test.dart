@@ -323,4 +323,31 @@ void main() {
 
     await closeApp(tester);
   });
+
+  testWidgets('succès : annoncé quand on le gagne, listé dans le menu', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      gallery: FakeGallerySource(
+        photos: [photo('a', 0), photo('b', 1), photo('c', 2), photo('d', 600)],
+      ),
+      settings: const {'onboarding_done': true, 'sort_order': 'oldestFirst'},
+    );
+    // Trier la rafale d'un geste : première rafale triée.
+    await tester.tap(find.byTooltip('Garder'));
+    // Plusieurs allers-retours avec la base avant l'annonce.
+    await settle(tester);
+    await settle(tester);
+    expect(find.text('Succès débloqué : Œil de lynx'), findsOneWidget);
+
+    await openMenu(tester);
+    expect(find.text('1 sur 16'), findsOneWidget);
+    await tapVisible(tester, find.text('Succès'));
+    expect(find.text('Rythme de croisière'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Œil de lynx'), 300);
+    expect(find.text('Œil de lynx'), findsOneWidget);
+
+    await closeApp(tester);
+  });
 }
