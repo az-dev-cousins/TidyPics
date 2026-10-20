@@ -21,6 +21,7 @@ class SwipeCardFrame extends StatelessWidget {
     super.key,
     required this.image,
     required this.caption,
+    this.folder,
     this.trailing = const [],
     this.stamp,
     this.strength = 0,
@@ -28,6 +29,9 @@ class SwipeCardFrame extends StatelessWidget {
 
   final Widget image;
   final String caption;
+
+  /// Dossier d'origine, pour retrouver la photo dans la galerie.
+  final String? folder;
   final List<Widget> trailing;
   final SwipeChoice? stamp;
   final double strength;
@@ -68,13 +72,41 @@ class SwipeCardFrame extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      caption,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: tidy.inkMuted,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.6,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          caption,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: tidy.inkMuted,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                        if (folder != null) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.folder_outlined,
+                                size: 14,
+                                color: tidy.inkMuted,
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  folder!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: tidy.inkMuted,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   ...trailing,
@@ -126,6 +158,7 @@ class PhotoSwipeCard extends ConsumerWidget {
 
     return SwipeCardFrame(
       caption: caption,
+      folder: photo.folderName,
       stamp: stamp,
       strength: strength,
       trailing: [
@@ -198,6 +231,7 @@ class ItemSwipeCard extends ConsumerWidget {
 
     final card = SwipeCardFrame(
       caption: caption,
+      folder: item.cover.folderName,
       stamp: stamp,
       strength: strength,
       image: Stack(
@@ -423,6 +457,7 @@ class _VideoSwipeCardState extends ConsumerState<VideoSwipeCard> {
 
     return SwipeCardFrame(
       caption: caption,
+      folder: video.folderName,
       stamp: widget.stamp,
       strength: widget.strength,
       trailing: [
@@ -441,10 +476,14 @@ class _VideoSwipeCardState extends ConsumerState<VideoSwipeCard> {
                 const PhotoPlaceholder(icon: Icons.videocam_outlined),
           ),
           if (controller != null && controller.value.isInitialized)
-            Center(
-              child: AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: VideoPlayer(controller),
+            // Chaque image de la vidéo ne redessine que le lecteur, pas
+            // l'ombre ni le cadre de la carte.
+            RepaintBoundary(
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: controller.value.aspectRatio,
+                  child: VideoPlayer(controller),
+                ),
               ),
             ),
           Positioned(

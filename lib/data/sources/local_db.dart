@@ -24,6 +24,18 @@ class Photos extends Table {
   /// Durée d'une vidéo en millisecondes ; `null` pour une photo.
   IntColumn get durationMs => integer().nullable()();
 
+  /// Dossier du fichier (Android), ex. `DCIM/Camera/`.
+  TextColumn get folder => text().nullable()();
+
+  /// Empreinte visuelle (dHash 64 bits), calculée en tâche de fond.
+  IntColumn get visualHash => integer().nullable()();
+
+  /// Couleur moyenne des quatre quarts, calculée avec l'empreinte.
+  IntColumn get visualColor => integer().nullable()();
+
+  /// Empreinte détaillée (256 bits, 32 octets).
+  BlobColumn get visualDetail => blob().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -96,7 +108,7 @@ class LocalDb extends _$LocalDb {
     : super(executor ?? driftDatabase(name: 'tidypics'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -105,6 +117,13 @@ class LocalDb extends _$LocalDb {
       if (from < 2) {
         await m.addColumn(photos, photos.durationMs);
         await m.addColumn(trashLog, trashLog.durationMs);
+      }
+      // v3 : dossier et empreinte visuelle.
+      if (from < 3) {
+        await m.addColumn(photos, photos.folder);
+        await m.addColumn(photos, photos.visualHash);
+        await m.addColumn(photos, photos.visualColor);
+        await m.addColumn(photos, photos.visualDetail);
       }
     },
     beforeOpen: (details) async {

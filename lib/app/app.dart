@@ -35,7 +35,10 @@ class _TidyPicsAppState extends ConsumerState<TidyPicsApp> {
     super.initState();
     _lifecycle; // Démarre l'écoute.
     // L'indexation de la galerie démarre dès que l'accès est connu.
-    ref.read(gallerySyncProvider);
+    ref
+      ..read(gallerySyncProvider)
+      // Les empreintes visuelles (doublons) se calculent après chaque scan.
+      ..read(visualHashProvider);
   }
 
   @override

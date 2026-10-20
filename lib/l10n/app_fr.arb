@@ -504,5 +504,49 @@
   "burstIntroRight": "Glisse à droite : tu gardes la photo.",
   "burstIntroLeft": "Glisse à gauche : elle va au panier.",
   "burstIntroStrip": "La bande du bas montre où tu en es. Touche une vignette pour changer d'avis.",
-  "burstIntroAll": "Pour tout garder ou tout supprimer, reviens au tri avec la flèche et glisse la carte de la rafale."
+  "burstIntroAll": "Pour tout garder ou tout supprimer, reviens au tri avec la flèche et glisse la carte de la rafale.",
+  "duplicatesTitle": "Doublons",
+  "duplicatesIntro": "{count, plural, =1{1 groupe : la même photo enregistrée plusieurs fois.} other{{count} groupes : la même photo enregistrée plusieurs fois.}}",
+  "@duplicatesIntro": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicatesHint": "La meilleure version est gardée (plus de pixels, moins compressée). Touche une photo pour changer.",
+  "duplicatesNone": "Aucun doublon trouvé.",
+  "duplicatesNoneYet": "Pas encore de doublon trouvé.",
+  "duplicatesAnalysing": "Analyse des photos… {percent}",
+  "@duplicatesAnalysing": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "duplicatesAnalysingHint": "Tout se fait sur le téléphone. Les doublons apparaissent au fur et à mesure.",
+  "duplicatesKept": "Gardée",
+  "duplicatesDeleted": "Supprimée",
+  "menuDuplicates": "Doublons",
+  "menuDuplicatesDetail": "{count, plural, =1{1 groupe} other{{count} groupes}} · {size}",
+  "@menuDuplicatesDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "menuDuplicatesNone": "Aucun pour l'instant",
+  "menuDuplicatesAnalysing": "Analyse… {percent}",
+  "@menuDuplicatesAnalysing": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/models/duplicates.dart';
 import '../../../data/models/gallery_photo.dart';
 import '../../../data/models/photo_groups.dart';
 import '../../../data/providers.dart';
 import '../../../data/repositories/library_repository.dart';
 import '../../../data/repositories/trash_repository.dart';
 import '../../../data/sources/gallery_source.dart';
+import '../../settings/application/settings_controller.dart';
 
 /// Accès à la galerie. Relu au retour dans l'app : l'utilisateur a pu
 /// changer la permission dans les réglages du téléphone.
@@ -162,3 +164,79 @@ final rawToSortProvider = FutureProvider.autoDispose<List<RawToSort>>((ref) {
 final deviceStorageProvider = FutureProvider.autoDispose<DeviceStorage?>(
   (ref) => ref.watch(gallerySourceProvider).deviceStorage(),
 );
+
+/// Calcule les empreintes visuelles en tâche de fond, après chaque scan
+/// (doublons F11, rafales F5). Vrai pendant le calcul.
+class VisualHashController extends Notifier<bool> {
+  /// Miniatures lues en même temps, puis empreintes enregistrées par lot.
+  static const _parallel = 8;
+  static const _batch = 64;
+
+  @override
+  bool build() {
+    ref.listen(gallerySyncProvider, (_, status) {
+      if (status == SyncStatus.done) unawaited(Future.microtask(run));
+    }, fireImmediately: true);
+    return false;
+  }
+
+  Future<void> run() async {
+    if (state) return;
+    state = true;
+    final gallery = ref.read(gallerySourceProvider);
+    final library = ref.read(libraryRepositoryProvider);
+    final hasher = ref.read(visualHasherProvider);
+    try {
+      while (ref.mounted) {
+        final photos = await library.photosToHash(limit: _batch);
+        if (photos.isEmpty || !ref.mounted) break;
+        final thumbnails = <Uint8List?>[];
+        for (var i = 0; i < photos.length; i += _parallel) {
+          thumbnails.addAll(
+            await Future.wait(
+              photos.skip(i).take(_parallel).map((p) async {
+                try {
+                  return await gallery.thumbnail(p.id, size: 64);
+                } on Object {
+                  return null;
+                }
+              }),
+            ),
+          );
+        }
+        final hashes = await hasher(thumbnails);
+        if (!ref.mounted) break;
+        await library.setVisualHashes({
+          for (final (i, photo) in photos.indexed) photo.id: hashes[i],
+        });
+      }
+    } on Object catch (error, stack) {
+      debugPrint('Empreintes visuelles impossibles : $error\n$stack');
+    } finally {
+      if (ref.mounted) state = false;
+    }
+  }
+}
+
+final visualHashProvider = NotifierProvider<VisualHashController, bool>(
+  VisualHashController.new,
+);
+
+/// Avancée du calcul des empreintes.
+final hashProgressProvider =
+    StreamProvider.autoDispose<({int done, int total})>(
+      (ref) => ref.watch(libraryRepositoryProvider).watchHashProgress(),
+    );
+
+/// Groupes de doublons (F11), recalculés au fil des empreintes.
+final duplicatesProvider = StreamProvider.autoDispose<List<DuplicateGroup>>((
+  ref,
+) {
+  final gap = ref.watch(
+    settingsProvider.select((s) => Duration(seconds: s.burstGapSeconds)),
+  );
+  return ref
+      .watch(libraryRepositoryProvider)
+      .watchHashedPhotos()
+      .map((photos) => findDuplicates(photos, burstGap: gap));
+});

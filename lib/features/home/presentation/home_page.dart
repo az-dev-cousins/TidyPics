@@ -27,6 +27,8 @@ class HomePage extends ConsumerWidget {
     final trash = ref.watch(trashLogProvider).value ?? const [];
     final months = ref.watch(monthsProvider).value ?? const [];
     final rawToSort = ref.watch(rawToSortProvider).value ?? const [];
+    final duplicates = ref.watch(duplicatesProvider).value ?? const [];
+    final hashing = ref.watch(hashProgressProvider).value;
 
     void backToSorting() =>
         context.canPop() ? context.pop() : context.go(AppRoutes.swipe);
@@ -97,6 +99,27 @@ class HomePage extends ConsumerWidget {
                       title: l10n.menuMonths,
                       subtitle: l10n.menuMonthsDetail(months.length),
                       onTap: () => context.push(AppRoutes.months),
+                    ),
+                    _Tile(
+                      icon: Icons.copy_all_rounded,
+                      title: l10n.menuDuplicates,
+                      subtitle: hashing != null && hashing.done < hashing.total
+                          ? l10n.menuDuplicatesAnalysing(
+                              l10n.percent(
+                                hashing.total == 0
+                                    ? 0
+                                    : hashing.done * 100 ~/ hashing.total,
+                              ),
+                            )
+                          : duplicates.isEmpty
+                          ? l10n.menuDuplicatesNone
+                          : l10n.menuDuplicatesDetail(
+                              duplicates.length,
+                              l10n.fileSize(
+                                duplicates.fold(0, (s, g) => s + g.extraBytes),
+                              ),
+                            ),
+                      onTap: () => context.push(AppRoutes.duplicates),
                     ),
                     _Tile(
                       icon: Icons.filter_none_rounded,

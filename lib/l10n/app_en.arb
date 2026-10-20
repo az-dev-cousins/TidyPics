@@ -277,5 +277,49 @@
   "burstIntroRight": "Swipe right: you keep the photo.",
   "burstIntroLeft": "Swipe left: it goes to the bin.",
   "burstIntroStrip": "The strip at the bottom shows where you are. Tap a thumbnail to change your mind.",
-  "burstIntroAll": "To keep or delete them all, go back with the arrow and swipe the burst card."
+  "burstIntroAll": "To keep or delete them all, go back with the arrow and swipe the burst card.",
+  "duplicatesTitle": "Duplicates",
+  "duplicatesIntro": "{count, plural, =1{1 group: the same photo saved more than once.} other{{count} groups: the same photo saved more than once.}}",
+  "@duplicatesIntro": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicatesHint": "The best version is kept (more pixels, less compressed). Tap a photo to change.",
+  "duplicatesNone": "No duplicates found.",
+  "duplicatesNoneYet": "No duplicates found yet.",
+  "duplicatesAnalysing": "Analysing photos… {percent}",
+  "@duplicatesAnalysing": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "duplicatesAnalysingHint": "It all happens on the phone. Duplicates show up as they're found.",
+  "duplicatesKept": "Kept",
+  "duplicatesDeleted": "Deleted",
+  "menuDuplicates": "Duplicates",
+  "menuDuplicatesDetail": "{count, plural, =1{1 group} other{{count} groups}} · {size}",
+  "@menuDuplicatesDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "menuDuplicatesNone": "None so far",
+  "menuDuplicatesAnalysing": "Analysing… {percent}",
+  "@menuDuplicatesAnalysing": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  }
 }

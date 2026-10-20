@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../data/models/photo_groups.dart';
 import '../data/sources/gallery_source.dart';
 import '../features/cart/presentation/checkpoint_page.dart';
+import '../features/duplicates/presentation/duplicates_page.dart';
 import '../features/gallery/application/gallery_controller.dart';
 import '../features/home/presentation/home_page.dart';
 import '../features/months/presentation/months_page.dart';
@@ -33,6 +34,7 @@ abstract final class AppRoutes {
   static const stats = '/stats';
   static const rawPairs = '/raw-pairs';
   static const rawSort = '/raw-sort';
+  static const duplicates = '/duplicates';
   static const _checkpoint = '/checkpoint';
   static const _month = '/month';
 
@@ -130,6 +132,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.rawSort,
         builder: (context, state) => const RawSortPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.duplicates,
+        builder: (context, state) => const DuplicatesPage(),
       ),
       GoRoute(
         path: AppRoutes.trash,

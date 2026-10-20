@@ -1,10 +1,12 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:tidypics/data/models/gallery_photo.dart';
 
 import '../helpers/app_harness.dart';
 import '../helpers/fake_gallery_source.dart';
+import '../helpers/test_images.dart';
 
 Future<void> openMenu(WidgetTester tester) async {
   await tester.tap(find.byTooltip('Menu'));
@@ -267,6 +269,57 @@ void main() {
     await tester.tap(find.text('2 · 300 Mo'));
     await settle(tester);
     expect(find.text('Supprimer 1 photo et 1 vidéo (300 Mo)'), findsOneWidget);
+
+    await closeApp(tester);
+  });
+
+  testWidgets('doublons : la copie WhatsApp part, l\'original reste', (
+    tester,
+  ) async {
+    const whatsapp =
+        'Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/';
+    final gallery = FakeGallerySource(
+      photos: [
+        GalleryPhoto(
+          id: 'orig',
+          takenAt: t0,
+          title: 'PXL_1.jpg',
+          folder: 'DCIM/Camera/',
+          width: 4000,
+          height: 3000,
+          sizeBytes: 3000000,
+        ),
+        GalleryPhoto(
+          id: 'copie',
+          takenAt: t0.add(const Duration(hours: 2)),
+          title: 'IMG-WA0001.jpg',
+          folder: whatsapp,
+          width: 1600,
+          height: 1200,
+          sizeBytes: 200000,
+        ),
+        GalleryPhoto(
+          id: 'autre',
+          takenAt: t0.add(const Duration(days: 1)),
+          folder: 'DCIM/Camera/',
+          sizeBytes: 3000000,
+        ),
+      ],
+      images: {
+        'orig': jpg(scene(1)),
+        'copie': jpg(img.copyResize(scene(1), width: 160), quality: 40),
+        'autre': jpg(scene(4)),
+      },
+    );
+    await pumpApp(tester, gallery: gallery);
+    await openMenu(tester);
+    expect(find.text('1 groupe · 200 Ko'), findsOneWidget);
+
+    await tapVisible(tester, find.text('Doublons'));
+    expect(find.text('WhatsApp Images'), findsOneWidget);
+    await tester.tap(find.text('Supprimer 1 photo (200 Ko)'));
+    await settle(tester);
+    expect(gallery.trashed, ['copie']);
 
     await closeApp(tester);
   });

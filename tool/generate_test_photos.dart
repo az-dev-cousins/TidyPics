@@ -82,6 +82,7 @@ class _Generator {
       final start = _randomDate();
       final size = 3 + random.nextInt(4);
       final hue = random.nextDouble();
+      final layout = _layout();
       for (var i = 0; i < size; i++) {
         final date = start.add(Duration(seconds: i));
         final image = _scene(
@@ -90,6 +91,7 @@ class _Generator {
           hue: hue,
           // Le soleil se décale un peu d'une photo à l'autre.
           sunShift: i * 40,
+          layout: layout,
           lines: ['Rafale $b - ${i + 1}/$size', _label(date)],
         );
         files.add(
@@ -186,26 +188,38 @@ class _Generator {
     return files;
   }
 
+  /// Position du soleil et de la colline : tirée au hasard pour chaque
+  /// photo, pour que deux photos différentes ne se ressemblent pas (comme
+  /// en vrai). Une rafale garde la même.
+  ({double sunX, double sunY, double hillX, double hillRise}) _layout() => (
+    sunX: 0.15 + random.nextDouble() * 0.7,
+    sunY: 0.12 + random.nextDouble() * 0.35,
+    hillX: random.nextDouble(),
+    hillRise: 0.15 + random.nextDouble() * 0.45,
+  );
+
   img.Image _scene({
     required int width,
     required int height,
     required double hue,
     required List<String> lines,
     int sunShift = 0,
+    ({double sunX, double sunY, double hillX, double hillRise})? layout,
   }) {
+    final l = layout ?? _layout();
     final image = img.Image(width: width, height: height);
     img.fill(image, color: _hsv(hue, 0.35, 0.85));
     img.fillCircle(
       image,
-      x: (width * 0.72).round() + sunShift,
-      y: (height * 0.25).round(),
+      x: (width * l.sunX).round() + sunShift,
+      y: (height * l.sunY).round(),
       radius: (width * 0.08).round(),
       color: img.ColorRgb8(255, 236, 170),
     );
     img.fillCircle(
       image,
-      x: (width * 0.3).round(),
-      y: height + (height * 0.35).round(),
+      x: (width * l.hillX).round(),
+      y: height + (height * (0.75 - l.hillRise)).round(),
       radius: (width * 0.75).round(),
       color: _hsv(hue, 0.55, 0.55),
     );

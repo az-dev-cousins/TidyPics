@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 /// Une photo ou une vidéo de la galerie du téléphone, telle que vue par l'app.
 class GalleryPhoto {
   const GalleryPhoto({
@@ -9,6 +11,10 @@ class GalleryPhoto {
     this.sizeBytes,
     this.isFavorite = false,
     this.duration,
+    this.folder,
+    this.visualHash,
+    this.visualColor,
+    this.visualDetail,
   });
 
   /// Identifiant système (MediaStore sur Android, PHAsset sur iOS).
@@ -28,6 +34,30 @@ class GalleryPhoto {
   final Duration? duration;
 
   bool get isVideo => duration != null;
+
+  /// Dossier du fichier sur le téléphone (Android), ex. `DCIM/Camera/`.
+  /// `null` sur iOS, où les photos ne sont pas rangées en dossiers.
+  final String? folder;
+
+  /// Nom du dossier tel que la galerie l'affiche : « Camera »,
+  /// « WhatsApp Images »…
+  String? get folderName {
+    final path = folder;
+    if (path == null) return null;
+    final parts = path.split('/').where((p) => p.isNotEmpty);
+    return parts.isEmpty ? null : parts.last;
+  }
+
+  /// Empreinte visuelle (dHash 64 bits) : deux photos qui se ressemblent ont
+  /// des empreintes proches. `null` tant qu'elle n'est pas calculée.
+  final int? visualHash;
+
+  /// Couleur moyenne des quatre quarts de l'image (voir `VisualHash`).
+  final int? visualColor;
+
+  /// Empreinte détaillée (256 bits), pour confirmer un doublon. Calculée,
+  /// donc hors de l'égalité.
+  final Uint8List? visualDetail;
 
   /// Au-delà, une vidéo passe en tête du tri : c'est là qu'on libère le plus.
   static const bigVideoBytes = 100 * 1000 * 1000;
@@ -66,7 +96,13 @@ class GalleryPhoto {
     return _rawExtensions.contains(name.substring(dot + 1).toLowerCase());
   }
 
-  GalleryPhoto copyWith({int? sizeBytes, bool? isFavorite}) => GalleryPhoto(
+  GalleryPhoto copyWith({
+    int? sizeBytes,
+    bool? isFavorite,
+    int? visualHash,
+    int? visualColor,
+    Uint8List? visualDetail,
+  }) => GalleryPhoto(
     id: id,
     takenAt: takenAt,
     title: title,
@@ -75,6 +111,10 @@ class GalleryPhoto {
     sizeBytes: sizeBytes ?? this.sizeBytes,
     isFavorite: isFavorite ?? this.isFavorite,
     duration: duration,
+    folder: folder,
+    visualHash: visualHash ?? this.visualHash,
+    visualColor: visualColor ?? this.visualColor,
+    visualDetail: visualDetail ?? this.visualDetail,
   );
 
   @override
@@ -87,7 +127,10 @@ class GalleryPhoto {
       other.height == height &&
       other.sizeBytes == sizeBytes &&
       other.isFavorite == isFavorite &&
-      other.duration == duration;
+      other.duration == duration &&
+      other.folder == folder &&
+      other.visualHash == visualHash &&
+      other.visualColor == visualColor;
 
   @override
   int get hashCode => Object.hash(
@@ -99,5 +142,8 @@ class GalleryPhoto {
     sizeBytes,
     isFavorite,
     duration,
+    folder,
+    visualHash,
+    visualColor,
   );
 }

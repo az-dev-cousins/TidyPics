@@ -1,4 +1,9 @@
+import 'dart:isolate';
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'models/visual_hash.dart';
 
 import 'repositories/library_repository.dart';
 import 'repositories/settings_repository.dart';
@@ -31,4 +36,23 @@ final trashRepositoryProvider = Provider<TrashRepository>(
     ref.watch(localDbProvider),
     ref.watch(gallerySourceProvider),
   ),
+);
+
+/// Calcule les empreintes visuelles de miniatures, dans un isolate pour ne
+/// pas ralentir l'interface. Sur place dans les tests.
+typedef VisualHasher = Future<List<VisualPrint>> Function(
+  List<Uint8List?> thumbnails,
+);
+
+/// Empreintes de miniatures ([VisualHash.unreadable] si illisible).
+List<VisualPrint> visualPrints(List<Uint8List?> thumbnails) => [
+  for (final t in thumbnails)
+    t == null
+        ? VisualHash.unreadable
+        : VisualHash.of(t) ?? VisualHash.unreadable,
+];
+
+final visualHasherProvider = Provider<VisualHasher>(
+  (ref) =>
+      (thumbnails) => Isolate.run(() => visualPrints(thumbnails)),
 );

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../models/gallery_photo.dart';
 import '../models/photo_groups.dart';
+import '../models/visual_hash.dart';
 import '../sources/local_db.dart';
 
 /// Ordre dans lequel les photos à trier sont proposées (F2).
@@ -115,6 +116,7 @@ class LibraryRepository {
               isFavorite: Value(photo.isFavorite),
               sizeBytes: Value(photo.sizeBytes),
               durationMs: Value(photo.duration?.inMilliseconds),
+              folder: Value(photo.folder),
             ),
             // Taille inconnue de la galerie (iOS) : celle déjà lue est
             // conservée.
@@ -126,6 +128,7 @@ class LibraryRepository {
                 height: Value(photo.height),
                 isFavorite: Value(photo.isFavorite),
                 durationMs: Value(photo.duration?.inMilliseconds),
+                folder: Value(photo.folder),
                 sizeBytes: photo.sizeBytes == null
                     ? const Value.absent()
                     : Value(photo.sizeBytes),
@@ -204,6 +207,52 @@ class LibraryRepository {
     final rows = await query.map((r) => _toPhoto(r.readTable(p))).get();
     if (order == SortOrder.random) rows.shuffle();
     return rows;
+  }
+
+  /// Photos dont l'empreinte visuelle reste à calculer (pas les vidéos).
+  Future<List<GalleryPhoto>> photosToHash({int limit = 64}) async {
+    final query = _db.select(_db.photos)
+      ..where((t) => t.visualHash.isNull() & t.durationMs.isNull())
+      ..limit(limit);
+    return query.map(_toPhoto).get();
+  }
+
+  /// Enregistre des empreintes. 0 = illisible : on ne la recalcule pas.
+  Future<void> setVisualHashes(Map<String, VisualPrint> prints) =>
+      _db.batch((batch) {
+        for (final MapEntry(:key, :value) in prints.entries) {
+          batch.update(
+            _db.photos,
+            PhotosCompanion(
+              visualHash: Value(value.hash),
+              visualColor: Value(value.color),
+              visualDetail: Value(value.detail),
+            ),
+            where: (t) => t.id.equals(key),
+          );
+        }
+      });
+
+  /// Avancée du calcul des empreintes : (faites, à faire en tout).
+  Stream<({int done, int total})> watchHashProgress() => _db
+      .customSelect(
+        'SELECT COUNT(*) AS total, COUNT(visual_hash) AS done '
+        'FROM photos WHERE duration_ms IS NULL',
+        readsFrom: {_db.photos},
+      )
+      .watchSingle()
+      .map(
+        (row) => (done: row.read<int>('done'), total: row.read<int>('total')),
+      );
+
+  /// Photos à comparer pour les doublons : empreinte connue, hors panier.
+  Stream<List<GalleryPhoto>> watchHashedPhotos() {
+    final p = _db.photos;
+    return (_db.select(p).join([
+          leftOuterJoin(_db.cartItems, _db.cartItems.assetId.equalsExp(p.id)),
+        ])..where(p.visualHash.isNotNull() & _db.cartItems.assetId.isNull()))
+        .map((r) => _toPhoto(r.readTable(p)))
+        .watch();
   }
 
   /// Les mois qui ont des photos, du plus récent au plus ancien.
@@ -416,5 +465,9 @@ class LibraryRepository {
     duration: row.durationMs == null
         ? null
         : Duration(milliseconds: row.durationMs!),
+    folder: row.folder,
+    visualHash: row.visualHash,
+    visualColor: row.visualColor,
+    visualDetail: row.visualDetail,
   );
 }

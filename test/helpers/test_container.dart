@@ -42,6 +42,10 @@ Future<List<Override>> testOverrides({
   localDbProvider.overrideWithValue(db),
   gallerySourceProvider.overrideWithValue(gallery),
   settingsRepositoryProvider.overrideWithValue(await memorySettings(settings)),
+  // Pas d'isolate dans les tests : même calcul, sur place.
+  visualHasherProvider.overrideWithValue(
+    (thumbnails) async => visualPrints(thumbnails),
+  ),
 ];
 
 /// Un conteneur Riverpod prêt pour les tests de logique.

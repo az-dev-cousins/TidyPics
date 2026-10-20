@@ -12,6 +12,7 @@ class FakeGallerySource implements GallerySource {
     List<GalleryPhoto>? photos,
     this.access = GalleryAccess.full,
     this.sizes = const {},
+    this.images = const {},
   }) : photos = [...?photos];
 
   List<GalleryPhoto> photos;
@@ -20,6 +21,9 @@ class FakeGallerySource implements GallerySource {
   /// Accès renvoyé par [requestAccess] (par défaut : [access]).
   GalleryAccess? accessAfterRequest;
   Map<String, int> sizes;
+
+  /// Miniatures encodées par photo (sinon trois octets illisibles).
+  Map<String, Uint8List> images;
 
   /// Simule le refus de la popup système de suppression.
   bool refuseTrash = false;
@@ -68,7 +72,7 @@ class FakeGallerySource implements GallerySource {
     if (unreadableThumbnails.contains(id)) {
       throw StateError('Miniature illisible');
     }
-    return Uint8List.fromList([1, 2, 3]);
+    return images[id] ?? Uint8List.fromList([1, 2, 3]);
   }
 
   /// Pas de lecteur vidéo dans les tests : la carte garde sa miniature.

@@ -1,4 +1,5 @@
 import 'gallery_photo.dart';
+import 'visual_hash.dart';
 
 /// Ce qu'on propose au tri : une photo seule, une rafale ou une paire
 /// JPG + RAW. Un groupe est toujours tiré comme un seul élément (F2).
@@ -79,6 +80,42 @@ List<PhotoItem> findRawPairs(
   return pairs;
 }
 
+/// Dossiers de photos reçues ou enregistrées d'un coup : plusieurs photos
+/// différentes y ont la même heure, ce ne sont pas des rafales.
+const _receivedFolders = [
+  'whatsapp',
+  'telegram',
+  'signal',
+  'messenger',
+  'snapchat',
+  'instagram',
+  'facebook',
+  'discord',
+  'bluetooth',
+  'download',
+  'screenshot',
+];
+
+/// Vrai pour un dossier de photos reçues (WhatsApp, Telegram,
+/// téléchargements, captures d'écran…).
+bool isReceivedFolder(String? folder) {
+  if (folder == null) return false;
+  final lower = folder.toLowerCase();
+  return _receivedFolders.any(lower.contains);
+}
+
+/// Deux photos de suite font partie d'une rafale : prises à moins de
+/// [gap] et, si leurs empreintes sont connues, presque identiques.
+bool _sameBurst(GalleryPhoto previous, GalleryPhoto photo, Duration gap) {
+  if (photo.takenAt.difference(previous.takenAt) > gap) return false;
+  final a = previous.visualHash;
+  final b = photo.visualHash;
+  if (!VisualHash.isInformative(a) || !VisualHash.isInformative(b)) {
+    return true;
+  }
+  return VisualHash.distance(a!, b!) <= VisualHash.burstDistance;
+}
+
 /// Au-delà, ce n'est pas une rafale : ce sont des fichiers sans date de prise
 /// de vue, copiés d'un coup (sauvegarde restaurée, téléchargements). Ils se
 /// trient un par un.
@@ -89,6 +126,8 @@ const maxBurstSize = 50;
 /// 1. Les paires JPG + RAW sont repérées d'abord : ce n'est pas une rafale.
 /// 2. Parmi les autres photos, triées par date, celles prises à moins de
 ///    [burstGap] de la précédente forment une rafale, jusqu'à [maxBurstSize].
+///    Il faut aussi le même dossier, pas un dossier de photos reçues
+///    (WhatsApp…), et des empreintes proches quand elles sont connues.
 ///
 /// Le résultat est trié par date.
 List<PhotoItem> groupPhotos(
@@ -112,20 +151,25 @@ List<PhotoItem> groupPhotos(
     run = [];
   }
 
+  // Une rafale reste dans un seul dossier : on les parcourt un par un.
+  final byFolder = <String?, List<GalleryPhoto>>{};
   for (final photo in singles) {
-    // Une vidéo se trie toujours seule.
-    if (photo.isVideo) {
+    // Une vidéo, ou une photo reçue (WhatsApp, téléchargement…), se trie
+    // toujours seule.
+    if (photo.isVideo || !bursts || isReceivedFolder(photo.folder)) {
       items.add(PhotoItem.single(photo));
-      continue;
+    } else {
+      (byFolder[photo.folder] ??= []).add(photo);
     }
-    final previous = run.lastOrNull;
-    final closeEnough =
-        previous != null &&
-        photo.takenAt.difference(previous.takenAt) <= burstGap;
-    if (!bursts || !closeEnough) flush();
-    run.add(photo);
   }
-  flush();
+  for (final photos in byFolder.values) {
+    for (final photo in photos) {
+      final previous = run.lastOrNull;
+      if (previous == null || !_sameBurst(previous, photo, burstGap)) flush();
+      run.add(photo);
+    }
+    flush();
+  }
 
   items.sort((a, b) => a.takenAt.compareTo(b.takenAt));
   return items;

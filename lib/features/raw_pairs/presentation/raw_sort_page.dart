@@ -327,6 +327,7 @@ class _RawCard extends ConsumerWidget {
         ? l10n.rawSortJpgInCart
         : l10n.rawSortJpgKept(l10n.fileSize(jpg.sizeBytes ?? 0));
     return SwipeCardFrame(
+      folder: raw.folderName,
       caption:
           '${l10n.shortDate(raw.takenAt)} · '
           'RAW ${l10n.fileSize(raw.sizeBytes ?? 0).toUpperCase()}',

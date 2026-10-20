@@ -215,6 +215,7 @@ class PhotoManagerGallerySource implements GallerySource {
     height: asset.orientatedHeight,
     isFavorite: asset.isFavorite,
     duration: asset.type == AssetType.video ? asset.videoDuration : null,
+    folder: asset.relativePath,
   );
 
   AssetEntity _entity(GalleryPhoto photo) => AssetEntity(

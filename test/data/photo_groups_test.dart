@@ -88,6 +88,38 @@ void main() {
       );
     });
 
+    test('photos WhatsApp reçues à la même heure : pas une rafale', () {
+      GalleryPhoto wa(String id, int s) => GalleryPhoto(
+        id: id,
+        takenAt: at(s),
+        title: 'IMG-WA$id.jpg',
+        folder: 'Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/',
+      );
+      final items = groupPhotos([wa('1', 0), wa('2', 0), wa('3', 1)]);
+      expect(items.map((i) => i.kind), everyElement(PhotoItemKind.single));
+    });
+
+    test('même heure mais dossiers différents : pas une rafale', () {
+      final items = groupPhotos([
+        GalleryPhoto(id: 'a', takenAt: at(0), folder: 'DCIM/Camera/'),
+        GalleryPhoto(id: 'b', takenAt: at(1), folder: 'Pictures/Edits/'),
+      ]);
+      expect(items.map((i) => i.kind), everyElement(PhotoItemKind.single));
+    });
+
+    test('empreintes très différentes : pas une rafale', () {
+      // 0x0F0F… et 0xF0F0… : 64 bits d'écart, chacune assez « riche ».
+      final items = groupPhotos([
+        GalleryPhoto(id: 'a', takenAt: at(0), visualHash: 0x0F0F0F0F0F0F0F0F),
+        GalleryPhoto(id: 'b', takenAt: at(1), visualHash: 0x70F0F0F0F0F0F0F0),
+        GalleryPhoto(id: 'c', takenAt: at(2), visualHash: 0x70F0F0F0F0F0F0F1),
+      ]);
+      expect(items.map((i) => i.kind), [
+        PhotoItemKind.single,
+        PhotoItemKind.burst,
+      ]);
+    });
+
     test("l'écart est réglable", () {
       final photos = [photo('a', 'A.jpg', at(0)), photo('b', 'B.jpg', at(5))];
       expect(groupPhotos(photos), hasLength(2));
