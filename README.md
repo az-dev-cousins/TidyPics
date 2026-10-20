@@ -1,133 +1,61 @@
-# TidyPics 📸
+# TidyPics
 
-## 🚀 À propos du projet
+**Trie tes photos d'un swipe et libère de la place, sans que rien ne quitte ton téléphone.**
 
-**TidyPics** est une application mobile multiplateforme (Flutter) qui réinvente le tri des photos et fichiers de ton smartphone.  
-Inspirée de l'expérience swipe de Tinder, elle permet de parcourir facilement tes galeries, de supprimer les doublons, les photos inutiles ou floues, et de garder uniquement ce qui compte vraiment.
+TidyPics est une app mobile Flutter (Android et iOS, téléphones et tablettes) pour faire le ménage dans sa galerie. Les photos défilent comme des cartes : ⬅️ supprimer, ➡️ garder, ⬆️ garder et mettre en favori. Les suppressions passent par la corbeille du système : rien n'est perdu par accident, et l'espace gagné est affiché à chaque étape.
 
-L'objectif est de transformer le fastidieux nettoyage de stockage en un moment ludique, rapide et satisfaisant.
+- 🔒 100 % local : pas de compte, pas de serveur, aucune requête réseau
+- 🎲 Tri aléatoire par défaut, ordonné ou ciblé par année et par mois
+- 🧺 Panier et checkpoint : une seule confirmation pour tout un lot
+- 📸 Rafales et doublons JPG + RAW regroupés
+- 📊 Espace libéré depuis l'installation
 
----
+> Statut : **lot 0 (socle)** en cours. L'app n'est pas encore utilisable.
 
-## ✨ Ambitions & vision
+## Documentation
 
-- Créer la **référence du tri intelligent des médias sur smartphone**, avec une UX fluide et addictive.
-- Devenir une app à impact : aider les utilisateurs à réduire leur empreinte digitale (moins de stockage inutile, moins de cloud superflu).
-- Évoluer ensuite vers un outil global de gestion des fichiers.
-- Intégrer des fonctionnalités d’**IA** pour détecter les doublons, les photos floues ou les screenshots obsolètes.
+| Document | Contenu |
+|---|---|
+| [Cahier des charges](docs/cahier-des-charges.md) | Périmètre, fonctionnalités, contraintes, découpage en lots |
+| [Décisions d'architecture](docs/adr/README.md) | Le pourquoi des choix techniques |
+| [Direction artistique](docs/design/direction-artistique.md) | Couleurs, typo, ton, logo |
+| [Contribuer](CONTRIBUTING.md) | Branches, commits, PR, qualité |
+| [Changelog](CHANGELOG.md) | Historique des versions |
 
----
+## Démarrer
 
-## 🔥 Fonctionnalités clés prévues
+Prérequis : Flutter stable (Dart ≥ 3.5), Android SDK (API 30+) et/ou Xcode (iOS 15+).
 
-✅ Swipe intuitif :
-- Swipe à gauche pour supprimer, à droite pour conserver.
+> ⚠️ **Java pour Android** : le Gradle actuel (8.3) demande un **JDK 17**. Android Studio 2026 embarque Java 25, qui provoque l'erreur `Unsupported class file major version 69`. Solution temporaire : `flutter config --jdk-dir <chemin du JDK 17>`. Ce point disparaîtra avec la montée de version de Flutter (voir le backlog).
 
-✅ Statistiques dynamiques :
-- Espace disque économisé, nombre de photos nettoyées, temps gagné.
+```bash
+flutter pub get        # dépendances + génération des traductions
+flutter run            # lance l'app sur l'appareil connecté
+```
 
-✅ Gestion des utilisateurs via **Firebase** :
-- Authentification (Google, email)
-- Sauvegarde des préférences et historique
+## Vérifier avant de pousser
 
-✅ Notifications push :
-- Rappeler à l'utilisateur de nettoyer régulièrement son appareil
+```bash
+dart format --set-exit-if-changed lib test
+flutter analyze
+flutter test
+```
 
-✅ Dark Mode & Responsive :
-- UX adaptée aux mobiles, tablettes et même aux écrans desktop.
+La CI GitHub Actions lance ces mêmes commandes sur chaque PR.
 
-✅ Personnalisation :
-- Paramètres pour ajuster les seuils de détection automatique (flou, doublons).
+## Stack
 
-✅ Prévisions IA futures :
-- Suggestions automatiques de suppression
-- Reconnaissance de types d'images (mèmes, factures, notes temporaires)
+Flutter · Riverpod · go_router · Material 3 · Manrope (incluse dans l'app)
 
----
-
-## 🏗 Structure technique initiale
+## Structure
 
 ```plaintext
 lib/
-├── main.dart
-├── app.dart
-├── core/
-│    ├── config/
-│    │    ├── firebase_options.dart
-│    │    └── env.dart
-│    ├── themes/
-│    │    ├── app_theme.dart
-│    │    └── colors.dart
-│    ├── utils/
-│    │    └── formatters.dart
-│    └── constants.dart
-├── data/
-│    ├── models/
-│    │    ├── photo_model.dart
-│    │    └── user_prefs_model.dart
-│    ├── datasources/
-│    │    ├── firebase_auth_service.dart
-│    │    ├── firestore_user_prefs_service.dart
-│    │    └── firebase_notification_service.dart
-│    └── repositories/
-│         ├── photo_repository.dart
-│         └── user_repository.dart
-├── features/
-│    ├── auth/
-│    ├── home/
-│    ├── swipe/
-│    ├── settings/
-│    └── notifications/
-└── shared/
-     ├── widgets/
-     └── services/
+├── main.dart        # point d'entrée
+├── app/             # MaterialApp, routes
+├── core/theme/      # couleurs et thèmes clair / sombre
+├── l10n/            # traductions (fr par défaut, en)
+├── features/        # un dossier par fonctionnalité
+└── shared/widgets/  # widgets réutilisables
+docs/                # cahier des charges, ADR, design
 ```
-
----
-
-## 🚀 Stratégie de commercialisation
-
-### 🎯 Positionnement
-
--
-
----
-
-### 💡 Acquisition & diffusion
-
--
-
----
-
-### 💵 Business model & monétisation
-- **Freemium** 
-- **Premium** 
-
----
-
-## 🔄 Work flow du projet
-
-### 🚀 Méthodologie
-- Workflow git structuré :
-  - `main` pour les versions stables,
-  - `dev` pour l’intégration continue,
-  - `feature/xxx` pour les évolutions.
-- Gestion des tâches via GitHub Projects (kanban agile).
-- CI/CD envisagé via GitHub Actions pour builder automatiquement, analyser le code (`flutter analyze`) et lancer les tests.
-
-### 🤝 Collaboration
-Le projet est conçu pour être facilement maintenable et évolutif, avec une architecture modulaire et des conventions strictes, pour faciliter l'arrivée future d'autres développeurs.
-
----
-
-## 📝 Liste détaillée des tâches
-
-👉 Toutes les user stories et tâches techniques sont listées dans [task_list.md](dev_docs/TASK_LIST.md) et [use_case.md](dev_docs/USE_CASE.md)
-
----
-
-## 🚀 Conclusion
-
-TidyPics n’est pas qu’un simple cleaner : c’est un **outil intelligent et fun pour redonner vie à ton smartphone**, te faire gagner de l’espace et t’apporter un vrai sentiment de satisfaction.
-
-**Ready to swipe, clean & chill ?**
