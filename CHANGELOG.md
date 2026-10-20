@@ -6,6 +6,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Logo « t » paysage, icônes d'app Android (adaptative) et iOS, écran de démarrage clair et sombre.
 - Cahier des charges V1, décisions d'architecture (ADR 0001 à 0006) et direction artistique « Clean & zen ».
 - Thèmes clair et sombre, police Manrope incluse dans l'app.
 - Squelette de l'app : Riverpod, go_router, traductions fr/en, page d'accueil provisoire.

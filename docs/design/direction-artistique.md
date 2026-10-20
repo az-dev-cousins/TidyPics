@@ -74,4 +74,10 @@ Règles :
 
 Wordmark : `tidypics` en Manrope 800, minuscules, avec « tidy » en Encre et « pics » en Sapin.
 
-Les PNG des icônes sont générés à partir de ces SVG avec `flutter_launcher_icons`. Si le logo change, on régénère les PNG à partir des SVG, sans retoucher les PNG à la main.
+### Régénérer les icônes et l'écran de démarrage
+
+1. Rendre chaque SVG en PNG 1024×1024 **avec transparence** dans `assets/icon/` (`icon.png`, `adaptive-background.png`, `adaptive-foreground.png`) et `splash-logo.png` (logo arrondi, 768×768). Chrome headless convient (`--screenshot --default-background-color=00000000`). L'aperçu macOS (`qlmanage`) ne convient pas : il ajoute un fond blanc.
+2. `dart run flutter_launcher_icons`, puis `dart run flutter_native_splash:create`.
+3. Vérifier que `ios/Runner.xcodeproj/project.pbxproj` n'a pas été modifié par erreur (le générateur d'icônes y touche parfois un réglage sans rapport).
+
+On ne retouche jamais les PNG à la main : la source, ce sont les SVG.

@@ -1,0 +1,18 @@
+# Écran de démarrage natif. Régénérer : dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#F6F5F0"
+  image: assets/icon/splash-logo.png
+  color_dark: "#121615"
+  image_dark: assets/icon/splash-logo.png
+
+  android_12:
+    color: "#F6F5F0"
+    image: assets/icon/adaptive-foreground.png
+    icon_background_color: "#1E7A64"
+    color_dark: "#121615"
+    image_dark: assets/icon/adaptive-foreground.png
+    icon_background_color_dark: "#1E7A64"
+
+  ios: true
+  android: true
+  web: false
