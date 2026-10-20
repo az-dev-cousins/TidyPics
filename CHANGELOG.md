@@ -6,8 +6,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
-- Les RAW sortent du tri normal (le JPG y passe seul) et se trient uniquement dans le tri des RAW, qui signale les RAW sans JPG gardé.
-- Rafales : « Tout supprimer » et « Tout garder » dès l'ouverture.
+- Tri des RAW : signale les RAW sans JPG gardé. Dans le tri normal, une paire JPG + RAW reste une seule carte ; badge RAW au récap.
+- Rafales : flèche de retour au tri (la carte de la rafale garde ou supprime tout), explication à la première ouverture.
 - Corbeille : nom du fichier affiché.
 - Écrans choisis sur les maquettes :
   - Menu : courbe de l'espace libéré, barre de stockage du téléphone (part des photos), tuiles panier / par mois / JPG + RAW / corbeille.

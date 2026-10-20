@@ -223,19 +223,20 @@ void main() {
       expect(state().queue, hasLength(2));
     });
 
-    test('les RAW ne passent pas dans le tri normal : le JPG seul', () async {
-      await start(
-        custom: [
-          at('j', 0, title: 'DSC_1.JPG'),
-          at('r', 0, title: 'DSC_1.DNG'),
-          at('solo', 600, title: 'IMG_9.ARW'),
-        ],
-      );
-      expect(state().queue.map((i) => i.id), ['j']);
-      expect(state().current?.kind, PhotoItemKind.single);
-      await session().decide(SwipeChoice.favorite);
-      expect(gallery.favorites, {'j': true});
-    });
+    test(
+      'paire JPG + RAW : une seule carte, les deux fichiers ensemble',
+      () async {
+        await start(
+          custom: [
+            at('j', 0, title: 'DSC_1.JPG'),
+            at('r', 0, title: 'DSC_1.DNG'),
+          ],
+        );
+        expect(state().current?.kind, PhotoItemKind.rawPair);
+        await session().decide(SwipeChoice.trash);
+        expect(state().cartCount, 2);
+      },
+    );
   });
 
   test('un mois propose toutes ses photos, même gardées', () async {

@@ -242,7 +242,6 @@
   "swipeBurstPick": "Choisir les meilleures",
   "swipeClose": "Fermer",
   "burstHint": "Glisse à droite pour garder, à gauche pour mettre au panier.",
-  "burstKeepAll": "Tout garder",
   "burstRecapTitle": "Rafale triée",
   "burstRecapBody": "{kept, plural, =0{Aucune gardée} =1{1 gardée} other{{kept} gardées}} · {trashed, plural, =0{aucune au panier} =1{1 au panier} other{{trashed} au panier}}",
   "@burstRecapBody": {
@@ -453,5 +452,11 @@
   "rawSortJpgInCart": "JPG au panier",
   "rawSortOrphanNoJpg": "Pas de JPG pour cette photo : si tu supprimes le RAW, il n'en restera rien.",
   "rawSortOrphanJpgInCart": "Le JPG de cette photo est au panier : garder le RAW le laissera seul.",
-  "burstTrashAll": "Tout supprimer"
+  "burstBack": "Retour au tri",
+  "burstIntroTitle": "Choisir les meilleures",
+  "burstIntroBody": "Les photos de la rafale défilent une par une. Rien n'est enregistré avant de valider.",
+  "burstIntroRight": "Glisse à droite : tu gardes la photo.",
+  "burstIntroLeft": "Glisse à gauche : elle va au panier.",
+  "burstIntroStrip": "La bande du bas montre où tu en es. Touche une vignette pour changer d'avis.",
+  "burstIntroAll": "Pour tout garder ou tout supprimer, reviens au tri avec la flèche et glisse la carte de la rafale."
 }

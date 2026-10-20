@@ -389,6 +389,29 @@ class _CartTile extends StatelessWidget {
                 ),
               ),
             ),
+            // Badge RAW : distingue les deux fichiers d'une paire JPG + RAW.
+            if (entry.photo.isRaw)
+              Positioned(
+                left: 6,
+                top: 6,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: scheme.primary,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    child: Text(
+                      l10n.swipeRaw,
+                      style: Theme.of(context).textTheme.labelSmall
+                          ?.copyWith(color: scheme.onPrimary),
+                    ),
+                  ),
+                ),
+              ),
             if (excluded)
               Positioned(
                 left: 6,

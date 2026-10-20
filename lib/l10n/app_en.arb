@@ -121,7 +121,6 @@
   "swipeBurstPick": "Pick the best",
   "swipeClose": "Close",
   "burstHint": "Swipe right to keep, left to add to the bin.",
-  "burstKeepAll": "Keep all",
   "burstRecapTitle": "Burst sorted",
   "burstRecapBody": "{kept, plural, =0{None kept} =1{1 kept} other{{kept} kept}} · {trashed, plural, =0{none in the bin} =1{1 in the bin} other{{trashed} in the bin}}",
   "burstAllTrashed": "No photo kept: the whole burst will go to the bin.",
@@ -202,5 +201,11 @@
   "rawSortJpgInCart": "JPG in the bin",
   "rawSortOrphanNoJpg": "No JPG for this photo: if you delete the RAW, nothing will be left.",
   "rawSortOrphanJpgInCart": "This photo's JPG is in the bin: keeping the RAW will leave it alone.",
-  "burstTrashAll": "Delete all"
+  "burstBack": "Back to sorting",
+  "burstIntroTitle": "Pick the best",
+  "burstIntroBody": "The burst's photos come one by one. Nothing is saved until you confirm.",
+  "burstIntroRight": "Swipe right: you keep the photo.",
+  "burstIntroLeft": "Swipe left: it goes to the bin.",
+  "burstIntroStrip": "The strip at the bottom shows where you are. Tap a thumbnail to change your mind.",
+  "burstIntroAll": "To keep or delete them all, go back with the arrow and swipe the burst card."
 }

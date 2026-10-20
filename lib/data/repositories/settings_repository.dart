@@ -17,6 +17,7 @@ class AppSettings {
     this.autoTrashOnLeave = false,
     this.deleteDirectly = false,
     this.rawIntroSeen = false,
+    this.burstIntroSeen = false,
   });
 
   final bool onboardingDone;
@@ -44,6 +45,9 @@ class AppSettings {
   /// Explication du tri des RAW déjà vue.
   final bool rawIntroSeen;
 
+  /// Explication du tri d'une rafale déjà vue.
+  final bool burstIntroSeen;
+
   static const thresholds = [10, 25, 50, 100];
   static const minBurstGap = 1;
   static const maxBurstGap = 10;
@@ -59,6 +63,7 @@ class AppSettings {
     bool? autoTrashOnLeave,
     bool? deleteDirectly,
     bool? rawIntroSeen,
+    bool? burstIntroSeen,
   }) => AppSettings(
     onboardingDone: onboardingDone ?? this.onboardingDone,
     sortOrder: sortOrder ?? this.sortOrder,
@@ -70,6 +75,7 @@ class AppSettings {
     autoTrashOnLeave: autoTrashOnLeave ?? this.autoTrashOnLeave,
     deleteDirectly: deleteDirectly ?? this.deleteDirectly,
     rawIntroSeen: rawIntroSeen ?? this.rawIntroSeen,
+    burstIntroSeen: burstIntroSeen ?? this.burstIntroSeen,
   );
 }
 
@@ -88,6 +94,7 @@ class SettingsRepository {
   static const _autoTrashOnLeave = 'auto_trash_on_leave';
   static const _deleteDirectly = 'delete_directly';
   static const _rawIntroSeen = 'raw_intro_seen';
+  static const _burstIntroSeen = 'burst_intro_seen';
 
   static const keys = {
     _onboardingDone,
@@ -100,6 +107,7 @@ class SettingsRepository {
     _autoTrashOnLeave,
     _deleteDirectly,
     _rawIntroSeen,
+    _burstIntroSeen,
   };
 
   static Future<SettingsRepository> open() async => SettingsRepository(
@@ -128,6 +136,7 @@ class SettingsRepository {
       autoTrashOnLeave: _prefs.getBool(_autoTrashOnLeave) ?? false,
       deleteDirectly: _prefs.getBool(_deleteDirectly) ?? false,
       rawIntroSeen: _prefs.getBool(_rawIntroSeen) ?? false,
+      burstIntroSeen: _prefs.getBool(_burstIntroSeen) ?? false,
     );
   }
 
@@ -142,5 +151,6 @@ class SettingsRepository {
     await _prefs.setBool(_autoTrashOnLeave, settings.autoTrashOnLeave);
     await _prefs.setBool(_deleteDirectly, settings.deleteDirectly);
     await _prefs.setBool(_rawIntroSeen, settings.rawIntroSeen);
+    await _prefs.setBool(_burstIntroSeen, settings.burstIntroSeen);
   }
 }

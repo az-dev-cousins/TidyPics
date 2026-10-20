@@ -10,6 +10,7 @@ import '../../../data/models/gallery_photo.dart';
 import '../../../data/models/photo_groups.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/photo_image.dart';
+import '../../settings/application/settings_controller.dart';
 import '../application/swipe_session.dart';
 import 'swipe_card.dart';
 import 'swipe_deck.dart';
@@ -41,6 +42,27 @@ class _BurstPageState extends ConsumerState<BurstPage> {
   /// quand on revient sur la même photo (récap puis « Revoir »).
   int _swipes = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    if (!ref.read(settingsProvider).burstIntroSeen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_showIntro());
+      });
+    }
+  }
+
+  Future<void> _showIntro() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) => const _BurstIntro(),
+    );
+    await ref.read(settingsProvider.notifier).markBurstIntroSeen();
+    if (mounted) unawaited(_deck.currentState?.nudge(SwipeChoice.keep));
+  }
+
   bool get _allDecided => _photos.every((p) => _kept.containsKey(p.id));
 
   /// Prochaine photo sans décision après [from], en faisant le tour.
@@ -60,18 +82,6 @@ class _BurstPageState extends ConsumerState<BurstPage> {
       if (next != null) _index = next;
     });
     if (_allDecided) unawaited(_showRecap());
-  }
-
-  /// « Tout garder » ou « Tout supprimer » : toute la rafale d'un coup, puis
-  /// le récap pour confirmer.
-  void _decideAll({required bool keep}) {
-    setState(() {
-      for (final p in _photos) {
-        _kept[p.id] = keep;
-      }
-      _swipes++;
-    });
-    unawaited(_showRecap());
   }
 
   Future<void> _showRecap() async {
@@ -143,11 +153,21 @@ class _BurstPageState extends ConsumerState<BurstPage> {
 
     return Scaffold(
       appBar: AppBar(
+        // Retour au tri : la carte de la rafale y est toujours. La glisser
+        // garde ou supprime toute la rafale d'un coup.
         leading: IconButton(
-          tooltip: l10n.swipeClose,
-          icon: const Icon(Icons.close_rounded),
+          tooltip: l10n.burstBack,
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          IconButton(
+            tooltip: l10n.rawSortHelp,
+            icon: const Icon(Icons.help_outline_rounded),
+            onPressed: _showIntro,
+          ),
+          const SizedBox(width: 4),
+        ],
         title: Text(l10n.swipeBurstBadge(_photos.length)),
       ),
       body: SafeArea(
@@ -165,31 +185,7 @@ class _BurstPageState extends ConsumerState<BurstPage> {
                         ?.copyWith(color: tidy.inkMuted),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: tidy.delete),
-                          ),
-                          onPressed: () => _decideAll(keep: false),
-                          icon: Icon(Icons.close_rounded, color: tidy.delete),
-                          label: Text(l10n.burstTrashAll),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => _decideAll(keep: true),
-                          icon: Icon(Icons.check_rounded, color: tidy.keep),
-                          label: Text(l10n.burstKeepAll),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                const SizedBox(height: 12),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -354,6 +350,71 @@ class _StripTile extends StatelessWidget {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// L'explication du tri d'une rafale, la première fois (puis via « ? »).
+class _BurstIntro extends StatelessWidget {
+  const _BurstIntro();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final tidy = TidyColors.of(context);
+
+    Widget line(IconData icon, Color color, String text) => Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text, style: theme.textTheme.bodyLarge)),
+        ],
+      ),
+    );
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.burstIntroTitle,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.burstIntroBody,
+              style: theme.textTheme.bodyMedium?.copyWith(color: tidy.inkMuted),
+            ),
+            const SizedBox(height: 20),
+            line(Icons.arrow_forward_rounded, tidy.keep, l10n.burstIntroRight),
+            line(Icons.arrow_back_rounded, tidy.delete, l10n.burstIntroLeft),
+            line(
+              Icons.view_carousel_outlined,
+              theme.colorScheme.primary,
+              l10n.burstIntroStrip,
+            ),
+            line(
+              Icons.keyboard_return_rounded,
+              theme.colorScheme.primary,
+              l10n.burstIntroAll,
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.rawIntroStart),
+            ),
+          ],
         ),
       ),
     );

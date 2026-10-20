@@ -181,7 +181,8 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
   2. Une bande de vignettes en bas montre l'état de chaque photo (gardée, au panier, pas encore triée) ; un tap y revient pour changer d'avis.
   3. Après la dernière photo, un récap (« 1 gardée · 2 au panier ») propose Valider ou Revoir. Rien n'est enregistré avant de valider.
   4. Aucune photo n'est présélectionnée. On peut n'en garder aucune : le récap prévient alors que toute la rafale ira au panier.
-  5. « Tout supprimer » et « Tout garder » dès l'ouverture de la rafale, puis le récap pour confirmer.
+  5. Pas de bouton « tout garder / tout supprimer » ici : une flèche ramène au tri, où glisser la carte de la rafale garde ou supprime tout.
+  6. Une explication s'affiche à la première ouverture (puis via « ? »).
 - Raccourci : swipe gauche sur le groupe = tout au panier, swipe droit = tout garder.
 - Option : regroupement activé ou désactivé.
 
@@ -189,7 +190,7 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 - Une **paire** = même nom de fichier (hors extension) et même date de prise de vue, en JPG/HEIC d'un côté et en RAW de l'autre (`.dng`, `.cr2`, `.nef`, `.arw`…).
 - **Mode dédié** depuis le menu (version A des maquettes) : liste des paires et espace récupérable, un choix « Garder JPG / Garder RAW / Les deux » pour toutes les paires, modifiable d'un tap paire par paire. Les fichiers écartés partent à la corbeille en un seul lot.
   - ✅ **Tri des RAW au swipe**, ouvert directement depuis le menu (tuile « Trier les RAW », avec le nombre restant) ; le détail des paires et le choix groupé s'ouvrent depuis cet écran : chaque carte est le RAW d'une paire (aperçu tiré du JPG). Droite = garder le RAW, gauche = le RAW au panier. Le JPG n'est jamais touché. Écran sur fond vert (en clair comme en sombre) pour le distinguer du tri habituel, explication à la première ouverture (puis via « ? »), annulation possible.
-- ✅ **Les RAW ne passent pas dans le tri normal** : seul le JPG y apparaît, comme une photo ordinaire. Les RAW se trient uniquement dans le tri des RAW (y compris les RAW sans JPG).
+- ✅ **Dans le tri normal, une paire JPG + RAW est une seule carte** : on garde ou on supprime les deux d'un coup. Au récap, le fichier RAW porte un badge « RAW ». Le tri des RAW (depuis le menu) sert à décider du RAW seul.
 - ✅ Tri des RAW : un RAW dont le JPG est au panier, ou qui n'a pas de JPG, est signalé sur sa carte avant de décider.
 - ✅ Nom des paires : ce qui précède le premier point du nom de fichier, pour reconnaître aussi les Pixel (`PXL_….RAW-01.COVER.jpg` + `PXL_….RAW-02.ORIGINAL.dng`).
 - ⚠️ **iOS** : un import JPG + RAW forme souvent **un seul élément avec deux fichiers**. Il faut vérifier par un test si l'on peut n'en supprimer qu'un. Sinon, la fonction ne sert que sur Android en V1.

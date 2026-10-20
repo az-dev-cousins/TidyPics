@@ -126,10 +126,10 @@ void main() {
 
     await tester.tap(find.text('Choisir les meilleures'));
     await settle(tester);
-    expect(
-      find.text('Glisse à droite pour garder, à gauche pour mettre au panier.'),
-      findsOneWidget,
-    );
+    // Première fois : l'explication.
+    expect(find.text('Choisir les meilleures'), findsWidgets);
+    await tester.tap(find.text("C'est parti"));
+    await settle(tester);
 
     await tester.tap(find.byTooltip('Garder'));
     await settle(tester);
@@ -185,18 +185,24 @@ void main() {
     await closeApp(tester);
   });
 
-  testWidgets('rafale : tout supprimer dès le début', (tester) async {
+  testWidgets('rafale : la flèche ramène au tri, la carte supprime tout', (
+    tester,
+  ) async {
     final gallery = FakeGallerySource(
       photos: [photo('a', 0), photo('b', 1), photo('c', 2)],
     );
-    await pumpApp(tester, gallery: gallery);
+    await pumpApp(
+      tester,
+      gallery: gallery,
+      settings: const {'onboarding_done': true, 'burst_intro_seen': true},
+    );
     await tester.tap(find.text('Choisir les meilleures'));
     await settle(tester);
-    await tester.tap(find.text('Tout supprimer'));
+    await tester.tap(find.byTooltip('Retour au tri'));
     await settle(tester);
 
-    expect(find.text('Aucune gardée · 3 au panier'), findsOneWidget);
-    await tester.tap(find.text('Valider'));
+    // Glisser la carte de la rafale : toute la rafale au panier.
+    await tester.tap(find.byTooltip('Supprimer'));
     await settle(tester);
     expect(find.text('3 · 3 Ko'), findsOneWidget);
 
