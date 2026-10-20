@@ -8,13 +8,36 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../data/models/gallery_photo.dart';
+import '../../../data/providers.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/photo_image.dart';
 import '../../cart/presentation/checkpoint_page.dart';
 import '../../gallery/application/gallery_controller.dart';
+import '../../settings/application/settings_controller.dart';
 import '../application/swipe_session.dart';
+import 'swipe_card.dart';
 import 'swipe_deck.dart';
 
-/// Écran de tri par swipe (F1).
+/// Le récap « photos en attente » n'est proposé qu'une fois par ouverture
+/// de l'app (F3).
+class LaunchCheckpoint extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  /// Renvoie `true` la première fois seulement.
+  bool claim() {
+    if (state) return false;
+    state = true;
+    return true;
+  }
+}
+
+final launchCheckpointProvider = NotifierProvider<LaunchCheckpoint, bool>(
+  LaunchCheckpoint.new,
+);
+
+/// Écran de tri par swipe (F1) : l'écran principal de l'app.
 class SwipePage extends ConsumerStatefulWidget {
   const SwipePage({super.key});
 
@@ -28,6 +51,20 @@ class _SwipePageState extends ConsumerState<SwipePage> {
 
   SwipeSession get _session => ref.read(swipeSessionProvider.notifier);
 
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_maybeShowPendingCart());
+  }
+
+  /// Ouverture de l'app avec des photos encore au panier : récap.
+  Future<void> _maybeShowPendingCart() async {
+    final cart = await ref.read(libraryRepositoryProvider).cart();
+    if (!mounted || cart.isEmpty) return;
+    if (!ref.read(launchCheckpointProvider.notifier).claim()) return;
+    await _openCheckpoint(CheckpointOrigin.launch);
+  }
+
   Future<void> _openCheckpoint(CheckpointOrigin origin) async {
     if (_checkpointOpen) return;
     _checkpointOpen = true;
@@ -36,30 +73,29 @@ class _SwipePageState extends ConsumerState<SwipePage> {
     );
     _checkpointOpen = false;
     if (!mounted) return;
-    // Fermé sans supprimer : le checkpoint reviendra au prochain seuil.
+    // Fermé sans supprimer : le récap reviendra au prochain seuil.
     if (origin == CheckpointOrigin.threshold &&
         result != CheckpointResult.trashed) {
       _session.postponeCheckpoint();
     }
     await _session.refreshCart();
     if (!mounted) return;
-    // « Plus tard » ou fin de session : retour à l'accueil.
-    if (result == CheckpointResult.later ||
-        origin != CheckpointOrigin.threshold) {
-      context.go(AppRoutes.home);
+    if (origin == CheckpointOrigin.stop) {
+      // Session terminée : la prochaine repartira de zéro.
+      ref.invalidate(swipeSessionProvider);
+      unawaited(context.push(AppRoutes.home));
     }
   }
 
-  /// Quitter le tri : checkpoint si le panier n'est pas vide.
-  Future<void> _leave({required bool stop}) async {
+  /// « Je m'arrête là » : récap si le panier n'est pas vide, puis le menu.
+  Future<void> _stop() async {
     final cart = ref.read(swipeSessionProvider).value?.cartCount ?? 0;
     if (cart == 0) {
-      context.go(AppRoutes.home);
+      ref.invalidate(swipeSessionProvider);
+      await context.push(AppRoutes.home);
       return;
     }
-    await _openCheckpoint(
-      stop ? CheckpointOrigin.stop : CheckpointOrigin.leave,
-    );
+    await _openCheckpoint(CheckpointOrigin.stop);
   }
 
   void _press(SwipeChoice choice) => _deck.currentState?.swipe(choice);
@@ -94,139 +130,282 @@ class _SwipePageState extends ConsumerState<SwipePage> {
     final session = ref.watch(swipeSessionProvider);
     final cartBytes = ref.watch(librarySummaryProvider).value?.cartBytes ?? 0;
 
-    ref.listen(swipeSessionProvider, (previous, next) {
-      final was = previous?.value?.checkpointDue ?? false;
-      if (!was && (next.value?.checkpointDue ?? false)) {
-        unawaited(_openCheckpoint(CheckpointOrigin.threshold));
-      }
-    });
+    ref
+      ..listen(swipeSessionProvider, (previous, next) {
+        final was = previous?.value?.checkpointDue ?? false;
+        if (!was && (next.value?.checkpointDue ?? false)) {
+          unawaited(_openCheckpoint(CheckpointOrigin.threshold));
+        }
+      })
+      // Ordre du tri ou seuil changés dans les réglages : nouvelle session.
+      ..listen(
+        settingsProvider.select((s) => (s.sortOrder, s.checkpointThreshold)),
+        (_, _) => ref.invalidate(swipeSessionProvider),
+      );
 
     final state = session.value;
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) unawaited(_leave(stop: false));
-      },
-      child: Focus(
-        autofocus: true,
-        onKeyEvent: _onKey,
-        child: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              tooltip: l10n.swipeClose,
-              icon: const Icon(Icons.close_rounded),
-              onPressed: () => _leave(stop: false),
+    return Focus(
+      autofocus: true,
+      onKeyEvent: _onKey,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            tooltip: l10n.swipeMenu,
+            icon: const Icon(Icons.menu_rounded),
+            onPressed: () => context.push(AppRoutes.home),
+          ),
+          actions: [
+            TextButton(
+              onPressed: state == null ? null : _stop,
+              child: Text(l10n.swipeStop),
             ),
-            title: state == null
-                ? null
-                : Text(
-                    l10n.swipeCounter(
-                      state.sortedCount,
-                      l10n.fileSize(cartBytes),
+            const SizedBox(width: 8),
+          ],
+        ),
+        body: SafeArea(
+          top: false,
+          child: switch (session) {
+            AsyncData(value: final state) => Center(
+              child: ConstrainedBox(
+                // Tablette : la carte reste centrée, avec une largeur maximum.
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: Column(
+                  children: [
+                    _SessionBar(
+                      state: state,
+                      cartBytes: cartBytes,
+                      onCartTap: () => _openCheckpoint(CheckpointOrigin.home),
                     ),
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-            actions: [
-              TextButton(
-                onPressed: state == null ? null : () => _leave(stop: true),
-                child: Text(l10n.swipeStop),
+                    Expanded(child: _content(state)),
+                    _ActionBar(
+                      enabled: state.current != null,
+                      canUndo: state.canUndo,
+                      canSkip: state.queue.length > 1,
+                      onPress: _press,
+                      onUndo: _undo,
+                      onSkip: _session.skip,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(width: 8),
-            ],
-          ),
-          body: SafeArea(
-            top: false,
-            child: switch (session) {
-              AsyncData(value: final state) => _SwipeBody(
-                state: state,
-                deck: _deck,
-                onSwiped: (choice) => _session.decide(choice),
-                onPress: _press,
-                onUndo: _undo,
-                onSkip: _session.skip,
-                onLeave: () => _leave(stop: true),
-              ),
-              AsyncError() => _Message(
-                icon: Icons.error_outline_rounded,
-                title: l10n.homeScanFailed,
-                body: '',
-                action: l10n.actionBackHome,
-                onAction: () => context.go(AppRoutes.home),
-              ),
-              _ => const Center(child: CircularProgressIndicator()),
-            },
-          ),
+            ),
+            AsyncError() => _Message(
+              icon: Icons.error_outline_rounded,
+              title: l10n.homeScanFailed,
+              body: '',
+              action: l10n.swipeMenu,
+              onAction: () => context.push(AppRoutes.home),
+            ),
+            _ => const Center(child: CircularProgressIndicator()),
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _content(SwipeState state) {
+    final l10n = AppLocalizations.of(context);
+    final current = state.current;
+    if (state.waitingForGallery) {
+      return _Message(
+        icon: Icons.photo_library_outlined,
+        title: l10n.homeScanning,
+        body: '',
+        loading: true,
+      );
+    }
+    if (current == null) {
+      final nothingSorted = state.sortedCount == 0 && !state.canUndo;
+      return _Message(
+        icon: nothingSorted
+            ? Icons.photo_library_outlined
+            : Icons.check_circle_outline_rounded,
+        title: nothingSorted ? l10n.swipeEmptyTitle : l10n.swipeDoneTitle,
+        body: nothingSorted ? l10n.swipeEmptyBody : l10n.swipeDoneBody,
+        action: state.cartCount > 0 ? l10n.swipeStop : l10n.swipeMenu,
+        onAction: _stop,
+      );
+    }
+    final next = state.queue.length > 1 ? state.queue[1] : null;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+      child: _Precache(
+        photo: next,
+        child: SwipeDeck(
+          key: _deck,
+          currentKey: current.id,
+          nextKey: next?.id,
+          currentCard: (context, {required isCurrent, stamp, strength = 0}) =>
+              PhotoSwipeCard(photo: current, stamp: stamp, strength: strength),
+          nextCard: next == null
+              ? null
+              : (context) => PhotoSwipeCard(photo: next),
+          onSwiped: _session.decide,
         ),
       ),
     );
   }
 }
 
-class _SwipeBody extends StatelessWidget {
-  const _SwipeBody({
+/// Décode la photo d'après avant qu'elle soit visible : aucun écran blanc.
+class _Precache extends ConsumerStatefulWidget {
+  const _Precache({required this.photo, required this.child});
+
+  final GalleryPhoto? photo;
+  final Widget child;
+
+  @override
+  ConsumerState<_Precache> createState() => _PrecacheState();
+}
+
+class _PrecacheState extends ConsumerState<_Precache> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _precache();
+  }
+
+  @override
+  void didUpdateWidget(_Precache oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.photo?.id != widget.photo?.id) _precache();
+  }
+
+  void _precache() {
+    final photo = widget.photo;
+    if (photo == null) return;
+    final image = ref.read(photoImagesProvider).large(photo);
+    unawaited(precacheImage(image, context, onError: (_, _) {}));
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+/// En haut du tri : photos triées, panier, et avancée vers le récap.
+class _SessionBar extends StatelessWidget {
+  const _SessionBar({
     required this.state,
-    required this.deck,
-    required this.onSwiped,
-    required this.onPress,
-    required this.onUndo,
-    required this.onSkip,
-    required this.onLeave,
+    required this.cartBytes,
+    required this.onCartTap,
   });
 
   final SwipeState state;
-  final GlobalKey<SwipeDeckState> deck;
-  final ValueChanged<SwipeChoice> onSwiped;
-  final ValueChanged<SwipeChoice> onPress;
-  final VoidCallback onUndo;
-  final VoidCallback onSkip;
-  final VoidCallback onLeave;
+  final int cartBytes;
+  final VoidCallback onCartTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final current = state.current;
+    final theme = Theme.of(context);
+    final tidy = TidyColors.of(context);
+    final left = state.nextCheckpointAt - state.sortedCount;
 
-    final Widget content;
-    if (current == null) {
-      final nothingSorted = state.sortedCount == 0 && !state.canUndo;
-      content = _Message(
-        icon: nothingSorted
-            ? Icons.photo_library_outlined
-            : Icons.check_circle_outline_rounded,
-        title: nothingSorted ? l10n.swipeEmptyTitle : l10n.swipeDoneTitle,
-        body: nothingSorted ? l10n.swipeEmptyBody : l10n.swipeDoneBody,
-        action: state.cartCount > 0 ? l10n.swipeStop : l10n.actionBackHome,
-        onAction: onLeave,
-      );
-    } else {
-      content = Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-        child: SwipeDeck(
-          key: deck,
-          current: current,
-          next: state.queue.length > 1 ? state.queue[1] : null,
-          onSwiped: onSwiped,
-        ),
-      );
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) => Center(
-        child: ConstrainedBox(
-          // Tablette : la carte reste centrée, avec une largeur maximum.
-          constraints: const BoxConstraints(maxWidth: 560),
-          child: Column(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
             children: [
-              Expanded(child: content),
-              _ActionBar(
-                enabled: current != null,
-                canUndo: state.canUndo,
-                canSkip: state.queue.length > 1,
-                onPress: onPress,
-                onUndo: onUndo,
-                onSkip: onSkip,
+              _Pill(
+                icon: Icon(Icons.check_rounded, size: 18, color: tidy.keep),
+                text: l10n.swipeSorted(state.sortedCount),
+              ),
+              const Spacer(),
+              _Pill(
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  size: 18,
+                  color: tidy.delete,
+                ),
+                text: state.cartCount == 0
+                    ? l10n.homeCartEmpty
+                    : '${state.cartCount} · ${l10n.fileSize(cartBytes)}',
+                semanticLabel: l10n.homeCart,
+                onTap: state.cartCount == 0 ? null : onCartTap,
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          TweenAnimationBuilder<double>(
+            tween: Tween(end: state.checkpointProgress),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, _) => ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: LinearProgressIndicator(
+                value: value,
+                minHeight: 5,
+                backgroundColor: tidy.line,
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
+            opacity: state.cartCount > 0 ? 1 : 0,
+            child: Text(
+              l10n.swipeCheckpointIn(left < 1 ? 1 : left),
+              style: theme.textTheme.labelSmall?.copyWith(color: tidy.inkMuted),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  const _Pill({
+    required this.icon,
+    required this.text,
+    this.semanticLabel,
+    this.onTap,
+  });
+
+  final Widget icon;
+  final String text;
+  final String? semanticLabel;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final tidy = TidyColors.of(context);
+    return Semantics(
+      label: semanticLabel,
+      button: onTap != null,
+      child: Material(
+        color: theme.colorScheme.surfaceContainer,
+        shape: StadiumBorder(side: BorderSide(color: tidy.line)),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 6, 14, 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                icon,
+                const SizedBox(width: 6),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: Tween(begin: 0.8, end: 1.0).animate(animation),
+                      child: child,
+                    ),
+                  ),
+                  child: Text(
+                    text,
+                    key: ValueKey(text),
+                    style: theme.textTheme.labelLarge,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -268,7 +447,7 @@ class _ActionBar extends StatelessWidget {
             onPressed: canUndo ? onUndo : null,
             icon: const Icon(Icons.undo_rounded),
           ),
-          _RoundButton(
+          SwipeRoundButton(
             tooltip: l10n.swipeTrash,
             size: 64,
             onPressed: enabled ? () => onPress(SwipeChoice.trash) : null,
@@ -276,7 +455,7 @@ class _ActionBar extends StatelessWidget {
             background: scheme.surfaceContainer,
             child: Icon(Icons.close_rounded, color: tidy.delete, size: 32),
           ),
-          _RoundButton(
+          SwipeRoundButton(
             tooltip: l10n.swipeFavorite,
             size: 52,
             onPressed: enabled ? () => onPress(SwipeChoice.favorite) : null,
@@ -284,7 +463,7 @@ class _ActionBar extends StatelessWidget {
             background: scheme.surfaceContainer,
             child: Icon(Icons.star_rounded, color: tidy.favorite, size: 28),
           ),
-          _RoundButton(
+          SwipeRoundButton(
             tooltip: l10n.swipeKeep,
             size: 64,
             onPressed: enabled ? () => onPress(SwipeChoice.keep) : null,
@@ -302,8 +481,10 @@ class _ActionBar extends StatelessWidget {
   }
 }
 
-class _RoundButton extends StatelessWidget {
-  const _RoundButton({
+/// Bouton rond du tri (supprimer, favori, garder).
+class SwipeRoundButton extends StatelessWidget {
+  const SwipeRoundButton({
+    super.key,
     required this.tooltip,
     required this.size,
     required this.onPressed,
@@ -353,15 +534,17 @@ class _Message extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.body,
-    required this.action,
-    required this.onAction,
+    this.action,
+    this.onAction,
+    this.loading = false,
   });
 
   final IconData icon;
   final String title;
   final String body;
-  final String action;
-  final VoidCallback onAction;
+  final String? action;
+  final VoidCallback? onAction;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -390,8 +573,14 @@ class _Message extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ],
-            const SizedBox(height: 24),
-            FilledButton(onPressed: onAction, child: Text(action)),
+            if (loading) ...[
+              const SizedBox(height: 24),
+              const SizedBox(width: 160, child: LinearProgressIndicator()),
+            ],
+            if (action != null) ...[
+              const SizedBox(height: 24),
+              FilledButton(onPressed: onAction, child: Text(action!)),
+            ],
           ],
         ),
       ),

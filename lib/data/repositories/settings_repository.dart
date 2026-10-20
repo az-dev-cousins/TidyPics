@@ -9,7 +9,7 @@ class AppSettings {
   const AppSettings({
     this.onboardingDone = false,
     this.sortOrder = SortOrder.random,
-    this.checkpointThreshold = 50,
+    this.checkpointThreshold = 25,
     this.manageMediaAsked = false,
     this.themeMode = ThemeMode.system,
   });
@@ -17,14 +17,15 @@ class AppSettings {
   final bool onboardingDone;
   final SortOrder sortOrder;
 
-  /// Nombre de photos dans le panier avant de proposer le checkpoint.
+  /// Nombre de photos triées entre deux récaps (s'il y a des photos au
+  /// panier).
   final int checkpointThreshold;
 
   /// « Gestion des médias » déjà proposée une fois (Android 12+).
   final bool manageMediaAsked;
   final ThemeMode themeMode;
 
-  static const thresholds = [25, 50, 100, 200];
+  static const thresholds = [10, 25, 50, 100];
 
   AppSettings copyWith({
     bool? onboardingDone,
@@ -75,7 +76,7 @@ class SettingsRepository {
     return AppSettings(
       onboardingDone: _prefs.getBool(_onboardingDone) ?? false,
       sortOrder: byName(SortOrder.values, _sortOrder, SortOrder.random),
-      checkpointThreshold: _prefs.getInt(_threshold) ?? 50,
+      checkpointThreshold: _prefs.getInt(_threshold) ?? 25,
       manageMediaAsked: _prefs.getBool(_manageMediaAsked) ?? false,
       themeMode: byName(ThemeMode.values, _themeMode, ThemeMode.system),
     );

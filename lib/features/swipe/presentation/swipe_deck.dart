@@ -4,37 +4,52 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/formatters.dart';
-import '../../../data/models/gallery_photo.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../shared/widgets/photo_image.dart';
 import '../application/swipe_session.dart';
 
-/// La pile de cartes : la photo courante, que l'on fait glisser, et la
-/// suivante juste derrière (déjà chargée, donc jamais d'écran blanc).
-class SwipeDeck extends ConsumerStatefulWidget {
+/// Construit une carte. [stamp] et [strength] indiquent le geste en cours,
+/// pour afficher le tampon « Supprimer / Garder / Favori ».
+typedef SwipeCardBuilder = Widget Function(
+  BuildContext context, {
+  required bool isCurrent,
+  SwipeChoice? stamp,
+  double strength,
+});
+
+/// La pile de cartes : la carte courante, que l'on fait glisser, et la
+/// suivante juste derrière. Sert au tri et au tutoriel de l'onboarding.
+class SwipeDeck extends StatefulWidget {
   const SwipeDeck({
     super.key,
-    required this.current,
-    required this.next,
+    required this.currentKey,
+    required this.nextKey,
+    required this.currentCard,
+    required this.nextCard,
     required this.onSwiped,
+    this.accepts,
+    this.onRejected,
   });
 
-  final GalleryPhoto current;
-  final GalleryPhoto? next;
+  /// Identifie la carte courante : quand il change, la pile repart à zéro.
+  final Object currentKey;
+  final Object? nextKey;
+  final SwipeCardBuilder currentCard;
+  final WidgetBuilder? nextCard;
 
   /// Appelé une fois la carte partie de l'écran.
   final ValueChanged<SwipeChoice> onSwiped;
 
+  /// Filtre les gestes permis (tutoriel). Par défaut, tous.
+  final bool Function(SwipeChoice choice)? accepts;
+
+  /// Un geste non permis a été tenté : la carte revient au centre.
+  final ValueChanged<SwipeChoice>? onRejected;
+
   @override
-  ConsumerState<SwipeDeck> createState() => SwipeDeckState();
+  State<SwipeDeck> createState() => SwipeDeckState();
 }
 
-class SwipeDeckState extends ConsumerState<SwipeDeck>
+class SwipeDeckState extends State<SwipeDeck>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController.unbounded(
     vsync: this,
@@ -44,6 +59,7 @@ class SwipeDeckState extends ConsumerState<SwipeDeck>
   Offset _from = Offset.zero;
   Offset _to = Offset.zero;
   Size _size = Size.zero;
+  bool _dragging = false;
 
   /// La carte s'envole : les gestes sont ignorés jusqu'à la suivante.
   SwipeChoice? _flying;
@@ -58,33 +74,19 @@ class SwipeDeckState extends ConsumerState<SwipeDeck>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _precacheNext();
-  }
-
-  /// Préchargement : la photo d'après est décodée avant d'être visible.
-  void _precacheNext() {
-    final next = widget.next;
-    if (next == null) return;
-    final images = ref.read(photoImagesProvider);
-    unawaited(precacheImage(images.large(next), context, onError: (_, _) {}));
-  }
-
-  @override
   void didUpdateWidget(SwipeDeck oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.next?.id != widget.next?.id) _precacheNext();
-    if (oldWidget.current.id == widget.current.id) return;
+    if (oldWidget.currentKey == widget.currentKey) return;
     _controller.stop();
     _flying = null;
+    _dragging = false;
     final from = _returning;
     _returning = null;
     if (from == null) {
       _offset = Offset.zero;
     } else {
       // Annulation : la carte revient de là où elle était partie.
-      _animate(from: _target(from), to: Offset.zero);
+      _spring(from: _target(from), to: Offset.zero);
     }
   }
 
@@ -98,7 +100,7 @@ class SwipeDeckState extends ConsumerState<SwipeDeck>
     }
   }
 
-  void _animate({
+  void _spring({
     required Offset from,
     required Offset to,
     double velocity = 0,
@@ -108,34 +110,72 @@ class SwipeDeckState extends ConsumerState<SwipeDeck>
     _offset = from;
     // Ressort souple, sans rebond excessif (direction artistique).
     const spring = SpringDescription(mass: 1, stiffness: 320, damping: 30);
-    _controller.animateWith(SpringSimulation(spring, 0, 1, velocity));
+    unawaited(
+      _controller.animateWith(SpringSimulation(spring, 0, 1, velocity)),
+    );
   }
 
-  Offset _target(SwipeChoice choice) {
+  Offset _target(SwipeChoice choice, {double share = 1.5}) {
     final w = _size.width == 0 ? 400.0 : _size.width;
     final h = _size.height == 0 ? 800.0 : _size.height;
     return switch (choice) {
-      SwipeChoice.trash => Offset(-w * 1.5, _offset.dy),
-      SwipeChoice.keep => Offset(w * 1.5, _offset.dy),
-      SwipeChoice.favorite => Offset(_offset.dx, -h * 1.4),
+      SwipeChoice.trash => Offset(-w * share, _offset.dy),
+      SwipeChoice.keep => Offset(w * share, _offset.dy),
+      SwipeChoice.favorite => Offset(_offset.dx, -h * share * 0.93),
     };
   }
+
+  bool _accepts(SwipeChoice choice) => widget.accepts?.call(choice) ?? true;
 
   /// Lance la carte, comme un geste (boutons et clavier).
   void swipe(SwipeChoice choice) {
     if (_flying != null) return;
+    if (!_accepts(choice)) {
+      widget.onRejected?.call(choice);
+      return;
+    }
     _fly(choice);
   }
 
   /// Prévient que la prochaine carte affichée revient d'une annulation.
   void prepareReturn(SwipeChoice choice) => _returning = choice;
 
+  /// Esquisse le geste puis revient : montre quoi faire (tutoriel).
+  Future<void> nudge(SwipeChoice choice) async {
+    if (_flying != null || _dragging || _offset != Offset.zero) return;
+    try {
+      _from = Offset.zero;
+      _to = _target(choice, share: 0.32);
+      _controller.value = 0;
+      await _controller
+          .animateTo(
+            1,
+            duration: const Duration(milliseconds: 520),
+            curve: Curves.easeOutCubic,
+          )
+          .orCancel;
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      if (!mounted || _dragging || _flying != null) return;
+      _from = _offset;
+      _to = Offset.zero;
+      _controller.value = 0;
+      await _controller
+          .animateTo(
+            1,
+            duration: const Duration(milliseconds: 420),
+            curve: Curves.easeInOutCubic,
+          )
+          .orCancel;
+    } on TickerCanceled {
+      // L'utilisateur a pris la carte : on le laisse faire.
+    }
+  }
+
   void _fly(SwipeChoice choice) {
     _flying = choice;
     unawaited(HapticFeedback.selectionClick());
-    final target = _target(choice);
     _from = _offset;
-    _to = target;
+    _to = _target(choice);
     // Pas de ressort pour l'envol : une courbe rapide suffit.
     _controller.value = 0;
     unawaited(
@@ -174,7 +214,7 @@ class SwipeDeckState extends ConsumerState<SwipeDeck>
 
   @override
   Widget build(BuildContext context) {
-    final next = widget.next;
+    final nextCard = widget.nextCard;
     return LayoutBuilder(
       builder: (context, constraints) {
         _size = constraints.biggest;
@@ -186,46 +226,55 @@ class SwipeDeckState extends ConsumerState<SwipeDeck>
 
         return Stack(
           fit: StackFit.expand,
+          // La carte et son ombre dépassent pendant le geste : pas de coupe.
+          clipBehavior: Clip.none,
           children: [
-            if (next != null)
+            if (nextCard != null)
               Transform.scale(
                 scale: 0.94 + 0.06 * progress,
-                child: _PhotoCard(
-                  key: ValueKey('next-${next.id}'),
-                  photo: next,
+                child: KeyedSubtree(
+                  key: ValueKey(('next', widget.nextKey)),
+                  child: nextCard(context),
                 ),
               ),
             GestureDetector(
               onPanStart: (_) {
-                if (_flying == null) _controller.stop();
+                if (_flying != null) return;
+                _dragging = true;
+                _controller.stop();
               },
               onPanUpdate: (details) {
                 if (_flying != null) return;
                 setState(() => _offset += details.delta);
               },
               onPanEnd: (details) {
+                _dragging = false;
                 if (_flying != null) return;
                 final velocity = details.velocity.pixelsPerSecond;
                 final choice = _choiceFor(_offset, velocity);
-                if (choice == null) {
-                  _animate(
-                    from: _offset,
-                    to: Offset.zero,
-                    velocity: velocity.distance / 1000,
-                  );
-                } else {
+                if (choice != null && _accepts(choice)) {
                   _fly(choice);
+                  return;
                 }
+                if (choice != null) widget.onRejected?.call(choice);
+                _spring(
+                  from: _offset,
+                  to: Offset.zero,
+                  velocity: velocity.distance / 1000,
+                );
               },
               child: Transform.translate(
                 offset: _offset,
                 child: Transform.rotate(
                   angle: angle,
-                  child: _PhotoCard(
-                    key: ValueKey(widget.current.id),
-                    photo: widget.current,
-                    stamp: hint,
-                    stampStrength: strength,
+                  child: KeyedSubtree(
+                    key: ValueKey(widget.currentKey),
+                    child: widget.currentCard(
+                      context,
+                      isCurrent: true,
+                      stamp: hint,
+                      strength: strength,
+                    ),
                   ),
                 ),
               ),
@@ -233,205 +282,6 @@ class SwipeDeckState extends ConsumerState<SwipeDeck>
           ],
         );
       },
-    );
-  }
-}
-
-class _PhotoCard extends ConsumerWidget {
-  const _PhotoCard({
-    super.key,
-    required this.photo,
-    this.stamp,
-    this.stampStrength = 0,
-  });
-
-  final GalleryPhoto photo;
-  final SwipeChoice? stamp;
-  final double stampStrength;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final tidy = TidyColors.of(context);
-    final images = ref.watch(photoImagesProvider);
-    final size = photo.sizeBytes;
-    final label = [
-      l10n.shortDate(photo.takenAt),
-      if (size != null && size > 0) l10n.fileSize(size).toUpperCase(),
-    ].join(' · ');
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSwipeCard),
-        border: Border.all(color: tidy.line),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.shadow.withValues(alpha: 0.12),
-            blurRadius: 32,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppTheme.radiusSwipeCard),
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // La photo entière, sans recadrage : on juge mieux.
-                  ColoredBox(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
-                    child: Image(
-                      image: images.large(photo),
-                      fit: BoxFit.contain,
-                      gaplessPlayback: true,
-                      semanticLabel: label,
-                      errorBuilder: (context, _, _) => Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.broken_image_outlined,
-                            color: tidy.inkMuted,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            l10n.swipeImageError,
-                            style: TextStyle(color: tidy.inkMuted),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (stamp != null && stampStrength > 0)
-                    _Stamp(choice: stamp!, strength: stampStrength),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: tidy.inkMuted,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.6,
-                      ),
-                    ),
-                  ),
-                  if (photo.isRaw) _Badge(text: l10n.swipeRaw),
-                  if (photo.isFavorite) ...[
-                    const SizedBox(width: 8),
-                    Icon(Icons.star_rounded, color: tidy.favorite, size: 20),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  const _Badge({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final tidy = TidyColors.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: tidy.mint,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-        child: Text(
-          text,
-          style: Theme.of(context).textTheme.labelSmall
-              ?.copyWith(color: tidy.onMint),
-        ),
-      ),
-    );
-  }
-}
-
-/// Tampon « Supprimer / Garder / Favori » qui apparaît pendant le geste.
-class _Stamp extends StatelessWidget {
-  const _Stamp({required this.choice, required this.strength});
-
-  final SwipeChoice choice;
-  final double strength;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final tidy = TidyColors.of(context);
-    final (icon, text, color, alignment) = switch (choice) {
-      SwipeChoice.trash => (
-        Icons.close_rounded,
-        l10n.swipeTrash,
-        tidy.delete,
-        Alignment.topRight,
-      ),
-      SwipeChoice.keep => (
-        Icons.check_rounded,
-        l10n.swipeKeep,
-        tidy.keep,
-        Alignment.topLeft,
-      ),
-      SwipeChoice.favorite => (
-        Icons.star_rounded,
-        l10n.swipeFavorite,
-        theme.colorScheme.onSurface,
-        Alignment.bottomCenter,
-      ),
-    };
-    final iconColor = choice == SwipeChoice.favorite ? tidy.favorite : color;
-
-    return Opacity(
-      opacity: strength,
-      child: Align(
-        alignment: alignment,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: color, width: 2),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, color: iconColor, size: 22),
-                  const SizedBox(width: 6),
-                  Text(
-                    text.toUpperCase(),
-                    // Texte neutre : pas de texte tomate en petite taille.
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

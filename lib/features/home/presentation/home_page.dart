@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,25 +12,8 @@ import '../../../shared/widgets/tidy_wordmark.dart';
 import '../../cart/presentation/checkpoint_page.dart';
 import '../../gallery/application/gallery_controller.dart';
 
-/// Le checkpoint « photos en attente » n'est proposé qu'une fois par
-/// ouverture de l'app (F3).
-class LaunchCheckpoint extends Notifier<bool> {
-  @override
-  bool build() => false;
-
-  /// Renvoie `true` la première fois seulement.
-  bool claim() {
-    if (state) return false;
-    state = true;
-    return true;
-  }
-}
-
-final launchCheckpointProvider = NotifierProvider<LaunchCheckpoint, bool>(
-  LaunchCheckpoint.new,
-);
-
-/// Accueil (F9) : gros chiffre, progression, « Trier » et accès rapides.
+/// Menu (F9) : gros chiffre, progression, retour au tri et accès rapides.
+/// Ouvert depuis le tri, l'écran principal.
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -41,20 +22,9 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  @override
-  void initState() {
-    super.initState();
-    // Le scan démarre dès que l'accès est connu.
-    ref.read(gallerySyncProvider);
-    unawaited(_maybeShowPendingCart());
-  }
-
-  Future<void> _maybeShowPendingCart() async {
-    final cart = await ref.read(libraryRepositoryProvider).cart();
-    if (!mounted || cart.isEmpty) return;
-    if (!ref.read(launchCheckpointProvider.notifier).claim()) return;
-    await context.push(AppRoutes.checkpoint(CheckpointOrigin.launch));
-  }
+  /// Retour au tri, l'écran principal (toujours sous le menu).
+  void _backToSorting() =>
+      context.canPop() ? context.pop() : context.go(AppRoutes.swipe);
 
   @override
   Widget build(BuildContext context) {
@@ -145,9 +115,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 const SizedBox(height: 28),
                 FilledButton.icon(
-                  onPressed: unsorted > 0
-                      ? () => context.push(AppRoutes.swipe)
-                      : null,
+                  onPressed: unsorted > 0 ? _backToSorting : null,
                   icon: Icon(
                     unsorted > 0 || total == 0
                         ? Icons.swipe_rounded

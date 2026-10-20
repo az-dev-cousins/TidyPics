@@ -1,6 +1,6 @@
 # 📸 TidyPics — Cahier des charges
 
-> Version 1.2 — 20/10/2026
+> Version 1.3 — 20/10/2026 (retours sur la première version)
 > Statut : **périmètre V1 validé**
 > Source de vérité : ce document, avec les décisions de [`docs/adr/`](adr/README.md) et la direction artistique de [`docs/design/`](design/direction-artistique.md).
 
@@ -116,6 +116,8 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 - Sur la carte : date, taille, badges « RAW », « Rafale » ou « iCloud » s'il y a lieu.
 - Un compteur de session est visible : photos triées et Mo dans le panier.
 - Une photo gardée **n'est plus reproposée**. Un réglage permet de remettre à zéro les photos gardées.
+- ✅ **L'app s'ouvre directement sur le tri** (après l'onboarding et à chaque lancement). Le menu (stats, panier, réglages…) s'ouvre depuis une icône en haut à gauche, sans passer par le récap.
+- En haut du tri : nombre de photos triées, pastille du panier (photos et Mo, touchable) et une barre qui avance vers le prochain récap.
 - **Tablette** : la carte est centrée avec une largeur maximum. En paysage, un panneau latéral affiche le panier et les stats de la session.
 - **Plus tard (V2)** : un appui long sur un favori proposera « Envoyer vers… » (menu de partage du système, vers Google Photos, Drive, etc.). L'utilisateur n'a pas besoin de se connecter dans l'app.
 
@@ -127,6 +129,7 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 1. **Aléatoire (par défaut)** : les photos non triées sont tirées au hasard dans toute la galerie.
 2. **Ordonné** (réglage) : de la plus ancienne à la plus récente, ou l'inverse.
 3. **Ciblé par année et mois** (toujours accessible depuis l'accueil) : années, puis mois, avec pour chacun le nombre de photos et la part déjà triée. Choisir un mois lance une session limitée à ce mois.
+   - ✅ Dans ce mode, on montre **toutes les photos du mois**, même celles déjà vues ou gardées (seules celles déjà supprimées sont exclues).
 
 **Règle :** les groupes (rafales F5, paires JPG + RAW F6) sont **tirés comme un seul élément**, jamais séparés.
 
@@ -134,16 +137,18 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 
 #### Principe
 1. Le swipe gauche met la photo dans le **panier**, enregistré sur le téléphone **immédiatement**.
-2. Le **checkpoint** est un écran récap qui affiche la grille du panier, l'espace à libérer et permet de retirer une photo d'un tap. Son bouton « Supprimer N photos (X Mo) » envoie tout le panier à la corbeille système **en un seul lot**.
+2. Le **checkpoint** est un écran récap qui affiche la grille du panier, l'espace à libérer et permet de **décocher** une photo d'un tap.
+   - ✅ Une photo décochée reste affichée (grisée), pour pouvoir la recocher avant de valider.
+   - ✅ En validant ou en quittant, une photo décochée n'est **ni supprimée ni gardée** : elle retourne dans le tri et sera reproposée plus tard. Son bouton « Supprimer N photos (X Mo) » envoie tout le panier à la corbeille système **en un seul lot**.
 3. Une photo du panier n'est pas encore supprimée : elle est toujours dans la galerie.
 
 #### Quand le checkpoint s'affiche
 
 | Situation | Ce qui se passe |
 |---|---|
-| Le panier atteint **50 photos** (réglable) | Le checkpoint est proposé. « Continuer » le repousse au prochain seuil |
+| ✅ **25 photos triées** depuis le dernier récap (réglable : 10, 25, 50, 100), s'il y a au moins une photo au panier | Le checkpoint est proposé. « Continuer » le repousse au prochain seuil |
 | Bouton **« Je m'arrête là »** | Checkpoint immédiat, quel que soit le nombre de photos |
-| Retour à l'accueil depuis le tri | Checkpoint immédiat si le panier n'est pas vide |
+| Ouverture du menu depuis le tri | ✅ Pas de récap : le panier reste, la pastille le rappelle |
 | L'utilisateur **sort de l'app** (bouton home, autre app, appel) | **Rien n'est supprimé.** La session est mise en pause. Au retour, on reprend exactement où on en était |
 | L'app est **fermée** (swipe dans le multitâche) ou tuée par le système | Rien n'est perdu (panier enregistré). **À la prochaine ouverture**, un checkpoint s'affiche : « 15 photos en attente — Supprimer / Revoir / Plus tard » |
 | « Plus tard » | Le panier reste. Un badge sur l'accueil le rappelle. Le checkpoint revient à l'ouverture suivante |
@@ -196,7 +201,9 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 
 ### F9 — Onboarding et accueil
 - **Onboarding** en 3 écrans : le principe du swipe, « tes photos restent sur ton téléphone », puis la demande de permission avec une explication.
-- **Accueil** : bouton « Trier », tri par année/mois, doublons JPG + RAW, « En cours de suppression », stats, paramètres. Badge sur le panier s'il y a des photos en attente.
+  - ✅ Le premier écran est un **tutoriel interactif** : trois photos d'exemple dessinées par l'app (floue → gauche, belle balade → droite, coucher de soleil → haut). La carte esquisse le geste attendu ; un mauvais geste la ramène au centre. On peut passer le tutoriel.
+  - Animations à l'entrée de chaque écran.
+- **Menu** (ouvert depuis le tri) : bouton « Reprendre le tri », tri par année/mois, doublons JPG + RAW, « En cours de suppression », stats, paramètres. Badge sur le panier s'il y a des photos en attente.
 
 ---
 

@@ -108,22 +108,36 @@ void main() {
     expect(state().canUndo, isFalse);
   });
 
-  test('le checkpoint est proposé au seuil, puis au suivant', () async {
-    await start(photos: 8, settings: {'checkpoint_threshold': 3});
-    for (var i = 0; i < 2; i++) {
-      await session().decide(SwipeChoice.trash);
-    }
-    expect(state().checkpointDue, isFalse);
+  test('le récap est proposé toutes les N photos triées', () async {
+    await start(photos: 12, settings: {'checkpoint_threshold': 3});
     await session().decide(SwipeChoice.trash);
+    await session().decide(SwipeChoice.keep);
+    expect(state().checkpointDue, isFalse);
+    await session().decide(SwipeChoice.keep);
     expect(state().checkpointDue, isTrue);
+    expect(state().checkpointProgress, 1);
 
     session().postponeCheckpoint();
     expect(state().checkpointDue, isFalse);
     expect(state().nextCheckpointAt, 6);
   });
 
-  test('après la suppression, le compteur du panier repart de zéro', () async {
-    await start(photos: 4, settings: {'checkpoint_threshold': 2});
+  test('pas de récap si le panier est vide au seuil', () async {
+    await start(photos: 8, settings: {'checkpoint_threshold': 3});
+    for (var i = 0; i < 3; i++) {
+      await session().decide(SwipeChoice.keep);
+    }
+    expect(state().checkpointDue, isFalse);
+    expect(state().nextCheckpointAt, 6);
+
+    await session().decide(SwipeChoice.keep);
+    await session().decide(SwipeChoice.keep);
+    await session().decide(SwipeChoice.trash);
+    expect(state().checkpointDue, isTrue);
+  });
+
+  test('après la suppression, le récap repart de zéro', () async {
+    await start(photos: 6, settings: {'checkpoint_threshold': 2});
     await session().decide(SwipeChoice.trash);
     await session().decide(SwipeChoice.trash);
     expect(state().checkpointDue, isTrue);
@@ -136,9 +150,21 @@ void main() {
 
     expect(state().cartCount, 0);
     expect(state().checkpointDue, isFalse);
-    expect(state().nextCheckpointAt, 2);
+    expect(state().nextCheckpointAt, 4);
     // Les photos parties à la corbeille ne peuvent plus être annulées.
     expect(state().canUndo, isFalse);
+  });
+
+  test('une photo rendue au tri au récap ne peut plus être annulée', () async {
+    await start(photos: 4);
+    await session().decide(SwipeChoice.keep);
+    await session().decide(SwipeChoice.trash);
+
+    await library().releaseFromCart(['p1']);
+    await session().refreshCart();
+
+    expect(state().cartCount, 0);
+    expect(state().history.map((r) => r.photo.id), ['p0']);
   });
 
   test('galerie entièrement triée : la session est terminée', () async {

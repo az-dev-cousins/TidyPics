@@ -15,10 +15,10 @@ import '../features/trash/presentation/trash_page.dart';
 
 /// Chemins des routes, pour ne jamais écrire une URL en dur.
 abstract final class AppRoutes {
-  static const home = '/';
+  static const swipe = '/';
+  static const home = '/menu';
   static const onboarding = '/onboarding';
   static const permission = '/permission';
-  static const swipe = '/swipe';
   static const trash = '/trash';
   static const settings = '/settings';
   static const _checkpoint = '/checkpoint';
@@ -38,7 +38,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     ..listen(galleryAccessProvider, (_, _) => refresh.ping());
 
   final router = GoRouter(
-    initialLocation: AppRoutes.home,
+    initialLocation: AppRoutes.swipe,
     refreshListenable: refresh,
     redirect: (context, state) {
       final location = state.matchedLocation;
@@ -55,7 +55,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
       if (location == AppRoutes.onboarding ||
           location == AppRoutes.permission) {
-        return AppRoutes.home;
+        return AppRoutes.swipe;
       }
       return null;
     },

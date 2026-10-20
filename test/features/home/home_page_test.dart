@@ -5,14 +5,24 @@ import 'package:tidypics/data/sources/gallery_source.dart';
 import '../../helpers/app_harness.dart';
 import '../../helpers/fake_gallery_source.dart';
 
+Future<void> openMenu(WidgetTester tester) async {
+  await tester.tap(find.byTooltip('Menu'));
+  await settle(tester);
+}
+
 void main() {
-  testWidgets("l'accueil montre la galerie indexée", (tester) async {
+  testWidgets('le menu montre la galerie indexée', (tester) async {
     await pumpApp(tester, gallery: FakeGallerySource(photos: samplePhotos(3)));
+    await openMenu(tester);
 
     expect(find.bySemanticsLabel('TidyPics'), findsOneWidget);
     expect(find.text('Prêt à faire de la place ?'), findsOneWidget);
     expect(find.text('0 triées sur 3'), findsOneWidget);
-    expect(find.text('Trier'), findsOneWidget);
+
+    // « Reprendre le tri » ramène à l'écran principal.
+    await tester.tap(find.text('Reprendre le tri'));
+    await settle(tester);
+    expect(find.byTooltip('Garder'), findsOneWidget);
 
     await closeApp(tester);
   });
@@ -23,24 +33,25 @@ void main() {
       gallery: FakeGallerySource(photos: samplePhotos(1)),
       locale: const Locale('de'),
     );
-    expect(find.text('Trier'), findsOneWidget);
+    expect(find.text("Je m'arrête là"), findsOneWidget);
 
     await closeApp(tester);
   });
 
-  testWidgets("l'accueil est traduit en anglais", (tester) async {
+  testWidgets('le menu est traduit en anglais', (tester) async {
     await pumpApp(
       tester,
       gallery: FakeGallerySource(photos: samplePhotos(2)),
       locale: const Locale('en'),
     );
+    expect(find.text("I'll stop here"), findsOneWidget);
+    await openMenu(tester);
     expect(find.text('0 of 2 sorted'), findsOneWidget);
-    expect(find.text('Sort'), findsOneWidget);
 
     await closeApp(tester);
   });
 
-  testWidgets('accès refusé : écran d\'explication', (tester) async {
+  testWidgets("accès refusé : écran d'explication", (tester) async {
     await pumpApp(
       tester,
       gallery: FakeGallerySource(access: GalleryAccess.denied),
@@ -59,6 +70,7 @@ void main() {
         access: GalleryAccess.limited,
       ),
     );
+    await openMenu(tester);
     expect(find.text('Choisir plus de photos'), findsOneWidget);
 
     await closeApp(tester);

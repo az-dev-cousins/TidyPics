@@ -75,17 +75,23 @@ class GallerySyncController extends Notifier<SyncStatus> {
     }
     _running = true;
     if (state != SyncStatus.done) state = SyncStatus.scanning;
+    // Lus avant les attentes : le provider peut être libéré entre-temps.
+    final gallery = ref.read(gallerySourceProvider);
+    final library = ref.read(libraryRepositoryProvider);
+    final trash = ref.read(trashRepositoryProvider);
     try {
       do {
         _again = false;
-        final photos = await ref.read(gallerySourceProvider).fetchAll();
-        await ref.read(libraryRepositoryProvider).sync(photos);
+        final photos = await gallery.fetchAll();
+        if (!ref.mounted) return;
+        await library.sync(photos);
+        if (!ref.mounted) return;
       } while (_again);
-      await ref.read(trashRepositoryProvider).purgeExpired();
-      state = SyncStatus.done;
+      await trash.purgeExpired();
+      if (ref.mounted) state = SyncStatus.done;
     } on Object catch (error, stack) {
       debugPrint('Scan de la galerie impossible : $error\n$stack');
-      state = SyncStatus.failed;
+      if (ref.mounted) state = SyncStatus.failed;
     } finally {
       _running = false;
     }

@@ -79,17 +79,19 @@ void main() {
     expect(unsorted.single.isFavorite, isFalse);
   });
 
-  test('retirer du panier au checkpoint garde la photo', () async {
+  test('une photo décochée au récap revient dans le tri', () async {
     final photo = samplePhotos(1).single;
     await library.sync([photo]);
     await library.addToCart(photo.copyWith(sizeBytes: 500));
     expect((await library.watchSummary().first).cartBytes, 500);
 
-    await library.keepFromCart(photo);
+    await library.releaseFromCart([photo.id]);
 
     final summary = await library.watchSummary().first;
     expect(summary.cartCount, 0);
-    expect(summary.sorted, 1);
+    // Ni supprimée ni gardée : elle sera reproposée plus tard.
+    expect(summary.sorted, 0);
+    expect(await library.unsortedPhotos(SortOrder.random), hasLength(1));
   });
 
   test('remettre à zéro les photos gardées les repropose', () async {

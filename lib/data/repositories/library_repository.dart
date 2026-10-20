@@ -210,12 +210,16 @@ class LibraryRepository {
   Future<void> removeFromCart(String id) =>
       (_db.delete(_db.cartItems)..where((t) => t.assetId.equals(id))).go();
 
-  /// Retire une photo du panier et la marque comme gardée.
-  Future<void> keepFromCart(GalleryPhoto photo) async {
-    await _db.transaction(() async {
-      await removeFromCart(photo.id);
-      await decide(photo, Decision.kept);
-    });
+  /// Sort des photos du panier sans décision : elles reviendront plus tard
+  /// dans le tri (photos décochées au récap).
+  Future<void> releaseFromCart(Iterable<String> ids) async {
+    final list = ids.toList();
+    for (var i = 0; i < list.length; i += 500) {
+      final chunk = list.skip(i).take(500).toList();
+      await (_db.delete(
+        _db.cartItems,
+      )..where((t) => t.assetId.isIn(chunk))).go();
+    }
   }
 
   Stream<List<CartEntry>> watchCart() {

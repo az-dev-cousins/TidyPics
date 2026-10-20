@@ -50,13 +50,14 @@ Future<ProviderContainer> testContainer({
   required FakeGallerySource gallery,
   Map<String, Object> settings = const {'onboarding_done': true},
 }) async {
-  final container = ProviderContainer.test(
+  // Enregistré avant le conteneur : les nettoyages passent dans l'ordre
+  // inverse, donc le conteneur est libéré avant la fermeture de la base.
+  addTearDown(db.close);
+  return ProviderContainer.test(
     overrides: await testOverrides(
       db: db,
       gallery: gallery,
       settings: settings,
     ),
   );
-  addTearDown(db.close);
-  return container;
 }

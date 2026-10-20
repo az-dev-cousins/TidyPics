@@ -6,6 +6,12 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Retours sur la première version :
+  - L'app s'ouvre directement sur le tri. Le menu s'ouvre depuis une icône en haut à gauche.
+  - Onboarding : tutoriel interactif avec trois photos d'exemple, animations à l'entrée des écrans.
+  - En haut du tri : photos triées, pastille du panier et barre d'avancée vers le récap.
+  - Récap toutes les 25 photos triées (réglable : 10, 25, 50, 100), seulement s'il y a des photos au panier.
+  - Récap : un tap décoche une photo, qui reste visible et retourne dans le tri (ni supprimée ni gardée).
 - **Première version utilisable** (lots 1 à 3, version courte) :
   - Onboarding en 3 écrans, demande d'accès aux photos, écran d'explication en cas de refus, bandeau en accès limité.
   - Indexation de la galerie dans une base locale Drift, mise à jour quand des photos sont prises ou supprimées ailleurs et au retour dans l'app.

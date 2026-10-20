@@ -31,6 +31,8 @@ class _TidyPicsAppState extends ConsumerState<TidyPicsApp> {
   void initState() {
     super.initState();
     _lifecycle; // Démarre l'écoute.
+    // L'indexation de la galerie démarre dès que l'accès est connu.
+    ref.read(gallerySyncProvider);
   }
 
   @override

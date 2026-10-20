@@ -2,60 +2,104 @@
   "@@locale": "fr",
   "appTitle": "TidyPics",
   "homePrivacyBody": "TidyPics fonctionne sans compte et sans connexion. Rien n'est envoyé nulle part.",
-
   "sizeKb": "{value} Ko",
-  "@sizeKb": { "placeholders": { "value": { "type": "String" } } },
+  "@sizeKb": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "sizeMb": "{value} Mo",
-  "@sizeMb": { "placeholders": { "value": { "type": "String" } } },
+  "@sizeMb": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "sizeGb": "{value} Go",
-  "@sizeGb": { "placeholders": { "value": { "type": "String" } } },
+  "@sizeGb": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "photoCount": "{count, plural, =0{aucune photo} =1{1 photo} other{{count} photos}}",
-  "@photoCount": { "placeholders": { "count": { "type": "int" } } },
-
+  "@photoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "actionNext": "Suivant",
   "actionCancel": "Annuler",
   "actionUndo": "Annuler",
   "actionBackHome": "Retour à l'accueil",
-
   "onboardingSwipeTitle": "Trie d'un geste",
-  "onboardingSwipeBody": "Glisse à gauche pour mettre au panier, à droite pour garder, vers le haut pour ajouter aux favoris.",
   "onboardingPrivacyTitle": "Tes photos restent sur ton téléphone",
   "onboardingPrivacyBody": "Pas de compte, pas de connexion. Rien n'est envoyé nulle part.",
   "onboardingAccessTitle": "Accès à tes photos",
   "onboardingAccessBody": "TidyPics a besoin de voir tes photos pour te les proposer. Rien n'est supprimé sans ton accord, et tout reste récupérable pendant 30 jours.",
   "onboardingAccessButton": "Autoriser l'accès",
-
   "permissionTitle": "TidyPics ne voit pas tes photos",
   "permissionBody": "Sans accès à la galerie, l'app ne peut rien trier. Autorise l'accès aux photos dans les réglages du téléphone, puis reviens ici.",
   "permissionOpenSettings": "Ouvrir les réglages",
   "permissionRetry": "Réessayer",
-
   "homeFreed": "{size} libérés",
-  "@homeFreed": { "placeholders": { "size": { "type": "String" } } },
+  "@homeFreed": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "homeFreedSubtitle": "{count, plural, =1{1 photo supprimée depuis l'installation} other{{count} photos supprimées depuis l'installation}}",
-  "@homeFreedSubtitle": { "placeholders": { "count": { "type": "int" } } },
+  "@homeFreedSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "homeFreedNone": "Prêt à faire de la place ?",
   "homeProgress": "{sorted} triées sur {total}",
-  "@homeProgress": { "placeholders": { "sorted": { "type": "int" }, "total": { "type": "int" } } },
+  "@homeProgress": {
+    "placeholders": {
+      "sorted": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "homeScanning": "Lecture de ta galerie…",
   "homeScanFailed": "Impossible de lire la galerie.",
   "homeNoPhotos": "Aucune photo dans ta galerie.",
-  "homeSort": "Trier",
+  "homeSort": "Reprendre le tri",
   "homeAllSorted": "Tout est trié",
   "homeCart": "Panier",
   "homeCartDetail": "{photos} · {size}",
-  "@homeCartDetail": { "placeholders": { "photos": { "type": "String" }, "size": { "type": "String" } } },
+  "@homeCartDetail": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "homeCartEmpty": "Vide",
   "homeTrash": "En cours de suppression",
   "homeTrashEmpty": "Rien pour l'instant",
   "homeLimitedTitle": "Tu as autorisé seulement certaines photos.",
   "homeLimitedAction": "Choisir plus de photos",
   "homeSettings": "Réglages",
-
-  "swipeCounter": "{sorted} triées · {size} au panier",
-  "@swipeCounter": { "placeholders": { "sorted": { "type": "int" }, "size": { "type": "String" } } },
   "swipeStop": "Je m'arrête là",
-  "swipeClose": "Fermer",
   "swipeTrash": "Supprimer",
   "swipeKeep": "Garder",
   "swipeFavorite": "Favori",
@@ -67,48 +111,88 @@
   "swipeEmptyTitle": "Aucune photo",
   "swipeEmptyBody": "Ta galerie ne contient aucune photo à trier.",
   "swipeImageError": "Photo illisible",
-
-  "checkpointTitle": "Avant de supprimer",
+  "checkpointTitle": "Récap avant de supprimer",
   "checkpointPendingTitle": "{count, plural, =1{1 photo en attente} other{{count} photos en attente}}",
-  "@checkpointPendingTitle": { "placeholders": { "count": { "type": "int" } } },
+  "@checkpointPendingTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "checkpointSummary": "{photos} · {size} à libérer",
-  "@checkpointSummary": { "placeholders": { "photos": { "type": "String" }, "size": { "type": "String" } } },
-  "checkpointHint": "Touche une photo pour la garder.",
+  "@checkpointSummary": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "checkpointHint": "Touche une photo pour ne pas la supprimer : elle reviendra plus tard dans le tri.",
   "checkpointSafetyAndroid": "Elles vont dans la corbeille du téléphone : récupérables pendant 30 jours.",
   "checkpointSafetyIos": "Elles vont dans « Récemment supprimés » : récupérables pendant 30 jours.",
   "checkpointDelete": "{count, plural, =1{Supprimer 1 photo ({size})} other{Supprimer {count} photos ({size})}}",
-  "@checkpointDelete": { "placeholders": { "count": { "type": "int" }, "size": { "type": "String" } } },
+  "@checkpointDelete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "checkpointContinue": "Continuer le tri",
   "checkpointLater": "Plus tard",
   "checkpointEmpty": "Le panier est vide.",
-  "checkpointKept": "Photo gardée",
   "checkpointDone": "{photos} à la corbeille · {size} libérés",
-  "@checkpointDone": { "placeholders": { "photos": { "type": "String" }, "size": { "type": "String" } } },
+  "@checkpointDone": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "checkpointRefused": "Rien n'a été supprimé. Les photos restent dans le panier.",
   "checkpointFailed": "La suppression a échoué. Les photos restent dans le panier.",
   "checkpointWorking": "Envoi à la corbeille…",
-
   "manageMediaTitle": "Supprimer sans confirmation",
   "manageMediaBody": "Android demande une confirmation à chaque lot. Autorise « Gestion des médias » pour t'en passer : tout reste récupérable 30 jours dans la corbeille.",
   "manageMediaAllow": "Autoriser",
   "manageMediaLater": "Pas maintenant",
-
   "trashTitle": "En cours de suppression",
   "trashEmpty": "Rien en cours de suppression.",
   "trashDaysLeft": "{days, plural, =0{Effacement imminent} =1{1 jour restant} other{{days} jours restants}}",
-  "@trashDaysLeft": { "placeholders": { "days": { "type": "int" } } },
+  "@trashDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "trashRestore": "Restaurer",
   "trashRestored": "{photos} restaurées",
-  "@trashRestored": { "placeholders": { "photos": { "type": "String" } } },
+  "@trashRestored": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      }
+    }
+  },
   "trashAndroidNote": "Le téléphone les efface définitivement au bout de 30 jours.",
   "trashIosNote": "Pour libérer l'espace tout de suite : Photos › Albums › Récemment supprimés › Sélectionner › Tout supprimer.",
-
   "settingsTitle": "Réglages",
   "settingsSortOrder": "Ordre du tri",
   "settingsSortRandom": "Au hasard",
   "settingsSortOldest": "Les plus anciennes d'abord",
   "settingsSortNewest": "Les plus récentes d'abord",
-  "settingsThreshold": "Checkpoint toutes les",
+  "settingsThreshold": "Récap toutes les … photos triées",
   "settingsTheme": "Thème",
   "settingsThemeSystem": "Auto",
   "settingsThemeLight": "Clair",
@@ -119,5 +203,34 @@
   "settingsResetKept": "Reproposer les photos gardées",
   "settingsResetKeptBody": "Les photos que tu as gardées reviendront dans le tri.",
   "settingsResetKeptConfirm": "Reproposer",
-  "settingsResetKeptDone": "Les photos gardées reviendront dans le tri."
+  "settingsResetKeptDone": "Les photos gardées reviendront dans le tri.",
+  "actionBack": "Retour",
+  "swipeMenu": "Menu",
+  "swipeSorted": "{count, plural, =0{0 triée} =1{1 triée} other{{count} triées}}",
+  "@swipeSorted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "swipeCheckpointIn": "{count, plural, =1{Récap à la prochaine photo} other{Récap dans {count} photos}}",
+  "@swipeCheckpointIn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "checkpointIncluded": "sera supprimée",
+  "checkpointExcluded": "ne sera pas supprimée, reviendra plus tard",
+  "checkpointExcludedShort": "Plus tard",
+  "onboardingSkipTutorial": "Passer",
+  "tutorialTrash": "Floue ? Glisse-la vers la gauche : elle va au panier.",
+  "tutorialKeep": "Jolie ! Glisse-la vers la droite pour la garder.",
+  "tutorialFavorite": "Ta préférée ? Glisse-la vers le haut : elle passe en favori.",
+  "tutorialDone": "Bravo, tu sais trier ! Rien n'est supprimé sans ton accord.",
+  "tutorialBlurryCaption": "Photo floue",
+  "tutorialHikeCaption": "Belle balade",
+  "tutorialSunsetCaption": "Coucher de soleil"
 }

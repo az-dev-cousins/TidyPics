@@ -6,22 +6,18 @@ import '../../../data/repositories/library_repository.dart';
 import '../../../data/repositories/trash_repository.dart';
 import '../../settings/application/settings_controller.dart';
 
-/// Actions du checkpoint (F3) : retirer une photo, tout envoyer à la
+/// Actions du récap (F3) : rendre des photos au tri, envoyer le reste à la
 /// corbeille, proposer « Gestion des médias ».
 class CheckpointActions {
   CheckpointActions(this._ref);
 
   final Ref _ref;
 
-  /// Retire la photo du panier : elle est gardée.
-  Future<void> keep(GalleryPhoto photo) =>
-      _ref.read(libraryRepositoryProvider).keepFromCart(photo);
-
-  /// Remet une photo retirée par erreur (bouton « Annuler »).
-  Future<void> putBack(GalleryPhoto photo) async {
-    final library = _ref.read(libraryRepositoryProvider);
-    await library.undecide(photo);
-    await library.addToCart(photo);
+  /// Photos décochées au récap : elles quittent le panier et reviendront
+  /// plus tard dans le tri.
+  Future<void> release(Iterable<String> ids) async {
+    if (ids.isEmpty) return;
+    await _ref.read(libraryRepositoryProvider).releaseFromCart(ids);
   }
 
   /// Vrai s'il faut expliquer « Gestion des médias » avant d'envoyer :
