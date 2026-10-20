@@ -27,6 +27,7 @@ Ces valeurs sont la source de vérité pour `lib/core/theme/app_colors.dart`.
 | Fond de photo | `#EFEEE8` | `#0B0F0E` | Autour d'une photo dans une carte (bandes haut et bas) |
 | Fond RAW | `#1E7A64` | `#145243` | Tri des RAW : fond vert dans les deux thèmes, pour le distinguer du tri habituel |
 | Neutre graphique | `#9E998C` | `#7F8C87` | Catégorie « Autre » des graphiques, toujours légendée |
+| Violet graphique | `#7A63C2` | `#9580E0` | Catégorie « Vidéos » de la barre de stockage, à côté du sapin des photos (séparation daltonisme validée) |
 
 ### Actions (fixes, quelle que soit l'évolution de la marque)
 
