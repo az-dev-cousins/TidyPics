@@ -13,7 +13,7 @@ Les références Fx renvoient au [cahier des charges](cahier-des-charges.md).
 - [x] Identifiant `com.azancoth.tidypics`, Android 11+ et iOS 15+
 - [x] Logo : le « t » paysage
 - [ ] Générer les icônes d'app (`flutter_launcher_icons`) et l'écran de démarrage
-- [ ] Monter Flutter à la dernière version stable (avec Riverpod 3, Gradle et AGP récents, compatibles Java 25), CI comprise
+- [x] Monter Flutter en 3.47.7 (Riverpod 3, Gradle 9, AGP 9, modèles Android/iOS à jour), CI comprise
 - [ ] Protéger `main` sur GitHub et créer le GitHub Project (kanban)
 
 ## Lot 0bis — Prototypes techniques

@@ -24,9 +24,7 @@ TidyPics est une app mobile Flutter (Android et iOS, téléphones et tablettes) 
 
 ## Démarrer
 
-Prérequis : Flutter stable (Dart ≥ 3.5), Android SDK (API 30+) et/ou Xcode (iOS 15+).
-
-> ⚠️ **Java pour Android** : le Gradle actuel (8.3) demande un **JDK 17**. Android Studio 2026 embarque Java 25, qui provoque l'erreur `Unsupported class file major version 69`. Solution temporaire : `flutter config --jdk-dir <chemin du JDK 17>`. Ce point disparaîtra avec la montée de version de Flutter (voir le backlog).
+Prérequis : Flutter 3.47 stable (Dart 3.13), Android SDK (API 30+) et/ou Xcode avec CocoaPods (iOS 15+).
 
 ```bash
 flutter pub get        # dépendances + génération des traductions

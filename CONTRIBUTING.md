@@ -2,7 +2,7 @@
 
 ## Environnement
 
-- Flutter **3.24.5** stable (la version épinglée dans la CI). Toute montée de version se fait dans une PR dédiée qui met aussi la CI à jour.
+- Flutter **3.47.7** stable (la version épinglée dans la CI). Toute montée de version se fait dans une PR dédiée qui met aussi la CI à jour.
 - Avant chaque PR :
   ```bash
   dart format lib test

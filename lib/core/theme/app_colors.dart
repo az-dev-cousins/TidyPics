@@ -102,16 +102,16 @@ class TidyColors extends ThemeExtension<TidyColors> {
 
   @override
   int get hashCode => Object.hash(
-        delete,
-        keep,
-        onKeep,
-        favorite,
-        favoriteOutline,
-        mint,
-        onMint,
-        inkMuted,
-        line,
-      );
+    delete,
+    keep,
+    onKeep,
+    favorite,
+    favoriteOutline,
+    mint,
+    onMint,
+    inkMuted,
+    line,
+  );
 
   @override
   TidyColors copyWith({

@@ -13,6 +13,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 - Modèles d'issues et de PR, guide de contribution.
 
 ### Modifié
+- Flutter 3.47.7 (Dart 3.13), Riverpod 3, go_router 18. Android passe en Kotlin DSL avec Gradle 9.3 et AGP 9.1 (compatible avec le Java 25 d'Android Studio). iOS adopte le modèle à scènes et Swift Package Manager.
 - Identifiant de l'app : `com.azancoth.tidypics`. Android 11 minimum, iOS 15 minimum.
 
 ### Supprimé

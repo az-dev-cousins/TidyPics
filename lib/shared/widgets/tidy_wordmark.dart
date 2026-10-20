@@ -25,7 +25,10 @@ class TidyWordmark extends StatelessWidget {
           text: 'tidy',
           style: style,
           children: [
-            TextSpan(text: 'pics', style: TextStyle(color: scheme.primary)),
+            TextSpan(
+              text: 'pics',
+              style: TextStyle(color: scheme.primary),
+            ),
           ],
         ),
       ),

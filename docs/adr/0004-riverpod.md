@@ -7,7 +7,7 @@
 Deux candidats : Riverpod et Bloc. Le projet est mené par un développeur seul. L'essentiel de l'app affiche des données locales asynchrones (scan de la galerie, base de données). Seule la session de swipe a une logique vraiment complexe (annulation, panier, checkpoint).
 
 ## Décision
-**Riverpod** (`flutter_riverpod`), sans génération de code pour commencer, avec `Notifier` et `AsyncNotifier`. Les repositories sont injectés via des providers.
+**Riverpod 3** (`flutter_riverpod`), sans génération de code pour commencer, avec `Notifier` et `AsyncNotifier`. Les repositories sont injectés via des providers.
 
 ## Conséquences
 - ✅ Peu de code, `AsyncValue` (chargement / données / erreur) idéal pour la galerie.
