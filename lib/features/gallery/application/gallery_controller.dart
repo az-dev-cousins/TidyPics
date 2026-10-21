@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/duplicates.dart';
+import '../../../data/models/failed_photos.dart';
 import '../../../data/models/gallery_photo.dart';
 import '../../../data/models/photo_groups.dart';
 import '../../../data/models/visual_hash.dart';
@@ -199,7 +200,7 @@ class VisualHashController extends Notifier<bool> {
             await Future.wait(
               photos.skip(i).take(_parallel).map((p) async {
                 try {
-                  return await gallery.thumbnail(p.id, size: 64);
+                  return await gallery.thumbnail(p.id, size: 192);
                 } on Object {
                   return null;
                 }
@@ -292,3 +293,18 @@ final screenshotsToSortProvider = FutureProvider.autoDispose<int>((ref) async {
       .unsortedPhotos(SortOrder.oldestFirst);
   return photos.where((p) => p.isScreenshot).length;
 });
+
+/// Photos ratées qui restent à trier (test) et pourquoi.
+final failedPhotosProvider =
+    FutureProvider.autoDispose<Map<String, FailReason>>((ref) async {
+      ref
+        ..watch(librarySummaryProvider)
+        ..watch(cartProvider)
+        ..watch(hashProgressProvider);
+      final photos = await ref
+          .watch(libraryRepositoryProvider)
+          .unsortedPhotos(SortOrder.oldestFirst);
+      return {
+        for (final (p, reason) in FailedPhotos.find(photos)) p.id: reason,
+      };
+    });

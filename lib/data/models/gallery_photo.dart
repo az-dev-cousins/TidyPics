@@ -15,6 +15,8 @@ class GalleryPhoto {
     this.visualHash,
     this.visualColor,
     this.visualDetail,
+    this.sharpness,
+    this.brightness,
   });
 
   /// Identifiant système (MediaStore sur Android, PHAsset sur iOS).
@@ -67,6 +69,11 @@ class GalleryPhoto {
   /// donc hors de l'égalité.
   final Uint8List? visualDetail;
 
+  /// Netteté (variance du laplacien) et luminosité (0 à 255) : photos
+  /// ratées. `null` tant qu'elles ne sont pas mesurées, -1 si illisible.
+  final int? sharpness;
+  final int? brightness;
+
   /// Au-delà, une vidéo passe en tête du tri : c'est là qu'on libère le plus.
   static const bigVideoBytes = 100 * 1000 * 1000;
 
@@ -110,6 +117,8 @@ class GalleryPhoto {
     int? visualHash,
     int? visualColor,
     Uint8List? visualDetail,
+    int? sharpness,
+    int? brightness,
   }) => GalleryPhoto(
     id: id,
     takenAt: takenAt,
@@ -123,6 +132,8 @@ class GalleryPhoto {
     visualHash: visualHash ?? this.visualHash,
     visualColor: visualColor ?? this.visualColor,
     visualDetail: visualDetail ?? this.visualDetail,
+    sharpness: sharpness ?? this.sharpness,
+    brightness: brightness ?? this.brightness,
   );
 
   @override

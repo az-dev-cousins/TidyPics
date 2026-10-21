@@ -921,5 +921,19 @@
   },
   "documentsRestoreFailed": "Impossible de le remettre en place.",
   "settingsSimilarBursts": "Photos semblables (test)",
-  "settingsSimilarBurstsBody": "Jusqu'à 2 minutes d'écart, des photos qui se ressemblent forment aussi une rafale : la même vue prise plusieurs fois."
+  "settingsSimilarBurstsBody": "Jusqu'à 2 minutes d'écart, des photos qui se ressemblent forment aussi une rafale : la même vue prise plusieurs fois.",
+  "failedTitle": "Photos ratées",
+  "failedDoneTitle": "Plus de photo ratée à trier !",
+  "failedDark": "Très sombre",
+  "failedBright": "Trop claire",
+  "failedBlurry": "Floue",
+  "menuFailed": "Photos ratées",
+  "menuFailedDetail": "Test · {count, plural, =0{rien à trier} =1{1 à trier} other{{count} à trier}}",
+  "@menuFailedDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

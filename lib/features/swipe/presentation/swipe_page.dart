@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../data/models/failed_photos.dart';
 import '../../../data/models/gallery_photo.dart';
 import '../../../data/models/photo_groups.dart';
 import '../../../data/providers.dart';
@@ -198,6 +199,8 @@ class _SwipePageState extends ConsumerState<SwipePage> {
               ? Text(l10n.screenshotsTitle)
               : _scope.duplicates
               ? Text(l10n.duplicatesTitle)
+              : _scope.failed
+              ? Text(l10n.failedTitle)
               : null,
           actions: [
             TextButton(
@@ -295,6 +298,8 @@ class _SwipePageState extends ConsumerState<SwipePage> {
             ? l10n.screenshotsDoneTitle
             : _scope.duplicates
             ? l10n.duplicatesDoneTitle
+            : _scope.failed
+            ? l10n.failedDoneTitle
             : nothingSorted
             ? l10n.swipeEmptyTitle
             : l10n.swipeDoneTitle,
@@ -327,7 +332,21 @@ class _SwipePageState extends ConsumerState<SwipePage> {
                     showPhotoActions(context, ref, current.cover),
                 child: ItemSwipeCard(
                   item: current,
-                  badge: _scope.duplicates ? l10n.duplicateCopyBadge : null,
+                  badgeIcon: _scope.failed
+                      ? Icons.blur_on_rounded
+                      : Icons.copy_all_rounded,
+                  badge: _scope.duplicates
+                      ? l10n.duplicateCopyBadge
+                      : _scope.failed
+                      ? switch (ref
+                            .watch(failedPhotosProvider)
+                            .value?[current.cover.id]) {
+                          FailReason.dark => l10n.failedDark,
+                          FailReason.bright => l10n.failedBright,
+                          FailReason.blurry => l10n.failedBlurry,
+                          null => null,
+                        }
+                      : null,
                   stamp: stamp,
                   strength: strength,
                   play: isCurrent,

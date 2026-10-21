@@ -40,6 +40,7 @@ abstract final class AppRoutes {
   static const duplicates = '/duplicates';
   static const achievements = '/achievements';
   static const screenshots = '/screenshots';
+  static const failed = '/failed';
   static const duplicatesSwipe = '/duplicates/swipe';
   static const documents = '/documents';
   static const documentsSort = '/documents/sort';
@@ -157,6 +158,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.duplicatesSwipe,
         builder: (context, state) =>
             const SwipePage(scope: SwipeScope.duplicates()),
+      ),
+      GoRoute(
+        path: AppRoutes.failed,
+        builder: (context, state) =>
+            const SwipePage(scope: SwipeScope.failed()),
       ),
       GoRoute(
         path: AppRoutes.screenshots,

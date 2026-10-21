@@ -36,6 +36,10 @@ class Photos extends Table {
   /// Empreinte détaillée (256 bits, 32 octets).
   BlobColumn get visualDetail => blob().nullable()();
 
+  /// Netteté et luminosité (photos ratées), mesurées avec l'empreinte.
+  IntColumn get sharpness => integer().nullable()();
+  IntColumn get brightness => integer().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -178,7 +182,7 @@ class LocalDb extends _$LocalDb {
     : super(executor ?? driftDatabase(name: 'tidypics'));
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -205,6 +209,11 @@ class LocalDb extends _$LocalDb {
       if (from < 5) await m.createTable(documentDecisions);
       // v6 : corbeille des documents.
       if (from < 6) await m.createTable(documentTrash);
+      // v7 : netteté et luminosité (photos ratées).
+      if (from < 7) {
+        await m.addColumn(photos, photos.sharpness);
+        await m.addColumn(photos, photos.brightness);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

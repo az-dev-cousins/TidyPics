@@ -212,7 +212,12 @@ class LibraryRepository {
   /// Photos dont l'empreinte visuelle reste à calculer (pas les vidéos).
   Future<List<GalleryPhoto>> photosToHash({int limit = 64}) async {
     final query = _db.select(_db.photos)
-      ..where((t) => t.visualHash.isNull() & t.durationMs.isNull())
+      // Netteté manquante : photos analysées avant la v7, on la mesure aussi.
+      ..where(
+        (t) =>
+            (t.visualHash.isNull() | t.sharpness.isNull()) &
+            t.durationMs.isNull(),
+      )
       ..limit(limit);
     return query.map(_toPhoto).get();
   }
@@ -227,6 +232,8 @@ class LibraryRepository {
               visualHash: Value(value.hash),
               visualColor: Value(value.color),
               visualDetail: Value(value.detail),
+              sharpness: Value(value.sharpness),
+              brightness: Value(value.brightness),
             ),
             where: (t) => t.id.equals(key),
           );
@@ -236,7 +243,7 @@ class LibraryRepository {
   /// Avancée du calcul des empreintes : (faites, à faire en tout).
   Stream<({int done, int total})> watchHashProgress() => _db
       .customSelect(
-        'SELECT COUNT(*) AS total, COUNT(visual_hash) AS done '
+        'SELECT COUNT(*) AS total, COUNT(sharpness) AS done '
         'FROM photos WHERE duration_ms IS NULL',
         readsFrom: {_db.photos},
       )
@@ -494,5 +501,7 @@ class LibraryRepository {
     visualHash: row.visualHash,
     visualColor: row.visualColor,
     visualDetail: row.visualDetail,
+    sharpness: row.sharpness,
+    brightness: row.brightness,
   );
 }

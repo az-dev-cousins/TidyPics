@@ -694,5 +694,19 @@
   },
   "documentsRestoreFailed": "Couldn't put it back.",
   "settingsSimilarBursts": "Similar photos (test)",
-  "settingsSimilarBurstsBody": "Up to 2 minutes apart, photos that look alike also form a burst: the same view shot several times."
+  "settingsSimilarBurstsBody": "Up to 2 minutes apart, photos that look alike also form a burst: the same view shot several times.",
+  "failedTitle": "Failed photos",
+  "failedDoneTitle": "No more failed photos to sort!",
+  "failedDark": "Very dark",
+  "failedBright": "Too bright",
+  "failedBlurry": "Blurry",
+  "menuFailed": "Failed photos",
+  "menuFailedDetail": "Test · {count, plural, =0{nothing to sort} =1{1 to sort} other{{count} to sort}}",
+  "@menuFailedDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

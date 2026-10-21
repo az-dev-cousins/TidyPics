@@ -2,8 +2,15 @@ import 'dart:typed_data';
 
 import 'package:image/image.dart' as img;
 
-/// Empreinte d'une photo : formes grossières, détails et couleurs.
-typedef VisualPrint = ({int hash, Uint8List detail, int color});
+/// Empreinte d'une photo : formes grossières, détails, couleurs, et deux
+/// mesures de qualité (netteté, luminosité) pour les photos ratées.
+typedef VisualPrint = ({
+  int hash,
+  Uint8List detail,
+  int color,
+  int sharpness,
+  int brightness,
+});
 
 /// Empreinte visuelle d'une photo, calculée sur le téléphone.
 ///
@@ -38,6 +45,8 @@ abstract final class VisualHash {
     hash: 0,
     detail: Uint8List(0),
     color: 0,
+    sharpness: -1,
+    brightness: -1,
   );
 
   /// Empreinte d'une image encodée (JPEG, PNG…), `null` si illisible.
@@ -66,7 +75,53 @@ abstract final class VisualHash {
         color = (color << 4) | (channel.toInt() >> 4);
       }
     }
-    return (hash: hash, detail: detail, color: color);
+    final (:sharpness, :brightness) = quality(decoded);
+    return (
+      hash: hash,
+      detail: detail,
+      color: color,
+      sharpness: sharpness,
+      brightness: brightness,
+    );
+  }
+
+  /// Netteté : variance du laplacien sur l'image en niveaux de gris (une
+  /// photo floue a peu de contours nets, donc une variance faible).
+  /// Luminosité : moyenne de 0 (noir) à 255 (blanc).
+  static ({int sharpness, int brightness}) quality(img.Image image) {
+    final gray = img.grayscale(
+      image.width >= image.height
+          ? img.copyResize(image, width: 160)
+          : img.copyResize(image, height: 160),
+    );
+    final w = gray.width;
+    final h = gray.height;
+    double lum(int x, int y) => gray.getPixel(x, y).luminance.toDouble();
+    var sum = 0.0;
+    var sumSq = 0.0;
+    var brightness = 0.0;
+    var n = 0;
+    for (var y = 0; y < h; y++) {
+      for (var x = 0; x < w; x++) {
+        brightness += lum(x, y);
+        if (x == 0 || y == 0 || x == w - 1 || y == h - 1) continue;
+        final l =
+            lum(x - 1, y) +
+            lum(x + 1, y) +
+            lum(x, y - 1) +
+            lum(x, y + 1) -
+            4 * lum(x, y);
+        sum += l;
+        sumSq += l * l;
+        n++;
+      }
+    }
+    final mean = n == 0 ? 0 : sum / n;
+    final variance = n == 0 ? 0 : sumSq / n - mean * mean;
+    return (
+      sharpness: variance.round(),
+      brightness: (brightness / (w * h)).round(),
+    );
   }
 
   /// dHash de côté [size] : (size + 1) × size pixels, size² bits.

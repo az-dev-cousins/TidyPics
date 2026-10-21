@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/achievements.dart';
 import '../../../data/models/duplicates.dart';
+import '../../../data/models/failed_photos.dart';
 import '../../../data/models/gallery_photo.dart';
 import '../../../data/models/photo_groups.dart';
 import '../../../data/providers.dart';
@@ -26,7 +27,7 @@ enum SwipeChoice {
 }
 
 /// Les tris ciblés, ouverts depuis le menu.
-enum SwipeFocus { month, screenshots, duplicates }
+enum SwipeFocus { month, screenshots, duplicates, failed }
 
 /// Ce qu'on trie : toute la galerie, ou une partie (un mois, les captures,
 /// les doublons).
@@ -42,6 +43,12 @@ class SwipeScope {
       month = null,
       focus = SwipeFocus.screenshots;
 
+  /// Test : seulement les photos qui semblent ratées (floues, sombres…).
+  const SwipeScope.failed()
+    : year = null,
+      month = null,
+      focus = SwipeFocus.failed;
+
   /// Seulement les copies des doublons : l'original reste gardé (F11).
   const SwipeScope.duplicates()
     : year = null,
@@ -55,6 +62,7 @@ class SwipeScope {
   bool get isMonth => focus == SwipeFocus.month;
   bool get screenshots => focus == SwipeFocus.screenshots;
   bool get duplicates => focus == SwipeFocus.duplicates;
+  bool get failed => focus == SwipeFocus.failed;
 
   /// Une partie de la galerie seulement : on y entre depuis le menu et on y
   /// revient à la fin.
@@ -243,6 +251,13 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
       return [
         for (final group in groups)
           for (final copy in group.photos.skip(1)) PhotoItem.single(copy),
+      ];
+    }
+    // Photos ratées (test) : les pires d'abord.
+    if (scope.failed) {
+      return [
+        for (final (photo, _) in FailedPhotos.find(photos))
+          PhotoItem.single(photo),
       ];
     }
     // Captures d'écran : une par une, de la plus ancienne à la plus récente.

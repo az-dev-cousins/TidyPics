@@ -32,6 +32,7 @@ class HomePage extends ConsumerWidget {
     final hashing = ref.watch(hashProgressProvider).value;
     final achievements = ref.watch(achievementsProvider);
     final screenshots = ref.watch(screenshotsToSortProvider).value ?? 0;
+    final failed = ref.watch(failedPhotosProvider).value?.length ?? 0;
 
     void backToSorting() =>
         context.canPop() ? context.pop() : context.go(AppRoutes.swipe);
@@ -139,6 +140,12 @@ class HomePage extends ConsumerWidget {
                           ? l10n.menuScreenshotsNone
                           : l10n.menuScreenshotsDetail(screenshots),
                       onTap: () => context.push(AppRoutes.screenshots),
+                    ),
+                    _Tile(
+                      icon: Icons.blur_on_rounded,
+                      title: l10n.menuFailed,
+                      subtitle: l10n.menuFailedDetail(failed),
+                      onTap: () => context.push(AppRoutes.failed),
                     ),
                     if (ref.watch(documentSourceProvider).isSupported)
                       _Tile(

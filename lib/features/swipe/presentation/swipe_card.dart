@@ -144,12 +144,14 @@ class PhotoSwipeCard extends ConsumerWidget {
     this.play = false,
     this.onMore,
     this.badge,
+    this.badgeIcon = Icons.copy_all_rounded,
   });
 
   final GalleryPhoto photo;
 
   /// Étiquette en haut à gauche (ex. « Copie · l'original est gardé »).
   final String? badge;
+  final IconData badgeIcon;
   final SwipeChoice? stamp;
   final double strength;
 
@@ -201,7 +203,7 @@ class PhotoSwipeCard extends ConsumerWidget {
                 Positioned(
                   left: 16,
                   top: 16,
-                  child: _Chip(icon: Icons.copy_all_rounded, text: badge!),
+                  child: _Chip(icon: badgeIcon, text: badge!),
                 ),
               ],
             ),
@@ -242,12 +244,14 @@ class ItemSwipeCard extends ConsumerWidget {
     this.play = false,
     this.onMore,
     this.badge,
+    this.badgeIcon = Icons.copy_all_rounded,
   });
 
   final PhotoItem item;
 
   /// Étiquette en haut à gauche d'une photo seule (ex. « Copie »).
   final String? badge;
+  final IconData badgeIcon;
   final SwipeChoice? stamp;
   final double strength;
 
@@ -270,6 +274,7 @@ class ItemSwipeCard extends ConsumerWidget {
         play: play,
         onMore: onMore,
         badge: badge,
+        badgeIcon: badgeIcon,
       );
     }
     final l10n = AppLocalizations.of(context);
