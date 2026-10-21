@@ -154,9 +154,12 @@ List<PhotoItem> groupPhotos(
   // Une rafale reste dans un seul dossier : on les parcourt un par un.
   final byFolder = <String?, List<GalleryPhoto>>{};
   for (final photo in singles) {
-    // Une vidéo, ou une photo reçue (WhatsApp, téléchargement…), se trie
-    // toujours seule.
-    if (photo.isVideo || !bursts || isReceivedFolder(photo.folder)) {
+    // Une vidéo, une capture d'écran ou une photo reçue (WhatsApp,
+    // téléchargement…) se trie toujours seule.
+    if (photo.isVideo ||
+        photo.isScreenshot ||
+        !bursts ||
+        isReceivedFolder(photo.folder)) {
       items.add(PhotoItem.single(photo));
     } else {
       (byFolder[photo.folder] ??= []).add(photo);

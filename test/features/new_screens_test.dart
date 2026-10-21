@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:tidypics/data/models/gallery_photo.dart';
@@ -324,6 +324,14 @@ void main() {
 
     await tapVisible(tester, find.text('Doublons'));
     expect(find.text('WhatsApp Images'), findsOneWidget);
+
+    // En grand : la copie, avec le choix garder / supprimer.
+    await tester.tap(find.text('WhatsApp Images'));
+    await settle(tester);
+    expect(find.text('Version 2 sur 2'), findsOneWidget);
+    await tester.tap(find.byType(CloseButton));
+    await settle(tester);
+
     await tester.tap(find.text('Supprimer 1 photo (200 Ko)'));
     await settle(tester);
     expect(gallery.trashed, ['copie']);
@@ -451,6 +459,45 @@ void main() {
     await settle(tester);
     expect(find.textContaining('Notifications refusées'), findsOneWidget);
     expect(reminders.scheduledBody, isNull);
+
+    await closeApp(tester);
+  });
+
+  testWidgets('doublons au swipe : seulement les copies', (tester) async {
+    final gallery = FakeGallerySource(
+      photos: [
+        GalleryPhoto(
+          id: 'orig',
+          takenAt: t0,
+          folder: 'DCIM/Camera/',
+          width: 4000,
+          height: 3000,
+          sizeBytes: 3000000,
+        ),
+        GalleryPhoto(
+          id: 'copie',
+          takenAt: t0.add(const Duration(hours: 2)),
+          folder: 'Pictures/',
+          width: 1600,
+          height: 1200,
+          sizeBytes: 200000,
+        ),
+      ],
+      images: {
+        'orig': jpg(scene(1)),
+        'copie': jpg(img.copyResize(scene(1), width: 160), quality: 40),
+      },
+    );
+    await pumpApp(tester, gallery: gallery);
+    await openMenu(tester);
+    await tapVisible(tester, find.text('Doublons'));
+    await tester.tap(find.text('Trier au swipe'));
+    await settle(tester);
+
+    expect(find.text("Copie · l'original est gardé"), findsOneWidget);
+    await tester.tap(find.byTooltip('Supprimer'));
+    await settle(tester);
+    expect(find.text('Toutes les copies sont triées !'), findsOneWidget);
 
     await closeApp(tester);
   });

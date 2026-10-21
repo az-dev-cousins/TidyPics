@@ -514,7 +514,7 @@
       }
     }
   },
-  "duplicatesHint": "La meilleure version est gardée (plus de pixels, moins compressée). Touche une photo pour changer.",
+  "duplicatesHint": "La meilleure version est gardée (plus de pixels, moins compressée). Touche une photo pour la voir en grand, le rond pour changer d'avis.",
   "duplicatesNone": "Aucun doublon trouvé.",
   "duplicatesNoneYet": "Pas encore de doublon trouvé.",
   "duplicatesAnalysing": "Analyse des photos… {percent}",
@@ -702,5 +702,20 @@
   "settingsReminders": "Rappels",
   "settingsWeeklyReminder": "Rappel chaque semaine",
   "settingsWeeklyReminderHint": "Une notification une semaine après ta dernière visite, avec le nombre de photos à trier. Rien n'est envoyé : c'est le téléphone qui la programme.",
-  "settingsReminderDenied": "Notifications refusées : autorise-les dans les réglages du téléphone."
+  "settingsReminderDenied": "Notifications refusées : autorise-les dans les réglages du téléphone.",
+  "duplicatesViewerTitle": "Version {index} sur {count}",
+  "@duplicatesViewerTitle": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicatesBestVersion": "MEILLEURE VERSION",
+  "duplicatesSwipe": "Trier au swipe",
+  "duplicateCopyBadge": "Copie · l'original est gardé",
+  "duplicatesDoneTitle": "Toutes les copies sont triées !"
 }

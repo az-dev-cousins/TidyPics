@@ -143,9 +143,13 @@ class PhotoSwipeCard extends ConsumerWidget {
     this.strength = 0,
     this.play = false,
     this.onMore,
+    this.badge,
   });
 
   final GalleryPhoto photo;
+
+  /// Étiquette en haut à gauche (ex. « Copie · l'original est gardé »).
+  final String? badge;
   final SwipeChoice? stamp;
   final double strength;
 
@@ -188,19 +192,40 @@ class PhotoSwipeCard extends ConsumerWidget {
         ],
       ],
       // La photo entière, sans recadrage : on juge mieux.
-      image: Image(
-        image: images.large(photo),
-        fit: BoxFit.contain,
-        gaplessPlayback: true,
-        semanticLabel: caption,
-        errorBuilder: (context, _, _) => Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.broken_image_outlined, color: tidy.inkMuted),
-            const SizedBox(height: 8),
-            Text(l10n.swipeImageError, style: TextStyle(color: tidy.inkMuted)),
-          ],
-        ),
+      image: badge == null
+          ? _image(images, l10n, tidy, caption)
+          : Stack(
+              fit: StackFit.expand,
+              children: [
+                _image(images, l10n, tidy, caption),
+                Positioned(
+                  left: 16,
+                  top: 16,
+                  child: _Chip(icon: Icons.copy_all_rounded, text: badge!),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _image(
+    PhotoImages images,
+    AppLocalizations l10n,
+    TidyColors tidy,
+    String caption,
+  ) {
+    return Image(
+      image: images.large(photo),
+      fit: BoxFit.contain,
+      gaplessPlayback: true,
+      semanticLabel: caption,
+      errorBuilder: (context, _, _) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.broken_image_outlined, color: tidy.inkMuted),
+          const SizedBox(height: 8),
+          Text(l10n.swipeImageError, style: TextStyle(color: tidy.inkMuted)),
+        ],
       ),
     );
   }
@@ -216,9 +241,13 @@ class ItemSwipeCard extends ConsumerWidget {
     this.onPickBest,
     this.play = false,
     this.onMore,
+    this.badge,
   });
 
   final PhotoItem item;
+
+  /// Étiquette en haut à gauche d'une photo seule (ex. « Copie »).
+  final String? badge;
   final SwipeChoice? stamp;
   final double strength;
 
@@ -240,6 +269,7 @@ class ItemSwipeCard extends ConsumerWidget {
         strength: strength,
         play: play,
         onMore: onMore,
+        badge: badge,
       );
     }
     final l10n = AppLocalizations.of(context);
@@ -522,6 +552,13 @@ class _VideoSwipeCardState extends ConsumerState<VideoSwipeCard> {
               text: '${l10n.swipeVideo} · $length',
             ),
           ),
+          if (controller != null && controller.value.isInitialized)
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: 64,
+              child: _VideoProgress(controller: controller),
+            ),
           if (widget.play)
             Positioned(
               right: 12,
@@ -547,6 +584,60 @@ class _VideoSwipeCardState extends ConsumerState<VideoSwipeCard> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// Avancée de la vidéo : temps écoulé, barre (qu'on peut faire glisser
+/// pour avancer ou reculer) et durée.
+class _VideoProgress extends StatelessWidget {
+  const _VideoProgress({required this.controller});
+
+  final VideoPlayerController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final tidy = TidyColors.of(context);
+    final label = theme.textTheme.labelSmall?.copyWith(
+      color: theme.colorScheme.onSurface,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: ValueListenableBuilder<VideoPlayerValue>(
+          valueListenable: controller,
+          builder: (context, value, _) => Row(
+            children: [
+              Text(l10n.videoLength(value.position), style: label),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: VideoProgressIndicator(
+                    controller,
+                    allowScrubbing: true,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    colors: VideoProgressColors(
+                      playedColor: theme.colorScheme.primary,
+                      bufferedColor: tidy.line,
+                      backgroundColor: tidy.line.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(l10n.videoLength(value.duration), style: label),
+            ],
+          ),
+        ),
       ),
     );
   }

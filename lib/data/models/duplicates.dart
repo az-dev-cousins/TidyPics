@@ -45,9 +45,13 @@ int _better(GalleryPhoto a, GalleryPhoto b) {
 /// Pour éviter de comparer chaque photo à toutes les autres, l'empreinte est
 /// coupée en 5 morceaux : deux empreintes à 4 bits ou moins d'écart ont
 /// forcément un morceau identique. On ne compare que ces candidates.
+///
+/// [resolved] : copies déjà gardées par l'utilisateur. Elles ne sont plus
+/// proposées ; un groupe sans copie à décider disparaît.
 List<DuplicateGroup> findDuplicates(
   List<GalleryPhoto> photos, {
   Duration burstGap = const Duration(seconds: 3),
+  Set<String> resolved = const {},
 }) {
   final candidates = [
     for (final p in photos)
@@ -110,7 +114,7 @@ List<DuplicateGroup> findDuplicates(
     final best = DuplicateGroup(members).best;
     final close = [
       for (final p in members)
-        if (p == best || _samePhoto(p, best)) p,
+        if (p == best || (_samePhoto(p, best) && !resolved.contains(p.id))) p,
     ];
     if (close.length > 1) result.add(DuplicateGroup(close));
   }

@@ -245,6 +245,16 @@ class LibraryRepository {
         (row) => (done: row.read<int>('done'), total: row.read<int>('total')),
       );
 
+  /// Photos qui ont déjà une décision (gardée, favorite).
+  Stream<Set<String>> watchDecidedIds() {
+    final query = _db.selectOnly(_db.photoDecisions)
+      ..addColumns([_db.photoDecisions.assetId]);
+    return query
+        .map((r) => r.read(_db.photoDecisions.assetId)!)
+        .watch()
+        .map((ids) => ids.toSet());
+  }
+
   /// Photos à comparer pour les doublons : empreinte connue, hors panier.
   Stream<List<GalleryPhoto>> watchHashedPhotos() {
     final p = _db.photos;

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/achievements.dart';
+import '../../../data/models/duplicates.dart';
 import '../../../data/models/gallery_photo.dart';
 import '../../../data/models/photo_groups.dart';
 import '../../../data/providers.dart';
@@ -24,37 +25,50 @@ enum SwipeChoice {
   trash,
 }
 
-/// Ce qu'on trie : toute la galerie, ou un seul mois (tri ciblé, F2).
+/// Les tris ciblés, ouverts depuis le menu.
+enum SwipeFocus { month, screenshots, duplicates }
+
+/// Ce qu'on trie : toute la galerie, ou une partie (un mois, les captures,
+/// les doublons).
 @immutable
 class SwipeScope {
-  const SwipeScope.all() : year = null, month = null, screenshots = false;
-  const SwipeScope.month(int this.year, int this.month) : screenshots = false;
+  const SwipeScope.all() : year = null, month = null, focus = null;
+  const SwipeScope.month(int this.year, int this.month)
+    : focus = SwipeFocus.month;
 
-  /// Seulement les captures d'écran (V2).
+  /// Seulement les captures d'écran (F14).
   const SwipeScope.screenshots()
     : year = null,
       month = null,
-      screenshots = true;
+      focus = SwipeFocus.screenshots;
+
+  /// Seulement les copies des doublons : l'original reste gardé (F11).
+  const SwipeScope.duplicates()
+    : year = null,
+      month = null,
+      focus = SwipeFocus.duplicates;
 
   final int? year;
   final int? month;
-  final bool screenshots;
+  final SwipeFocus? focus;
 
-  bool get isMonth => year != null;
+  bool get isMonth => focus == SwipeFocus.month;
+  bool get screenshots => focus == SwipeFocus.screenshots;
+  bool get duplicates => focus == SwipeFocus.duplicates;
 
-  /// Une partie de la galerie seulement (un mois, les captures) : on y entre
-  /// depuis le menu et on y revient à la fin.
-  bool get isFocused => isMonth || screenshots;
+  /// Une partie de la galerie seulement : on y entre depuis le menu et on y
+  /// revient à la fin.
+  bool get isFocused => focus != null;
 
   @override
   bool operator ==(Object other) =>
       other is SwipeScope &&
       other.year == year &&
       other.month == month &&
-      other.screenshots == screenshots;
+      other.focus == focus;
 
   @override
-  int get hashCode => Object.hash(year, month, screenshots);
+  int get hashCode => Object.hash(year, month, focus);
 }
 
 @immutable
@@ -217,6 +231,20 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
     final photos = scope.isMonth
         ? await library.monthPhotos(scope.year!, scope.month!)
         : await library.unsortedPhotos(SortOrder.oldestFirst);
+    // Doublons : seulement les copies, la meilleure version reste.
+    if (scope.duplicates) {
+      final hashed = await library.watchHashedPhotos().first;
+      final resolved = await library.watchDecidedIds().first;
+      final groups = findDuplicates(
+        hashed,
+        burstGap: Duration(seconds: settings.burstGapSeconds),
+        resolved: resolved,
+      );
+      return [
+        for (final group in groups)
+          for (final copy in group.photos.skip(1)) PhotoItem.single(copy),
+      ];
+    }
     // Captures d'écran : une par une, de la plus ancienne à la plus récente.
     if (scope.screenshots) {
       return [

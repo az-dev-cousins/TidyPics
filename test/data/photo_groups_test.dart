@@ -99,6 +99,14 @@ void main() {
       expect(items.map((i) => i.kind), everyElement(PhotoItemKind.single));
     });
 
+    test('captures d\'écran prises à la suite : pas une rafale', () {
+      final items = groupPhotos([
+        photo('a', 'Screenshot_1.png', at(0)),
+        photo('b', 'Screenshot_2.png', at(1)),
+      ]);
+      expect(items.map((i) => i.kind), everyElement(PhotoItemKind.single));
+    });
+
     test('même heure mais dossiers différents : pas une rafale', () {
       final items = groupPhotos([
         GalleryPhoto(id: 'a', takenAt: at(0), folder: 'DCIM/Camera/'),

@@ -195,6 +195,8 @@ class _SwipePageState extends ConsumerState<SwipePage> {
               ? Text(l10n.monthName(DateTime(_scope.year!, _scope.month!)))
               : _scope.screenshots
               ? Text(l10n.screenshotsTitle)
+              : _scope.duplicates
+              ? Text(l10n.duplicatesTitle)
               : null,
           actions: [
             TextButton(
@@ -290,6 +292,8 @@ class _SwipePageState extends ConsumerState<SwipePage> {
             ? l10n.monthDoneTitle
             : _scope.screenshots
             ? l10n.screenshotsDoneTitle
+            : _scope.duplicates
+            ? l10n.duplicatesDoneTitle
             : nothingSorted
             ? l10n.swipeEmptyTitle
             : l10n.swipeDoneTitle,
@@ -322,6 +326,7 @@ class _SwipePageState extends ConsumerState<SwipePage> {
                     showPhotoActions(context, ref, current.cover),
                 child: ItemSwipeCard(
                   item: current,
+                  badge: _scope.duplicates ? l10n.duplicateCopyBadge : null,
                   stamp: stamp,
                   strength: strength,
                   play: isCurrent,

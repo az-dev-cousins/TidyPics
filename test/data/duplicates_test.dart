@@ -144,4 +144,12 @@ void main() {
     final groups = findDuplicates([photo('a'), photo('copie_a')]);
     expect(groups.single.photos, hasLength(2));
   });
+
+  test('une copie déjà gardée ne revient pas', () {
+    final groups = findDuplicates(
+      [photo('a'), photo('copie_a', minutes: 60)],
+      resolved: {'copie_a'},
+    );
+    expect(groups, isEmpty);
+  });
 }

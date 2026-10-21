@@ -228,17 +228,25 @@ final hashProgressProvider =
       (ref) => ref.watch(libraryRepositoryProvider).watchHashProgress(),
     );
 
-/// Groupes de doublons (F11), recalculés au fil des empreintes.
+final _decidedIdsProvider = StreamProvider.autoDispose<Set<String>>(
+  (ref) => ref.watch(libraryRepositoryProvider).watchDecidedIds(),
+);
+
+/// Groupes de doublons (F11), recalculés au fil des empreintes. Les copies
+/// déjà gardées ne reviennent pas.
 final duplicatesProvider = StreamProvider.autoDispose<List<DuplicateGroup>>((
   ref,
 ) {
   final gap = ref.watch(
     settingsProvider.select((s) => Duration(seconds: s.burstGapSeconds)),
   );
+  final resolved = ref.watch(_decidedIdsProvider).value ?? const <String>{};
   return ref
       .watch(libraryRepositoryProvider)
       .watchHashedPhotos()
-      .map((photos) => findDuplicates(photos, burstGap: gap));
+      .map(
+        (photos) => findDuplicates(photos, burstGap: gap, resolved: resolved),
+      );
 });
 
 /// Captures d'écran qui restent à trier (tuile du menu).

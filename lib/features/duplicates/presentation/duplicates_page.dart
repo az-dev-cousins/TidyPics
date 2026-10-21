@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../app/router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
@@ -14,6 +17,7 @@ import '../../../data/sources/local_db.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/photo_image.dart';
 import '../../gallery/application/gallery_controller.dart';
+import 'duplicate_viewer.dart';
 
 /// Doublons (F11) : la même photo enregistrée plusieurs fois. Dans chaque
 /// groupe, la meilleure est gardée et les autres sont cochées pour partir ;
@@ -105,7 +109,20 @@ class _DuplicatesPageState extends ConsumerState<DuplicatesPage> {
     final bytes = discarded.fold(0, (s, p) => s + (p.sizeBytes ?? 0));
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.duplicatesTitle)),
+      appBar: AppBar(
+        title: Text(l10n.duplicatesTitle),
+        actions: [
+          if (groups != null && groups.isNotEmpty)
+            TextButton.icon(
+              onPressed: _working
+                  ? null
+                  : () => context.push(AppRoutes.duplicatesSwipe),
+              icon: const Icon(Icons.swipe_outlined),
+              label: Text(l10n.duplicatesSwipe),
+            ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         top: false,
         child: Center(
@@ -157,7 +174,14 @@ class _DuplicatesPageState extends ConsumerState<DuplicatesPage> {
                     _GroupCard(
                       group: group,
                       kept: (photo) => _kept(group, photo),
-                      onTap: _working ? null : _toggle,
+                      onToggle: _working ? null : _toggle,
+                      onOpen: (index) => showDuplicateViewer(
+                        context,
+                        group: group,
+                        initialIndex: index,
+                        kept: (photo) => _kept(group, photo),
+                        onToggle: _toggle,
+                      ),
                     ),
                     const SizedBox(height: 12),
                   ],
@@ -242,12 +266,14 @@ class _GroupCard extends StatelessWidget {
   const _GroupCard({
     required this.group,
     required this.kept,
-    required this.onTap,
+    required this.onToggle,
+    required this.onOpen,
   });
 
   final DuplicateGroup group;
   final bool Function(GalleryPhoto photo) kept;
-  final ValueChanged<GalleryPhoto>? onTap;
+  final ValueChanged<GalleryPhoto>? onToggle;
+  final ValueChanged<int> onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -264,7 +290,8 @@ class _GroupCard extends StatelessWidget {
                 _Member(
                   photo: photo,
                   kept: kept(photo),
-                  onTap: onTap == null ? null : () => onTap!(photo),
+                  onToggle: onToggle == null ? null : () => onToggle!(photo),
+                  onOpen: () => onOpen(i),
                 ),
               ],
             ],
@@ -276,11 +303,21 @@ class _GroupCard extends StatelessWidget {
 }
 
 class _Member extends StatelessWidget {
-  const _Member({required this.photo, required this.kept, required this.onTap});
+  const _Member({
+    required this.photo,
+    required this.kept,
+    required this.onToggle,
+    required this.onOpen,
+  });
 
   final GalleryPhoto photo;
   final bool kept;
-  final VoidCallback? onTap;
+
+  /// Le rond en haut à droite : garder ou supprimer.
+  final VoidCallback? onToggle;
+
+  /// La photo : l'ouvrir en grand.
+  final VoidCallback onOpen;
 
   static const _side = 104.0;
 
@@ -301,7 +338,7 @@ class _Member extends StatelessWidget {
       label: [?photo.folderName, details, state].join(' · '),
       excludeSemantics: true,
       child: GestureDetector(
-        onTap: onTap,
+        onTap: onOpen,
         child: SizedBox(
           width: _side,
           child: Column(
@@ -328,12 +365,19 @@ class _Member extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      top: 6,
-                      right: 6,
-                      child: Icon(
-                        kept ? Icons.check_circle : Icons.cancel,
-                        color: kept ? tidy.keep : tidy.delete,
-                        size: 22,
+                      top: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: onToggle,
+                        behavior: HitTestBehavior.opaque,
+                        child: Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: Icon(
+                            kept ? Icons.check_circle : Icons.cancel,
+                            color: kept ? tidy.keep : tidy.delete,
+                            size: 26,
+                          ),
+                        ),
                       ),
                     ),
                   ],

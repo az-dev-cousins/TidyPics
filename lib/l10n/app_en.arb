@@ -287,7 +287,7 @@
       }
     }
   },
-  "duplicatesHint": "The best version is kept (more pixels, less compressed). Tap a photo to change.",
+  "duplicatesHint": "The best version is kept (more pixels, less compressed). Tap a photo to see it large, the circle to change your mind.",
   "duplicatesNone": "No duplicates found.",
   "duplicatesNoneYet": "No duplicates found yet.",
   "duplicatesAnalysing": "Analysing photos… {percent}",
@@ -475,5 +475,20 @@
   "settingsReminders": "Reminders",
   "settingsWeeklyReminder": "Weekly reminder",
   "settingsWeeklyReminderHint": "A notification one week after your last visit, with the number of photos to sort. Nothing is sent: the phone schedules it.",
-  "settingsReminderDenied": "Notifications are blocked: allow them in your phone's settings."
+  "settingsReminderDenied": "Notifications are blocked: allow them in your phone's settings.",
+  "duplicatesViewerTitle": "Version {index} of {count}",
+  "@duplicatesViewerTitle": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicatesBestVersion": "BEST VERSION",
+  "duplicatesSwipe": "Sort with swipes",
+  "duplicateCopyBadge": "Copy · the original is kept",
+  "duplicatesDoneTitle": "All copies sorted!"
 }
