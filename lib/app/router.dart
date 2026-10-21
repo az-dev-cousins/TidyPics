@@ -6,6 +6,8 @@ import '../data/models/photo_groups.dart';
 import '../data/sources/gallery_source.dart';
 import '../features/achievements/presentation/achievements_page.dart';
 import '../features/cart/presentation/checkpoint_page.dart';
+import '../features/documents/presentation/document_sort_page.dart';
+import '../features/documents/presentation/documents_page.dart';
 import '../features/duplicates/presentation/duplicates_page.dart';
 import '../features/gallery/application/gallery_controller.dart';
 import '../features/home/presentation/home_page.dart';
@@ -39,6 +41,8 @@ abstract final class AppRoutes {
   static const achievements = '/achievements';
   static const screenshots = '/screenshots';
   static const duplicatesSwipe = '/duplicates/swipe';
+  static const documents = '/documents';
+  static const documentsSort = '/documents/sort';
   static const _checkpoint = '/checkpoint';
   static const _month = '/month';
 
@@ -140,6 +144,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.duplicates,
         builder: (context, state) => const DuplicatesPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.documents,
+        builder: (context, state) => const DocumentsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.documentsSort,
+        builder: (context, state) => const DocumentSortPage(),
       ),
       GoRoute(
         path: AppRoutes.duplicatesSwipe,

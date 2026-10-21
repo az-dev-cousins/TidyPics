@@ -811,5 +811,122 @@
   "settingsReminderHint": "Un petit défi à l'heure choisie, qui s'espace si tu ne viens pas. Rien n'est envoyé : c'est le téléphone qui le programme.",
   "onboardingRhythmTitle": "Quand aimes-tu trier ?",
   "onboardingRhythmBody": "On te lancera un petit défi à ce moment-là. Tu pourras changer ou tout couper dans les réglages.",
-  "onboardingRhythmNone": "Pas de rappel"
+  "onboardingRhythmNone": "Pas de rappel",
+  "menuDocuments": "Documents",
+  "menuDocumentsDetail": "PDF, Word, téléchargements",
+  "documentsTitle": "Documents",
+  "documentsIntro": "Les fichiers qui encombrent le téléphone sans être des photos : PDF, Word, téléchargements…",
+  "documentsFolderTitle": "Mes documents",
+  "documentsFolderBody": "Donne une fois l'accès au dossier Documents : TidyPics le relira à chaque fois, sous-dossiers compris.",
+  "documentsFolderGrant": "Choisir le dossier Documents",
+  "documentsFolderAdd": "Ajouter un dossier",
+  "documentsFolderForget": "Retirer ce dossier",
+  "documentsFolderSort": "Trier mes documents",
+  "documentsPickTitle": "Trier des fichiers",
+  "documentsPickBody": "Choisis des fichiers dans le sélecteur du téléphone (Téléchargements, Documents…). Astuce : appui long sur un fichier, puis « Tout sélectionner ».",
+  "documentsPickButton": "Choisir des fichiers",
+  "documentsNothing": "Rien à trier ici : tout est déjà gardé.",
+  "documentsFiles": "{count, plural, =0{aucun fichier} =1{1 fichier} other{{count} fichiers}}",
+  "@documentsFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "documentsProgress": "{done} sur {total}",
+  "@documentsProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "documentsOpen": "Ouvrir",
+  "documentsOpenFailed": "Aucune app ne sait ouvrir ce fichier.",
+  "documentsPages": "{count, plural, =1{1 page} other{{count} pages}}",
+  "@documentsPages": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "documentsRecapTitle": "Récap des documents",
+  "documentsRecapSummary": "{files} · {size} à libérer",
+  "@documentsRecapSummary": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsRecapHint": "Touche un fichier pour le garder finalement.",
+  "documentsRecapButton": "Envoyer à la corbeille ({size})",
+  "@documentsRecapButton": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsRecapNone": "Rien à supprimer : tout est gardé.",
+  "documentsSafety": "Ils vont dans la corbeille de TidyPics : récupérables 30 jours, puis effacés. « Vider maintenant » libère la place tout de suite.",
+  "documentsDone": "{files} à la corbeille · {size} libérés",
+  "@documentsDone": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsFinish": "Terminé",
+  "documentsAllSorted": "Tous les documents sont triés !",
+  "documentsFailed": "{files} n'ont pas pu être supprimés (fichiers protégés).",
+  "@documentsFailed": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsTrashTitle": "Documents",
+  "documentsTrashNote": "Gardés de côté par TidyPics ({size}), effacés au bout de 30 jours.",
+  "@documentsTrashNote": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsTrashEmpty": "Vider les documents ({size})",
+  "@documentsTrashEmpty": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsRestored": "« {name} » est de retour.",
+  "@documentsRestored": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsRestoreFailed": "Impossible de le remettre en place."
 }

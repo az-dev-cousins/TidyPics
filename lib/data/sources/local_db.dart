@@ -130,6 +130,35 @@ class AchievementLog extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+/// Documents déjà gardés (V2, F16) : ils ne sont plus proposés au tri.
+@DataClassName('DocumentDecisionRow')
+class DocumentDecisions extends Table {
+  TextColumn get uri => text()();
+  DateTimeColumn get decidedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {uri};
+}
+
+/// Corbeille de TidyPics pour les documents : la copie mise de côté,
+/// effacée au bout de 30 jours (ou avant, « Vider maintenant »).
+@DataClassName('DocumentTrashRow')
+class DocumentTrash extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get uri => text()();
+  TextColumn get name => text()();
+  TextColumn get mime => text().nullable()();
+  IntColumn get sizeBytes => integer().withDefault(const Constant(0))();
+
+  /// Le fichier mis de côté, dans le stockage de l'app.
+  TextColumn get path => text()();
+
+  /// Dossier donné et sous-dossier d'origine, pour le remettre en place.
+  TextColumn get tree => text().nullable()();
+  TextColumn get folder => text().nullable()();
+  DateTimeColumn get trashedAt => dateTime()();
+}
+
 @DriftDatabase(
   tables: [
     Photos,
@@ -140,6 +169,8 @@ class AchievementLog extends Table {
     ActivityDays,
     Milestones,
     AchievementLog,
+    DocumentDecisions,
+    DocumentTrash,
   ],
 )
 class LocalDb extends _$LocalDb {
@@ -147,7 +178,7 @@ class LocalDb extends _$LocalDb {
     : super(executor ?? driftDatabase(name: 'tidypics'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -170,6 +201,10 @@ class LocalDb extends _$LocalDb {
         await m.createTable(milestones);
         await m.createTable(achievementLog);
       }
+      // v5 : documents.
+      if (from < 5) await m.createTable(documentDecisions);
+      // v6 : corbeille des documents.
+      if (from < 6) await m.createTable(documentTrash);
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

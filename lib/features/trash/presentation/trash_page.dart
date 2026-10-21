@@ -11,6 +11,7 @@ import '../../../data/providers.dart';
 import '../../../data/repositories/trash_repository.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/photo_image.dart';
+import '../../documents/presentation/document_trash_section.dart';
 import '../../gallery/application/gallery_controller.dart';
 
 /// « En cours de suppression » (F4) : ce que TidyPics a envoyé à la
@@ -183,6 +184,8 @@ class TrashPage extends ConsumerWidget {
                             ],
                           ),
                         ),
+                      // Documents (V2) : la corbeille de TidyPics.
+                      const DocumentTrashSection(),
                     ],
                   ),
           ),

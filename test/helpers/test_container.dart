@@ -11,6 +11,7 @@ import 'package:tidypics/data/repositories/settings_repository.dart';
 import 'package:tidypics/data/sources/local_db.dart';
 import 'package:tidypics/features/reminders/application/reminders.dart';
 
+import 'fake_document_source.dart';
 import 'fake_gallery_source.dart';
 import 'fake_reminders.dart';
 
@@ -41,7 +42,9 @@ Future<List<Override>> testOverrides({
   required FakeGallerySource gallery,
   Map<String, Object> settings = const {'onboarding_done': true},
   FakeReminderScheduler? reminders,
+  FakeDocumentSource? documents,
 }) async => [
+  documentSourceProvider.overrideWithValue(documents ?? FakeDocumentSource()),
   reminderSchedulerProvider.overrideWithValue(
     reminders ?? FakeReminderScheduler(),
   ),

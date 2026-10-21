@@ -19,7 +19,7 @@ import io.flutter.plugin.common.MethodChannel
  * - `deleteForever` : vide la corbeille pour ces photos (« Vider maintenant »).
  * - `storage` : capacité du téléphone, espace libre, place des photos et des
  *   vidéos.
-  * - `sizes` : taille de chaque photo et vidéo, en une requête.
+ * - `sizes` : taille de chaque photo et vidéo, en une requête.
  * - `openInGallery` : ouvre une photo dans l'app Galerie (ou Google Photos).
  *
  * Photos et vidéos passent par la table `Files` de MediaStore, qui couvre
@@ -27,9 +27,13 @@ import io.flutter.plugin.common.MethodChannel
  */
 class MainActivity : FlutterActivity() {
     private var pendingDelete: Pair<MethodChannel.Result, List<String>>? = null
+    private lateinit var documents: DocumentsChannel
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        documents = DocumentsChannel(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "tidypics/documents")
+            .setMethodCallHandler(documents)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "tidypics/device")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -37,7 +41,7 @@ class MainActivity : FlutterActivity() {
                     "trashedIds" -> result.success(trashedIds(call.argument<List<String>>("ids").orEmpty()))
                     "deleteForever" -> deleteForever(call.argument<List<String>>("ids").orEmpty(), result)
                     "storage" -> result.success(storage())
-                                        "sizes" -> result.success(sizes())
+                    "sizes" -> result.success(sizes())
                     "openInGallery" -> result.success(openInGallery(call.argument<String>("id")))
                     else -> result.notImplemented()
                 }
@@ -191,6 +195,7 @@ class MainActivity : FlutterActivity() {
     @Deprecated("Toujours le moyen de recevoir la réponse d'une demande MediaStore")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (::documents.isInitialized && documents.onActivityResult(requestCode, resultCode, data)) return
         if (requestCode != DELETE_REQUEST) return
         val (result, ids) = pendingDelete ?: return
         pendingDelete = null

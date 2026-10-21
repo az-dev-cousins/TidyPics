@@ -140,6 +140,13 @@ class HomePage extends ConsumerWidget {
                           : l10n.menuScreenshotsDetail(screenshots),
                       onTap: () => context.push(AppRoutes.screenshots),
                     ),
+                    if (ref.watch(documentSourceProvider).isSupported)
+                      _Tile(
+                        icon: Icons.description_outlined,
+                        title: l10n.menuDocuments,
+                        subtitle: l10n.menuDocumentsDetail,
+                        onTap: () => context.push(AppRoutes.documents),
+                      ),
                     _Tile(
                       icon: Icons.emoji_events_outlined,
                       title: l10n.menuAchievements,

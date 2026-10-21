@@ -83,6 +83,7 @@ class GallerySyncController extends Notifier<SyncStatus> {
     final gallery = ref.read(gallerySourceProvider);
     final library = ref.read(libraryRepositoryProvider);
     final trash = ref.read(trashRepositoryProvider);
+    final documents = ref.read(documentRepositoryProvider);
     try {
       var photos = const <GalleryPhoto>[];
       final watch = Stopwatch()..start();
@@ -103,6 +104,8 @@ class GallerySyncController extends Notifier<SyncStatus> {
         watch.reset();
       } while (_again);
       await trash.purgeExpired();
+      // Documents de plus de 30 jours dans la corbeille de TidyPics.
+      await documents.purgeExpired();
       // Restaurées ou effacées depuis l'app Galerie : le journal suit.
       await trash.syncWithSystemTrash(photos.map((p) => p.id).toSet());
       if (ref.mounted) state = SyncStatus.done;

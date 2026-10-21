@@ -584,5 +584,122 @@
   "settingsReminderHint": "A small challenge at the time you pick, less often if you don't come back. Nothing is sent: the phone schedules it.",
   "onboardingRhythmTitle": "When do you like to sort?",
   "onboardingRhythmBody": "We'll send you a small challenge then. You can change it or turn it off in settings.",
-  "onboardingRhythmNone": "No reminder"
+  "onboardingRhythmNone": "No reminder",
+  "menuDocuments": "Documents",
+  "menuDocumentsDetail": "PDFs, Word, downloads",
+  "documentsTitle": "Documents",
+  "documentsIntro": "Files cluttering your phone that aren't photos: PDFs, Word files, downloads…",
+  "documentsFolderTitle": "My documents",
+  "documentsFolderBody": "Give access to your Documents folder once: TidyPics will read it again each time, subfolders included.",
+  "documentsFolderGrant": "Choose the Documents folder",
+  "documentsFolderAdd": "Add a folder",
+  "documentsFolderForget": "Remove this folder",
+  "documentsFolderSort": "Sort my documents",
+  "documentsPickTitle": "Sort files",
+  "documentsPickBody": "Pick files in your phone's file picker (Downloads, Documents…). Tip: long-press a file, then \"Select all\".",
+  "documentsPickButton": "Pick files",
+  "documentsNothing": "Nothing to sort here: everything is already kept.",
+  "documentsFiles": "{count, plural, =0{no files} =1{1 file} other{{count} files}}",
+  "@documentsFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "documentsProgress": "{done} of {total}",
+  "@documentsProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "documentsOpen": "Open",
+  "documentsOpenFailed": "No app can open this file.",
+  "documentsPages": "{count, plural, =1{1 page} other{{count} pages}}",
+  "@documentsPages": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "documentsRecapTitle": "Documents recap",
+  "documentsRecapSummary": "{files} · {size} to free",
+  "@documentsRecapSummary": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsRecapHint": "Tap a file to keep it after all.",
+  "documentsRecapButton": "Move to trash ({size})",
+  "@documentsRecapButton": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsRecapNone": "Nothing to delete: everything is kept.",
+  "documentsSafety": "They go to TidyPics' trash: recoverable for 30 days, then deleted. \"Empty now\" frees the space right away.",
+  "documentsDone": "{files} moved to trash · {size} freed",
+  "@documentsDone": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsFinish": "Done",
+  "documentsAllSorted": "All documents sorted!",
+  "documentsFailed": "{files} couldn't be deleted (protected files).",
+  "@documentsFailed": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsTrashTitle": "Documents",
+  "documentsTrashNote": "Kept aside by TidyPics ({size}), deleted after 30 days.",
+  "@documentsTrashNote": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsTrashEmpty": "Empty documents ({size})",
+  "@documentsTrashEmpty": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsRestored": "\"{name}\" is back.",
+  "@documentsRestored": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsRestoreFailed": "Couldn't put it back."
 }

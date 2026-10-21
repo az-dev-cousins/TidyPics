@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'models/visual_hash.dart';
 
+import 'repositories/document_repository.dart';
 import 'repositories/library_repository.dart';
 import 'repositories/progress_repository.dart';
 import 'repositories/settings_repository.dart';
 import 'repositories/trash_repository.dart';
+import 'sources/document_source.dart';
 import 'sources/gallery_source.dart';
 import 'sources/local_db.dart';
 
@@ -60,4 +62,15 @@ final visualHasherProvider = Provider<VisualHasher>(
 
 final progressRepositoryProvider = Provider<ProgressRepository>(
   (ref) => ProgressRepository(ref.watch(localDbProvider)),
+);
+
+final documentSourceProvider = Provider<DocumentSource>(
+  (ref) => PlatformDocumentSource(),
+);
+
+final documentRepositoryProvider = Provider<DocumentRepository>(
+  (ref) => DocumentRepository(
+    ref.watch(localDbProvider),
+    ref.watch(documentSourceProvider),
+  ),
 );
