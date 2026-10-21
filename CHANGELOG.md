@@ -6,6 +6,10 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 ## [Non publié]
 
 ### Ajouté
+- Documents (F16) : PDF, Word, téléchargements au swipe, avec aperçu ; dossier Documents donné une fois ou sélecteur ; corbeille de TidyPics 30 jours.
+- Rappels façon jeu (F15) : moment choisi à l'onboarding (8 h, 13 h, 19 h), chaque jour puis espacés, messages de série, d'avancée, de succès, de défi ; « 30 photos cette semaine ».
+- Doublons : versions en grand, et tri des copies au swipe.
+- Vidéos : barre d'avancée (qu'on peut faire glisser) et temps.
 - Succès (F12) : 16 succès (espace libéré, photos triées, séries de jours, premières fois), écran dédié et annonce quand on en débloque un.
 - Appui long ou « ⋯ » sur une carte (F13) : partager la photo, l'ouvrir dans la galerie.
 - Tri des captures d'écran (F14), depuis le menu.
@@ -32,6 +36,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 - Le tri propose les rafales et les paires JPG + RAW comme un seul élément.
 
 ### Corrigé
+- Une copie gardée revenait dans les doublons.
+- Des captures d'écran copiées d'un coup formaient une « rafale ».
 - Des photos WhatsApp reçues à la même heure formaient une « rafale » : les rafales demandent maintenant le même dossier, hors dossiers de photos reçues, et des photos qui se ressemblent.
 - Carte d'une rafale : vignettes carrées de taille fixe (avec deux photos, elles s'étiraient en bandes illisibles).
 - Envoi de gros paniers bien plus rapide (3 000 photos : moins d'une minute au lieu de 4 sur émulateur) : miniatures lues 8 par 8.

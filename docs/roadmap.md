@@ -1,11 +1,11 @@
 # 🗺️ TidyPics — Roadmap
 
-> Mise à jour : 20/10/2026
+> Mise à jour : 21/10/2026
 > Le détail de chaque fonctionnalité (Fx) est dans le [cahier des charges](cahier-des-charges.md). La liste des tâches, case par case, est dans le [backlog](backlog.md).
 
 ## Où on en est
 
-**La V1 est complète côté fonctionnalités** (lots 0 à 7) et tourne sur l'émulateur et sur un Pixel 10. **La V2 est bien avancée** : doublons, succès, partage, captures d'écran et rappels sont faits. Il reste les documents (APK seulement). iOS attend un iPhone pour être testé.
+**La V1 est complète côté fonctionnalités** (lots 0 à 7) et tourne sur l'émulateur et sur un Pixel 10. **La V2 est faite** : doublons, succès, partage, captures d'écran, rappels façon jeu et documents. Restent les tests sur le Pixel, les finitions, puis l'APK pour les proches. iOS attend un iPhone.
 
 | Étape | Contenu | État |
 |---|---|---|
@@ -21,8 +21,8 @@
 | Lot 8 — Tests sur appareils | Pixel 10 en cours ; iPhone et iPad sans appareil pour l'instant | 🟡 |
 | **V2 — Lot 11 — Doublons** | Empreinte visuelle, écran « Doublons », rafales fiables | ✅ |
 | V2 — Lot 13 — Succès et confort | Succès, partage et « ouvrir dans la galerie », mode captures d'écran, rappels | ✅ |
-| **V2 — Lot 12 — Documents** | Word, PDF, téléchargements (Android, APK seulement) | ⏭️ **prochaine étape** |
-| Lot 9 — Finitions | Accessibilité, textes, cas limites, « À propos » | ⏳ |
+| V2 — Lot 12 — Documents | PDF, Word, téléchargements, sans permission spéciale | ✅ · 🔬 sur le Pixel |
+| **Lot 9 — Finitions** | Accessibilité, textes, cas limites, « À propos » | ⏭️ **prochaine étape** |
 | Lot 10 — APK pour les proches | Un APK propre à partager, avant toute publication sur les stores | ⏸️ plus tard |
 | V3 | Tous les fichiers, IA sur le téléphone, nettoyage Google Photos (si Google le permet) | 💡 |
 
@@ -49,15 +49,14 @@
 - **Succès** : 16 succès. Paliers d'espace libéré (100 Mo à 20 Go), de photos triées (100 à 10 000), séries de jours d'affilée (3, 7, 30), et des premières fois (rafale triée, doublon supprimé, RAW trié, mois trié en entier, galerie entière). Un écran depuis le menu avec la série en cours, une annonce quand on en débloque un. Ceux déjà mérités avant la mise à jour sont inscrits sans annonce.
 - **Appui long sur une carte** : « Partager… » (menu de partage du système : Google Photos, Drive, WhatsApp…, sans compte dans l'app) et « Ouvrir dans la galerie », pour retrouver la photo.
 - **Captures d'écran** : un tri dédié depuis le menu, seulement les captures.
-- **Rappels** : notification locale facultative, désactivée par défaut (« 200 photos à trier »). La permission de notification n'est demandée qu'en l'activant.
+- **Rappels façon jeu** : le moment (8 h, 13 h, 19 h) choisi à l'onboarding, tous les jours tant qu'on revient puis de plus en plus espacés ; série, avancée, succès à portée, défi du jour ; « 30 photos cette semaine » une fois la galerie triée à 90 % ([ADR 0011](adr/0011-rappels-locaux.md)).
+- **Doublons en grand et au swipe**, **barre d'avancée des vidéos**.
 
-### Lot 12 — Documents ⏭️
-Les fichiers qui encombrent le téléphone sans être des photos : PDF, Word, Excel, PowerPoint, archives, APK, gros téléchargements.
-- ✅ **Décidé** : disponible **uniquement dans l'APK** partagé (lot 10). Une future version des stores ne l'aura pas : le Play Store refuse la permission nécessaire sauf justification.
-- ✅ **Décidé** : **corbeille propre à l'app**. Les documents écartés sont mis de côté 30 jours (récupérables), puis effacés. Ils prennent encore de la place pendant ces 30 jours ; « Vider maintenant » les efface tout de suite.
-- **Android seulement.** Lire ces fichiers demande la permission « Accès à tous les fichiers » (`MANAGE_EXTERNAL_STORAGE`), donnée dans les réglages après une explication.
-- **iOS** : impossible, chaque app ne voit que ses propres fichiers.
-- Même principe que les photos : un tri au swipe, les plus gros d'abord, nom, taille, dossier et date sur la carte, aperçu de la première page des PDF.
+### Lot 12 — Documents ✅
+- **Sans permission spéciale**, par le sélecteur du système : « Mes documents » (le dossier Documents donné une fois) et « Trier des fichiers » (n'importe où). Accepté par le Play Store, donc plus besoin d'en faire une exclusivité de l'APK ([ADR 0010](adr/0010-documents-sans-permission-speciale.md)).
+- Aperçu : première page des PDF, début du texte des Word / PowerPoint / Excel, bouton « Ouvrir ».
+- **Corbeille de TidyPics** (la corbeille du système refuse les documents, vérifié) : 30 jours, restauration, « Vider les documents ».
+- À vérifier sur le Pixel : de vrais PDF (gros, protégés), la restauration.
 
 ## Lot 9 — Finitions ⏳
 

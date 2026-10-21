@@ -10,11 +10,12 @@ TidyPics est une app mobile Flutter (Android et iOS, téléphones et tablettes) 
 - 🧺 Panier et récap : une seule confirmation pour tout un lot, corbeille du système
 - 📸 Rafales et paires JPG + RAW regroupées, tri des RAW à part
 - 🪞 Doublons (copies WhatsApp, fichiers copiés) repérés sur le téléphone
-- 🏆 Succès, tri des captures d'écran, partage, rappel facultatif
+- 🏆 Succès, tri des captures d'écran, partage, rappels façon jeu
+- 📄 Documents (PDF, Word, téléchargements) triés au swipe, avec aperçu
 - 📊 Espace libéré, stockage du téléphone, stats par semaine et par mois
 - 📱 Téléphones et tablettes, thème clair et sombre
 
-> Statut : **V1 complète côté fonctionnalités**, testée sur l'émulateur et un Pixel 10. **V2 bien avancée** (doublons, succès, captures, partage, rappels). Voir la [roadmap](docs/roadmap.md).
+> Statut : **V1 complète côté fonctionnalités**, testée sur l'émulateur et un Pixel 10. **V2 faite** (doublons, succès, captures, partage, rappels, documents). Voir la [roadmap](docs/roadmap.md).
 
 ## Documentation
 
@@ -73,9 +74,9 @@ La CI GitHub Actions lance ces mêmes commandes, plus un build Android, à chaqu
 
 ## Stack
 
-Flutter · Riverpod · go_router · Drift (SQLite) · photo_manager · video_player · image (empreintes visuelles) · share_plus · flutter_local_notifications · Material 3 · Manrope (incluse dans l'app)
+Flutter · Riverpod · go_router · Drift (SQLite) · photo_manager · video_player · image (empreintes visuelles) · share_plus · flutter_local_notifications · workmanager · archive · Material 3 · Manrope (incluse dans l'app)
 
-Un peu de code natif : Kotlin (`MainActivity.kt`, corbeille, tailles, stockage) et Swift (`AppDelegate.swift`, stockage).
+Un peu de code natif : Kotlin (`MainActivity.kt` : corbeille, tailles, stockage ; `DocumentsChannel.kt` : documents) et Swift (`AppDelegate.swift`, stockage).
 
 Le code de la base (`lib/data/sources/local_db.g.dart`) est généré et versionné. Après une modification de `local_db.dart`, relance `dart run build_runner build`.
 
@@ -89,7 +90,7 @@ lib/
 ├── data/            # modèles, base Drift, accès galerie, repositories
 ├── l10n/            # traductions (fr par défaut, en)
 ├── features/        # onboarding, home (menu), swipe (tri, rafales), months, cart (récap),
-│                    # trash, raw_pairs, duplicates, achievements, reminders,
+│                    # trash, raw_pairs, duplicates, documents, achievements, reminders,
 │                    # stats, settings, gallery
 └── shared/widgets/  # widgets réutilisables (miniatures…)
 docs/                # roadmap, cahier des charges, backlog, ADR, design

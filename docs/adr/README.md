@@ -38,3 +38,5 @@ Ce que ça implique, en bien et en moins bien.
 | 0007 | [`photo_manager` pour la corbeille et « Gestion des médias »](0007-photo-manager-pour-la-corbeille.md) | Acceptée |
 | 0008 | [`video_player` pour lire les vidéos](0008-video-player.md) | Acceptée |
 | 0009 | [Empreinte visuelle calculée sur le téléphone](0009-empreinte-visuelle.md) | Acceptée |
+| 0010 | [Documents par le sélecteur du système, corbeille de TidyPics](0010-documents-sans-permission-speciale.md) | Acceptée |
+| 0011 | [Rappels façon jeu, programmés sur le téléphone](0011-rappels-locaux.md) | Acceptée |

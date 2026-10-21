@@ -125,10 +125,18 @@ Pistes et choix : https://claude.ai/artifact/D4jveh5gf2pPxWirwQxVsC. Menu A + C,
 - [x] F14 Tri des captures d'écran
 - [x] F15 Rappel hebdomadaire facultatif
 
-## Lot 12 — Documents (V2, APK seulement)
+## Lot 12 — Documents (V2)
 
-- [x] Choisir : corbeille propre à l'app (30 jours)
-- [ ] Ne l'activer que dans l'APK partagé (pas dans une future version des stores)
-- [ ] Permission « Accès à tous les fichiers » avec explication
-- [ ] Scan des documents (PDF, Word, Excel, archives, APK, gros téléchargements)
-- [ ] Tri au swipe, les plus gros d'abord, aperçu des PDF
+- [x] Corbeille de TidyPics (30 jours) : la corbeille du système refuse les documents
+- [x] Sans permission spéciale (sélecteur du système) : plus besoin d'exclusivité APK
+- [x] « Mes documents » (dossier donné une fois) et « Trier des fichiers »
+- [x] Tri au swipe, les plus gros d'abord, aperçu PDF / Word / PowerPoint / Excel, « Ouvrir »
+- [x] Restaurer et vider dans « En cours de suppression »
+- [ ] Vérifier sur le Pixel : vrais PDF (gros, protégés), restauration
+
+## Lot 13 bis — Retours du Pixel
+
+- [x] Doublons : versions en grand (zoom), mode swipe sur les copies
+- [x] Vidéos : barre d'avancée et temps
+- [x] Rappels façon jeu : moment choisi à l'onboarding, rythme qui s'espace, « 30 photos cette semaine »
+- [ ] Vérifier sur le Pixel : les rappels arrivent à l'heure, la tâche de fond

@@ -1,6 +1,6 @@
 # 📸 TidyPics — Cahier des charges
 
-> Version 1.6 — 21/10/2026 (succès, partage, captures d'écran, rappels ; décisions sur les documents)
+> Version 1.7 — 21/10/2026 (documents, rappels façon jeu, doublons en grand et au swipe, barre d'avancée des vidéos)
 > Statut : **V1 terminée côté fonctionnalités, V2 bien avancée** — voir la [roadmap](roadmap.md)
 > Source de vérité : ce document, avec les décisions de [`docs/adr/`](adr/README.md) et la direction artistique de [`docs/design/`](design/direction-artistique.md).
 
@@ -42,7 +42,7 @@ Les galeries de smartphone accumulent des milliers de photos inutiles : rafales,
 ### V2 (détail dans la [roadmap](roadmap.md))
 - ✅ Doublons (F11)
 - ✅ Succès (F12), partage et ouverture dans la galerie (F13), tri des captures d'écran (F14), rappels (F15)
-- Tri des documents (F16) : PDF, Word, téléchargements. Android, **APK seulement**
+- ✅ Tri des documents (F16) : PDF, Word, téléchargements. Android
 
 ### Plus tard
 - V3 : tous les types de fichiers, IA sur le téléphone (flou, screenshots, meilleure photo), nettoyage de Google Photos si Google le permet un jour
@@ -79,7 +79,8 @@ Référence : [Android — Access media files from shared storage](https://devel
 | Lecture des photos et des vidéos (`READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`) | Android | Fin de l'onboarding | L'app ne peut rien faire : écran expliquant comment l'autoriser dans les réglages |
 | Accès partiel « photos sélectionnées » | Android 14+ | Choix proposé par le système | On trie seulement ces photos, avec un bandeau « Autoriser toutes les photos » |
 | Photothèque (complet ou limité) | iOS | Fin de l'onboarding | Idem Android |
-| Notifications (`POST_NOTIFICATIONS`) | Android 13+, iOS | ✅ Seulement en activant le rappel hebdomadaire (F15) | Le rappel reste coupé, avec une explication |
+| Notifications (`POST_NOTIFICATIONS`) | Android 13+, iOS | ✅ À l'onboarding si l'on choisit un moment de rappel, ou en activant les rappels (F15) | Les rappels restent coupés, avec une explication |
+| Accès à un dossier (sélecteur du système) | Android | ✅ En donnant le dossier Documents (F16) | Rien : on peut toujours choisir des fichiers un par un |
 | **Gestion des médias** (`MANAGE_MEDIA`) | Android 12+ | **Au premier checkpoint**, avec une explication (« Supprime sans confirmation à chaque fois ») | Une popup système s'affiche à chaque lot. Rien n'est bloqué |
 
 L'app ne demande **aucune permission réseau ni de localisation**. La permission de notification n'est demandée que si l'on active le rappel (F15).
@@ -245,9 +246,12 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 - **Écran « Doublons »**, depuis le menu (tuile avec le nombre de groupes et l'espace à libérer, ou l'avancée de l'analyse) :
   - un groupe par photo, les versions côte à côte avec leur dossier, leurs dimensions et leur taille ;
   - la **meilleure est gardée** d'office : plus de pixels, puis fichier plus lourd (moins compressé), puis hors dossier de photos reçues, puis la plus ancienne ;
-  - un tap change d'avis sur une version ; les groupes qui libèrent le plus passent en premier ;
+  - ✅ un tap sur une version l'ouvre **en grand** (zoom, glisser d'une version à l'autre, garder / supprimer) ; le rond en haut à droite change d'avis sans ouvrir ;
+  - les groupes qui libèrent le plus passent en premier ;
+  - ✅ **« Trier au swipe »** : seulement les copies, une par une (« Copie · l'original est gardé ») ; l'original n'est pas touché ;
   - un bouton envoie les autres à la corbeille en un seul lot. Les versions gardées ne reviennent plus au tri.
 - Pendant l'analyse, l'écran montre l'avancée ; les doublons apparaissent au fur et à mesure.
+- ✅ Une copie qu'on a choisi de garder ne revient plus.
 
 ### F12 — Succès (V2) ✅
 - 16 succès en quatre familles :
@@ -270,16 +274,24 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 - Une capture = un dossier « Screenshots » ou un nom « Screenshot_… » (Android), ou le sous-type « capture d'écran » de Photos (iOS).
 - Mêmes gestes, même panier et même récap que le tri normal.
 
-### F15 — Rappels (V2) ✅
-- Réglage **« Rappel chaque semaine »**, désactivé par défaut. La permission de notification est demandée en l'activant ; refusée, le réglage reste coupé avec une explication.
-- Une notification locale **une semaine après la dernière visite**, avec le nombre de photos à trier. Reprogrammée en quittant l'app ; rien à trier, pas de rappel.
-- Heure non exacte : aucune permission d'alarme. Reprogrammée après un redémarrage du téléphone.
+### F15 — Rappels façon jeu (V2) ✅
+- **Onboarding** : « Quand aimes-tu trier ? » matin (8 h), après-midi (13 h), soir (19 h) ou pas de rappel. Choisir un moment active les rappels **chaque jour** et demande la permission de notifier.
+- **Réglages** : Aucun / Semaine / Jour, et le moment.
+- **Rythme** : à partir de la dernière visite, J+1, J+2, J+3, puis J+5, J+7, J+14 (hebdomadaire : J+7, J+14, J+28). Tant qu'on revient, c'est tous les jours ; sinon ça s'espace.
+- **Messages variés, façon jeu** : série en cours (« 🔥 Série de 4 jours »), série perdue (« On en relance une ? »), avancée (« Galerie rangée à 62 % · prochain objectif 70 % »), succès à portée (« Plus que 40 photos pour… »), défi du jour (« 20 photos en 2 minutes. Chiche ? »), puis « Ta galerie t'attend ».
+- **Presque tout trié** (90 % ou plus) : silence, sauf **30 photos ou plus cette semaine** : « Hey, t'as pris 85 photos cette semaine… et si on triait ça ? », une fois.
+- Tout est programmé sur le téléphone ; Android remet les textes à jour en tâche de fond toutes les 12 h ([ADR 0011](adr/0011-rappels-locaux.md)). Heure non exacte : aucune permission d'alarme.
 
-### F16 — Documents (V2, à faire) ⏭️
-- PDF, Word, Excel, PowerPoint, archives, APK, gros téléchargements.
-- ✅ **Uniquement dans l'APK** partagé (lot 10) : le Play Store refuse la permission « Accès à tous les fichiers » sauf justification. Android seulement ; impossible sur iOS.
-- ✅ **Corbeille propre à l'app** : les documents écartés sont mis de côté 30 jours, récupérables, puis effacés. « Vider maintenant » les efface tout de suite.
-- Tri au swipe, les plus gros d'abord ; nom, taille, dossier et date sur la carte ; aperçu de la première page des PDF.
+### F16 — Documents (V2) ✅
+- PDF, Word, Excel, PowerPoint, textes, archives, APK, gros téléchargements. Tuile « Documents » dans le menu (Android).
+- ✅ **Sans permission spéciale**, par le sélecteur du système : accepté par le Play Store, plus besoin d'exclusivité APK ([ADR 0010](adr/0010-documents-sans-permission-speciale.md)).
+  - **« Mes documents »** : l'accès au dossier Documents est donné une fois, puis relu à chaque fois, sous-dossiers compris. On peut ajouter ou retirer des dossiers.
+  - **« Trier des fichiers »** : le sélecteur du système, plusieurs fichiers à la fois (Téléchargements…). Android interdit de donner la racine de Téléchargements comme dossier.
+- **Tri au swipe**, les plus gros d'abord : gauche = au panier, droite = garder (un document gardé n'est plus proposé). Annuler, « Je m'arrête là ».
+- **Carte** : première page des PDF (avec le nombre de pages), début du texte des Word / PowerPoint / Excel / textes, image pour une image, sinon une icône ; nom, taille, date, sous-dossier ; bouton **« Ouvrir »** (l'app qui sait lire le fichier).
+- **Récap** puis **corbeille de TidyPics** : la corbeille du système refuse les documents (vérifié). Les documents écartés sont mis de côté 30 jours dans l'app, visibles dans « En cours de suppression » (Restaurer : dans leur dossier d'origine, ou dans Téléchargements), puis effacés. « Vider les documents » libère la place tout de suite.
+- L'espace libéré compte dans les stats et les succès.
+- iOS : impossible, chaque app ne voit que ses propres fichiers.
 
 ---
 
@@ -369,7 +381,7 @@ lib/
 
 ### 8.4 Données locales
 
-Base Drift, version 4 (migrations v1 → v4 testées).
+Base Drift, version 6 (migrations v1 → v6 testées).
 
 | Table | Contenu |
 |---|---|
@@ -381,6 +393,8 @@ Base Drift, version 4 (migrations v1 → v4 testées).
 | `activity_days` | jours de tri (séries de succès) |
 | `milestones` | premières fois (rafale triée, doublon supprimé…) |
 | `achievement_log` | succès débloqués et leur date |
+| `document_decisions` | documents gardés (plus proposés) |
+| `document_trash` | corbeille de TidyPics pour les documents : copie, dossier d'origine, date |
 
 Les groupes (rafales, paires) ne sont pas stockés : ils sont recalculés à l'ouverture du tri (quelques millisecondes).
 
@@ -439,7 +453,7 @@ Les groupes (rafales, paires) ne sont pas stockés : ils sont recalculés à l'o
 | 10 — APK pour les proches | Clé de signature, APK à partager, page d'explication (les stores plus tard) | ⏸️ plus tard |
 | 11 — Doublons (V2) | F11, rafales fiables | ✅ |
 | 13 — Succès et confort (V2) | F12 à F15 | ✅ |
-| 12 — Documents (V2) | F16, APK seulement | ⏭️ |
+| 12 — Documents (V2) | F16, sans permission spéciale | ✅ |
 | V2 / V3 | Voir la [roadmap](roadmap.md) | |
 
 Lots 0 à 7 : ✅ faits (détail dans le [backlog](backlog.md)).
