@@ -26,6 +26,9 @@ enum SwipeChoice {
   trash,
 }
 
+/// Une capture d'écran plus vieille que ça passe en tête du tri.
+const oldScreenshotAge = Duration(days: 183);
+
 /// Les tris ciblés, ouverts depuis le menu.
 enum SwipeFocus { month, screenshots, duplicates, failed }
 
@@ -290,12 +293,24 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
       for (final item in items)
         if (item.cover.isBigVideo) item,
     ]..shuffle();
+    // Puis les vieilles captures d'écran (plus de 6 mois), les plus
+    // anciennes d'abord : rarement utiles, vite triées.
+    final oldLimit = DateTime.now().subtract(oldScreenshotAge);
+    final oldScreenshots = [
+      for (final item in items)
+        if (!item.cover.isBigVideo &&
+            item.cover.isScreenshot &&
+            item.takenAt.isBefore(oldLimit))
+          item,
+    ];
+    final early = {...big, ...oldScreenshots};
     final rest = [
       for (final item in items)
-        if (!item.cover.isBigVideo) item,
+        if (!early.contains(item)) item,
     ];
     return [
       ...big,
+      ...oldScreenshots,
       ...switch (settings.sortOrder) {
         SortOrder.random => rest..shuffle(),
         SortOrder.oldestFirst => rest,

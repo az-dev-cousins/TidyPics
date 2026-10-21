@@ -227,6 +227,33 @@ void main() {
       expect(ids.skip(2), ['a', 'small', 'b']);
     });
 
+    test('vieilles captures d\'écran juste après les grosses vidéos', () async {
+      final now = DateTime.now();
+      GalleryPhoto capture(String id, int daysAgo) => GalleryPhoto(
+        id: id,
+        takenAt: now.subtract(Duration(days: daysAgo)),
+        title: 'Screenshot_$id.png',
+        folder: 'Pictures/Screenshots/',
+      );
+      await start(
+        custom: [
+          at('photo', 0),
+          capture('recente', 10),
+          capture('vieille', 400),
+          GalleryPhoto(
+            id: 'video',
+            takenAt: t0,
+            title: 'v.mp4',
+            sizeBytes: 500 * 1000 * 1000,
+            duration: const Duration(minutes: 3),
+          ),
+        ],
+      );
+      final ids = state().queue.map((i) => i.id).toList();
+      expect(ids.take(2), ['video', 'vieille']);
+      expect(ids.skip(2).toSet(), {'photo', 'recente'});
+    });
+
     test('rafale triée photo par photo : gardées et panier', () async {
       await start(custom: [at('a', 0), at('b', 1), at('c', 2)]);
       await session().resolveGroup({'b'});
