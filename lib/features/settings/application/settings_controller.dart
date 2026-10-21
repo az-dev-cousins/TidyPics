@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/models/reminder_plan.dart';
 import '../../../data/providers.dart';
 import '../../../data/repositories/library_repository.dart';
 import '../../../data/repositories/settings_repository.dart';
@@ -53,8 +54,11 @@ class SettingsController extends Notifier<AppSettings> {
   Future<void> markBurstIntroSeen() =>
       _save(state.copyWith(burstIntroSeen: true));
 
-  Future<void> setWeeklyReminder(bool value) =>
-      _save(state.copyWith(weeklyReminder: value));
+  Future<void> setReminder(ReminderMode mode, {ReminderSlot? slot}) =>
+      _save(state.copyWith(reminderMode: mode, reminderSlot: slot));
+
+  Future<void> markVisit([DateTime? at]) =>
+      _save(state.copyWith(lastVisit: at ?? DateTime.now()));
 }
 
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(

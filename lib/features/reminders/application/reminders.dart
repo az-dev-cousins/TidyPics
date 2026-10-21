@@ -3,35 +3,50 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:timezone/timezone.dart' as tz;
 
+import '../../../data/models/achievements.dart';
+import '../../../data/models/reminder_plan.dart';
 import '../../../data/providers.dart';
+import '../../../data/repositories/library_repository.dart';
+import '../../../data/repositories/progress_repository.dart';
+import '../../../data/repositories/settings_repository.dart';
+import '../../../data/sources/gallery_source.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../achievements/presentation/achievement_texts.dart';
 import '../../settings/application/settings_controller.dart';
 
-/// Rappels (V2, lot 13) : une notification locale par semaine, facultative.
-/// Rien ne passe par un serveur : c'est le téléphone qui la programme.
+/// Une notification prête : quand, titre, texte.
+typedef ScheduledText = ({DateTime at, String title, String body});
+
+/// Rappels (V2) : notifications locales programmées par le téléphone.
+/// Rien ne passe par un serveur.
 abstract interface class ReminderScheduler {
   /// Demande la permission de notifier (Android 13+, iOS). Vrai si accordée.
   Future<bool> requestPermission();
 
-  /// Programme le rappel une semaine après maintenant, puis chaque semaine.
-  /// Le remplace s'il existe déjà.
-  Future<void> scheduleWeekly({required String title, required String body});
+  /// Remplace les rappels prévus par ceux-ci.
+  Future<void> scheduleAll(List<ScheduledText> reminders);
 
-  Future<void> cancel();
+  Future<void> cancelAll();
 }
 
 class LocalReminderScheduler implements ReminderScheduler {
-  static const _id = 1;
+  /// Identifiants réservés aux rappels.
+  static const _firstId = 100;
+  static const _maxCount = 20;
+
   final _plugin = FlutterLocalNotificationsPlugin();
   bool _ready = false;
 
   Future<void> _init() async {
     if (_ready) return;
+    tzdata.initializeTimeZones();
     await _plugin.initialize(
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        // La permission n'est demandée qu'en activant le rappel.
+        // La permission n'est demandée qu'en activant les rappels.
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,
@@ -62,38 +77,46 @@ class LocalReminderScheduler implements ReminderScheduler {
   }
 
   @override
-  Future<void> scheduleWeekly({
-    required String title,
-    required String body,
-  }) async {
+  Future<void> scheduleAll(List<ScheduledText> reminders) async {
     await _init();
-    await _plugin.cancel(id: _id);
-    try {
-      await _plugin.periodicallyShow(
-        id: _id,
-        repeatInterval: RepeatInterval.weekly,
-        title: title,
-        body: body,
-        // Pas d'heure exacte : aucune permission d'alarme à demander.
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        notificationDetails: const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'weekly_reminder',
-            'Rappel de tri',
-            importance: Importance.defaultImportance,
+    await _cancelOurs();
+    for (final (i, r) in reminders.take(_maxCount).indexed) {
+      try {
+        await _plugin.zonedSchedule(
+          id: _firstId + i,
+          // L'instant exact suffit : pas besoin de connaître le fuseau.
+          scheduledDate: tz.TZDateTime.from(r.at.toUtc(), tz.UTC),
+          title: r.title,
+          body: r.body,
+          // Pas d'heure exacte : aucune permission d'alarme à demander.
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          notificationDetails: const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'sort_reminders',
+              'Rappels de tri',
+              importance: Importance.defaultImportance,
+            ),
+            iOS: DarwinNotificationDetails(),
           ),
-          iOS: DarwinNotificationDetails(),
-        ),
-      );
-    } on Object catch (error) {
-      debugPrint('Rappel impossible à programmer : $error');
+        );
+      } on Object catch (error) {
+        debugPrint('Rappel impossible à programmer : $error');
+      }
     }
   }
 
   @override
-  Future<void> cancel() async {
+  Future<void> cancelAll() async {
     await _init();
-    await _plugin.cancel(id: _id);
+    await _cancelOurs();
+  }
+
+  Future<void> _cancelOurs() async {
+    for (var i = 0; i < _maxCount; i++) {
+      await _plugin.cancel(id: _firstId + i);
+    }
+    // Ancien rappel hebdomadaire (avant les rappels façon jeu).
+    await _plugin.cancel(id: 1);
   }
 }
 
@@ -102,50 +125,170 @@ final reminderSchedulerProvider = Provider<ReminderScheduler>(
   (ref) => LocalReminderScheduler(),
 );
 
-/// Activer, couper et reprogrammer le rappel.
+/// Où en est l'utilisateur : lu dans la base et la galerie. Sert au premier
+/// plan comme en tâche de fond (sans Riverpod).
+Future<ReminderState> readReminderState({
+  required LibraryRepository library,
+  required ProgressRepository progress,
+  required GallerySource gallery,
+  DateTime? now,
+}) async {
+  final today = now ?? DateTime.now();
+  final summary = await library.watchSummary().first;
+  final days = await progress.watchActivityDays().first;
+  final sortedTotal = await progress.watchSortedTotal().first;
+  var newThisWeek = 0;
+  try {
+    newThisWeek = await gallery.countPhotosSince(
+      today.subtract(const Duration(days: 7)),
+    );
+  } on Object catch (error) {
+    debugPrint('Photos de la semaine illisibles : $error');
+  }
+  final todayKey = today.year * 10000 + today.month * 100 + today.day;
+  return ReminderState(
+    total: summary.total,
+    sorted: summary.sorted + summary.cartCount,
+    streak: currentStreak(days, today),
+    sortedToday: days.contains(todayKey),
+    newThisWeek: newThisWeek,
+    nextStepTarget: sortedSteps.where((s) => s > sortedTotal).firstOrNull,
+  );
+}
+
+/// Les notifications à programmer, avec leur texte.
+List<ScheduledText> reminderTexts(
+  AppLocalizations l10n,
+  List<PlannedReminder> planned,
+) => [
+  for (final r in planned)
+    switch (_texts(l10n, r)) {
+      (final title, final body) => (at: r.at, title: title, body: body),
+    },
+];
+
+(String, String) _texts(AppLocalizations l10n, PlannedReminder r) {
+  final s = r.state;
+  return switch (r.kind) {
+    ReminderKind.streak => (
+      l10n.notifStreakTitle(s.streak),
+      l10n.notifStreakBody,
+    ),
+    ReminderKind.streakLost => (
+      l10n.notifStreakLostTitle,
+      l10n.notifStreakLostBody(s.streak),
+    ),
+    ReminderKind.progress => (
+      l10n.notifProgressTitle(s.percent),
+      l10n.notifProgressBody(
+        // Prochaine dizaine (ou 100 %).
+        ((s.percent ~/ 10) + 1).clamp(1, 10) * 10,
+        s.toSort,
+      ),
+    ),
+    ReminderKind.achievement => (
+      l10n.notifAchievementTitle,
+      l10n.notifAchievementBody(
+        (s.nextStepTarget ?? 0) - s.sorted,
+        l10n.achievementTitle(
+          Achievement(
+            id: 'sorted_${s.nextStepTarget}',
+            category: AchievementCategory.sorted,
+            target: s.nextStepTarget ?? 0,
+            current: s.sorted,
+          ),
+        ),
+      ),
+    ),
+    ReminderKind.challenge => (
+      l10n.notifChallengeTitle,
+      l10n.notifChallengeBody(ReminderRules.challengePhotos),
+    ),
+    ReminderKind.comeBack => (
+      l10n.notifComeBackTitle,
+      l10n.notifComeBackBody(s.toSort),
+    ),
+    ReminderKind.bigWeek => (
+      l10n.notifBigWeekTitle,
+      l10n.notifBigWeekBody(s.newThisWeek),
+    ),
+  };
+}
+
+/// Planifie et programme les rappels. Commun au premier plan et à la tâche
+/// de fond.
+Future<void> replanReminders({
+  required AppSettings settings,
+  required ReminderScheduler scheduler,
+  required AppLocalizations l10n,
+  required ReminderState state,
+  DateTime? now,
+}) async {
+  if (settings.reminderMode == ReminderMode.off) {
+    await scheduler.cancelAll();
+    return;
+  }
+  final at = now ?? DateTime.now();
+  final planned = planReminders(
+    mode: settings.reminderMode,
+    slot: settings.reminderSlot,
+    now: at,
+    lastVisit: settings.lastVisit ?? at,
+    state: state,
+  );
+  await scheduler.scheduleAll(reminderTexts(l10n, planned));
+}
+
+/// « Matin », « Après-midi », « Soir ».
+String slotName(AppLocalizations l10n, ReminderSlot slot) => switch (slot) {
+  ReminderSlot.morning => l10n.slotMorning,
+  ReminderSlot.afternoon => l10n.slotAfternoon,
+  ReminderSlot.evening => l10n.slotEvening,
+};
+
+/// Activer, couper et reprogrammer les rappels depuis l'app.
 class ReminderActions {
   ReminderActions(this._ref);
 
   final Ref _ref;
 
-  ReminderScheduler get _scheduler => _ref.read(reminderSchedulerProvider);
-
-  /// Reprogramme le rappel avec le nombre de photos à trier du moment : il
-  /// tombera une semaine après la dernière visite. Rien à trier : pas de
-  /// rappel.
-  Future<void> reschedule(AppLocalizations l10n) async {
-    if (!_ref.read(settingsProvider).weeklyReminder) return;
-    final scheduler = _scheduler;
-    final summary = await _ref
-        .read(libraryRepositoryProvider)
-        .watchSummary()
-        .first;
-    final toSort = summary.total - summary.sorted - summary.cartCount;
-    if (toSort <= 0) {
-      await scheduler.cancel();
+  /// Reprogramme à partir de maintenant (en quittant l'app, ou après un
+  /// changement de réglage).
+  Future<void> replan(AppLocalizations l10n) async {
+    final settings = _ref.read(settingsProvider);
+    final scheduler = _ref.read(reminderSchedulerProvider);
+    if (settings.reminderMode == ReminderMode.off) {
+      await scheduler.cancelAll();
       return;
     }
-    await scheduler.scheduleWeekly(
-      title: l10n.reminderTitle,
-      body: l10n.reminderBody(toSort),
+    final state = await readReminderState(
+      library: _ref.read(libraryRepositoryProvider),
+      progress: _ref.read(progressRepositoryProvider),
+      gallery: _ref.read(gallerySourceProvider),
+    );
+    await replanReminders(
+      settings: _ref.read(settingsProvider),
+      scheduler: scheduler,
+      l10n: l10n,
+      state: state,
     );
   }
 
-  /// Active ou coupe le rappel. Faux si la permission est refusée.
-  Future<bool> setEnabled(
+  /// Choisit la fréquence et le moment. Faux si la permission est refusée
+  /// (les rappels restent alors coupés).
+  Future<bool> configure(
     AppLocalizations l10n, {
-    required bool enabled,
+    required ReminderMode mode,
+    ReminderSlot? slot,
   }) async {
-    final scheduler = _scheduler;
     final settings = _ref.read(settingsProvider.notifier);
-    if (!enabled) {
-      await settings.setWeeklyReminder(false);
-      await scheduler.cancel();
-      return true;
+    if (mode != ReminderMode.off &&
+        !await _ref.read(reminderSchedulerProvider).requestPermission()) {
+      await settings.setReminder(ReminderMode.off, slot: slot);
+      return false;
     }
-    if (!await scheduler.requestPermission()) return false;
-    await settings.setWeeklyReminder(true);
-    await reschedule(l10n);
+    await settings.setReminder(mode, slot: slot);
+    await replan(l10n);
     return true;
   }
 }

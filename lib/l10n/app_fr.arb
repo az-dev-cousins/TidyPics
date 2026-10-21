@@ -689,19 +689,7 @@
     }
   },
   "menuScreenshotsNone": "Rien à trier",
-  "reminderTitle": "Un petit tri ?",
-  "reminderBody": "{count, plural, =1{1 photo t'attend. Quelques minutes pour libérer de la place.} other{{count} photos t'attendent. Quelques minutes pour libérer de la place.}}",
-  "@reminderBody": {
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
-  },
   "settingsReminders": "Rappels",
-  "settingsWeeklyReminder": "Rappel chaque semaine",
-  "settingsWeeklyReminderHint": "Une notification une semaine après ta dernière visite, avec le nombre de photos à trier. Rien n'est envoyé : c'est le téléphone qui la programme.",
   "settingsReminderDenied": "Notifications refusées : autorise-les dans les réglages du téléphone.",
   "duplicatesViewerTitle": "Version {index} sur {count}",
   "@duplicatesViewerTitle": {
@@ -717,5 +705,111 @@
   "duplicatesBestVersion": "MEILLEURE VERSION",
   "duplicatesSwipe": "Trier au swipe",
   "duplicateCopyBadge": "Copie · l'original est gardé",
-  "duplicatesDoneTitle": "Toutes les copies sont triées !"
+  "duplicatesDoneTitle": "Toutes les copies sont triées !",
+  "notifStreakTitle": "🔥 Série de {count} jours",
+  "@notifStreakTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifStreakBody": "Ne la laisse pas s'éteindre : quelques photos suffisent pour la garder.",
+  "notifStreakLostTitle": "Ta série s'est arrêtée",
+  "notifStreakLostBody": "Elle tenait {count} jours. On en relance une ? Une seule photo suffit.",
+  "@notifStreakLostBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifProgressTitle": "Galerie rangée à {percent} %",
+  "@notifProgressTitle": {
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifProgressBody": "Prochain objectif : {target} %. Encore {count} photos à trier.",
+  "@notifProgressBody": {
+    "placeholders": {
+      "target": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifAchievementTitle": "🏆 Succès à portée",
+  "notifAchievementBody": "Plus que {count} photos pour débloquer « {title} ».",
+  "@notifAchievementBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifChallengeTitle": "Défi du jour",
+  "notifChallengeBody": "Trie {count} photos en 2 minutes. Chiche ?",
+  "@notifChallengeBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifComeBackTitle": "Ta galerie t'attend",
+  "notifComeBackBody": "{count} photos à trier. Un petit tri, et tu repars avec de la place.",
+  "@notifComeBackBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifBigWeekTitle": "Belle semaine 📸",
+  "notifBigWeekBody": "Hey, t'as pris {count} photos cette semaine… et si on triait ça ?",
+  "@notifBigWeekBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "settingsReminderMode": "Rappels pour trier",
+  "settingsReminderOff": "Aucun",
+  "settingsReminderWeekly": "Semaine",
+  "settingsReminderDaily": "Jour",
+  "settingsReminderSlot": "À quel moment",
+  "slotMorning": "Matin",
+  "slotAfternoon": "Après-midi",
+  "slotEvening": "Soir",
+  "slotHour": "{hour} h",
+  "@slotHour": {
+    "placeholders": {
+      "hour": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "settingsReminderHint": "Un petit défi à l'heure choisie, qui s'espace si tu ne viens pas. Rien n'est envoyé : c'est le téléphone qui le programme.",
+  "onboardingRhythmTitle": "Quand aimes-tu trier ?",
+  "onboardingRhythmBody": "On te lancera un petit défi à ce moment-là. Tu pourras changer ou tout couper dans les réglages.",
+  "onboardingRhythmNone": "Pas de rappel"
 }

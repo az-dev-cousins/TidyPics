@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../data/models/reminder_plan.dart';
 import '../../../data/providers.dart';
 import '../../../data/repositories/library_repository.dart';
 import '../../../data/repositories/settings_repository.dart';
@@ -50,12 +51,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   SettingsController get _controller => ref.read(settingsProvider.notifier);
 
-  Future<void> _setReminder(bool enabled) async {
+  Future<void> _setReminder(ReminderMode mode, {ReminderSlot? slot}) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final ok = await ref
         .read(reminderActionsProvider)
-        .setEnabled(l10n, enabled: enabled);
+        .configure(l10n, mode: mode, slot: slot);
     if (!ok) {
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.settingsReminderDenied)),
@@ -277,12 +278,50 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ],
 
                 section(l10n.settingsReminders),
-                Card(
-                  child: SwitchListTile(
-                    value: settings.weeklyReminder,
-                    title: Text(l10n.settingsWeeklyReminder),
-                    subtitle: Text(l10n.settingsWeeklyReminderHint),
-                    onChanged: (v) => unawaited(_setReminder(v)),
+                SegmentedButton<ReminderMode>(
+                  segments: [
+                    ButtonSegment(
+                      value: ReminderMode.off,
+                      label: Text(l10n.settingsReminderOff),
+                    ),
+                    ButtonSegment(
+                      value: ReminderMode.weekly,
+                      label: Text(l10n.settingsReminderWeekly),
+                    ),
+                    ButtonSegment(
+                      value: ReminderMode.daily,
+                      label: Text(l10n.settingsReminderDaily),
+                    ),
+                  ],
+                  selected: {settings.reminderMode},
+                  showSelectedIcon: false,
+                  onSelectionChanged: (s) => unawaited(_setReminder(s.first)),
+                ),
+                if (settings.reminderMode != ReminderMode.off) ...[
+                  const SizedBox(height: 12),
+                  SegmentedButton<ReminderSlot>(
+                    segments: [
+                      for (final slot in ReminderSlot.values)
+                        ButtonSegment(
+                          value: slot,
+                          label: Text(
+                            '${slotName(l10n, slot)}\n${l10n.slotHour(slot.hour)}',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                    ],
+                    selected: {settings.reminderSlot},
+                    showSelectedIcon: false,
+                    onSelectionChanged: (s) => unawaited(
+                      _setReminder(settings.reminderMode, slot: s.first),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Text(
+                  l10n.settingsReminderHint,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: TidyColors.of(context).inkMuted,
                   ),
                 ),
 

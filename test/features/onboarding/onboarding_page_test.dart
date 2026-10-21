@@ -1,9 +1,14 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tidypics/data/models/reminder_plan.dart';
 import 'package:tidypics/data/sources/gallery_source.dart';
+import 'package:tidypics/features/settings/application/settings_controller.dart';
 import 'package:tidypics/features/swipe/presentation/swipe_deck.dart';
 
 import '../../helpers/app_harness.dart';
 import '../../helpers/fake_gallery_source.dart';
+import '../../helpers/fake_reminders.dart';
 
 void main() {
   Future<void> fling(WidgetTester tester, Offset offset) async {
@@ -18,7 +23,12 @@ void main() {
       photos: samplePhotos(2),
       access: GalleryAccess.notDetermined,
     )..accessAfterRequest = GalleryAccess.full;
-    await pumpApp(tester, gallery: gallery, settings: const {});
+    await pumpApp(
+      tester,
+      gallery: gallery,
+      settings: const {},
+      reminders: FakeReminderScheduler(),
+    );
 
     expect(find.text("Trie d'un geste"), findsOneWidget);
     expect(find.textContaining('Floue ?'), findsOneWidget);
@@ -42,6 +52,20 @@ void main() {
 
     await tester.tap(find.text('Suivant'));
     await tester.pumpAndSettle();
+    // Le moment des rappels : le matin.
+    expect(find.text('Quand aimes-tu trier ?'), findsOneWidget);
+    await tester.tap(find.text('Matin'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Suivant'));
+    await settle(tester);
+    // Choix enregistré ; les rappels seront programmés en quittant l'app,
+    // une fois la galerie lue.
+    final settings = ProviderScope.containerOf(
+      tester.element(find.byType(MaterialApp)),
+    ).read(settingsProvider);
+    expect(settings.reminderMode, ReminderMode.daily);
+    expect(settings.reminderSlot, ReminderSlot.morning);
+
     await tester.tap(find.text("Autoriser l'accès"));
     await settle(tester);
 
@@ -60,6 +84,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Suivant'));
     await tester.pumpAndSettle();
+    // Pas de rappel.
+    await tester.tap(find.text('Pas de rappel'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Suivant'));
+    await settle(tester);
     await tester.tap(find.text("Autoriser l'accès"));
     await settle(tester);
 

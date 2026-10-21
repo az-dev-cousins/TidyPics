@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../data/models/reminder_plan.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/tidy_wordmark.dart';
 import '../../gallery/application/gallery_controller.dart';
+import '../../reminders/application/reminders.dart';
 import '../../settings/application/settings_controller.dart';
 import 'swipe_tutorial.dart';
 
@@ -21,12 +23,16 @@ class OnboardingPage extends ConsumerStatefulWidget {
 }
 
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
-  static const _pageCount = 3;
+  static const _pageCount = 4;
+  static const _rhythmPage = 2;
   static const _gutter = 24.0;
 
   final _pages = PageController();
   int _index = 0;
   bool _requesting = false;
+
+  /// Moment choisi pour les rappels ; `null` = pas de rappel.
+  ReminderSlot? _slot = ReminderSlot.evening;
 
   @override
   void dispose() {
@@ -44,6 +50,22 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   Future<void> _next() async {
+    if (_index == _rhythmPage) {
+      // Rappels chaque jour au moment choisi (la permission de notifier est
+      // demandée ici). Refusée : on continue, sans rappel.
+      final l10n = AppLocalizations.of(context);
+      setState(() => _requesting = true);
+      final slot = _slot;
+      await ref
+          .read(reminderActionsProvider)
+          .configure(
+            l10n,
+            mode: slot == null ? ReminderMode.off : ReminderMode.daily,
+            slot: slot,
+          );
+      if (!mounted) return;
+      setState(() => _requesting = false);
+    }
     if (_index < _pageCount - 1) {
       await _goTo(_index + 1);
       return;
@@ -126,7 +148,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         duration: const Duration(milliseconds: 200),
                         child: Text(switch (_index) {
                           0 => l10n.onboardingSkipTutorial,
-                          1 => l10n.actionNext,
+                          1 || _rhythmPage => l10n.actionNext,
                           _ => l10n.onboardingAccessButton,
                         }, key: ValueKey(_index)),
                       ),
@@ -168,8 +190,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       title: l10n.onboardingPrivacyTitle,
       body: l10n.onboardingPrivacyBody,
     ),
+    _RhythmStep(
+      active: _index == _rhythmPage,
+      slot: _slot,
+      onChanged: (slot) => setState(() => _slot = slot),
+    ),
     _Step(
-      active: _index == 2,
+      active: _index == 3,
       icon: Icons.photo_library_outlined,
       title: l10n.onboardingAccessTitle,
       body: l10n.onboardingAccessBody,
@@ -269,6 +296,138 @@ class _Step extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// « Quand aimes-tu trier ? » : matin, après-midi, soir ou pas de rappel.
+class _RhythmStep extends StatelessWidget {
+  const _RhythmStep({
+    required this.active,
+    required this.slot,
+    required this.onChanged,
+  });
+
+  final bool active;
+  final ReminderSlot? slot;
+  final ValueChanged<ReminderSlot?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final tidy = TidyColors.of(context);
+    final choices = <(ReminderSlot?, IconData, String)>[
+      (ReminderSlot.morning, Icons.wb_twilight_rounded, l10n.slotMorning),
+      (ReminderSlot.afternoon, Icons.wb_sunny_outlined, l10n.slotAfternoon),
+      (ReminderSlot.evening, Icons.nights_stay_outlined, l10n.slotEvening),
+      (null, Icons.notifications_off_outlined, l10n.onboardingRhythmNone),
+    ];
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 24),
+          _Entrance(
+            active: active,
+            child: Text(
+              l10n.onboardingRhythmTitle,
+              style: theme.textTheme.headlineMedium,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _Entrance(
+            active: active,
+            delay: const Duration(milliseconds: 80),
+            child: Text(
+              l10n.onboardingRhythmBody,
+              style: theme.textTheme.bodyLarge?.copyWith(color: tidy.inkMuted),
+            ),
+          ),
+          const SizedBox(height: 20),
+          for (final (i, (value, icon, label)) in choices.indexed)
+            _Entrance(
+              active: active,
+              delay: Duration(milliseconds: 140 + 60 * i),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _RhythmChoice(
+                  icon: icon,
+                  label: label,
+                  hour: value == null ? null : l10n.slotHour(value.hour),
+                  selected: slot == value,
+                  onTap: () => onChanged(value),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RhythmChoice extends StatelessWidget {
+  const _RhythmChoice({
+    required this.icon,
+    required this.label,
+    required this.hour,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? hour;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final tidy = TidyColors.of(context);
+    return Semantics(
+      selected: selected,
+      button: true,
+      child: Material(
+        color: selected ? tidy.mint : theme.colorScheme.surfaceContainer,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(
+            color: selected ? theme.colorScheme.primary : tidy.line,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: InkWell(
+          customBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            child: Row(
+              children: [
+                Icon(icon, color: selected ? tidy.onMint : tidy.inkMuted),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: selected ? tidy.onMint : null,
+                    ),
+                  ),
+                ),
+                if (hour != null)
+                  Text(
+                    hour!,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: selected ? tidy.onMint : tidy.inkMuted,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

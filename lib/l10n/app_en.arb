@@ -462,19 +462,7 @@
     }
   },
   "menuScreenshotsNone": "Nothing to sort",
-  "reminderTitle": "Time for a quick sort?",
-  "reminderBody": "{count, plural, =1{1 photo is waiting. A few minutes to free up space.} other{{count} photos are waiting. A few minutes to free up space.}}",
-  "@reminderBody": {
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
-  },
   "settingsReminders": "Reminders",
-  "settingsWeeklyReminder": "Weekly reminder",
-  "settingsWeeklyReminderHint": "A notification one week after your last visit, with the number of photos to sort. Nothing is sent: the phone schedules it.",
   "settingsReminderDenied": "Notifications are blocked: allow them in your phone's settings.",
   "duplicatesViewerTitle": "Version {index} of {count}",
   "@duplicatesViewerTitle": {
@@ -490,5 +478,111 @@
   "duplicatesBestVersion": "BEST VERSION",
   "duplicatesSwipe": "Sort with swipes",
   "duplicateCopyBadge": "Copy · the original is kept",
-  "duplicatesDoneTitle": "All copies sorted!"
+  "duplicatesDoneTitle": "All copies sorted!",
+  "notifStreakTitle": "🔥 {count}-day streak",
+  "@notifStreakTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifStreakBody": "Don't let it die out: a few photos are enough to keep it.",
+  "notifStreakLostTitle": "Your streak ended",
+  "notifStreakLostBody": "It lasted {count} days. Start a new one? One photo is enough.",
+  "@notifStreakLostBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifProgressTitle": "Gallery {percent}% tidy",
+  "@notifProgressTitle": {
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifProgressBody": "Next goal: {target}%. {count} photos left to sort.",
+  "@notifProgressBody": {
+    "placeholders": {
+      "target": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifAchievementTitle": "🏆 Achievement within reach",
+  "notifAchievementBody": "Just {count} more photos to unlock \"{title}\".",
+  "@notifAchievementBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifChallengeTitle": "Today's challenge",
+  "notifChallengeBody": "Sort {count} photos in 2 minutes. Up for it?",
+  "@notifChallengeBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifComeBackTitle": "Your gallery misses you",
+  "notifComeBackBody": "{count} photos to sort. A quick sort and you'll free up space.",
+  "@notifComeBackBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifBigWeekTitle": "Big week 📸",
+  "notifBigWeekBody": "Hey, you took {count} photos this week… how about sorting them?",
+  "@notifBigWeekBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "settingsReminderMode": "Reminders to sort",
+  "settingsReminderOff": "None",
+  "settingsReminderWeekly": "Weekly",
+  "settingsReminderDaily": "Daily",
+  "settingsReminderSlot": "When",
+  "slotMorning": "Morning",
+  "slotAfternoon": "Afternoon",
+  "slotEvening": "Evening",
+  "slotHour": "{hour}:00",
+  "@slotHour": {
+    "placeholders": {
+      "hour": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "settingsReminderHint": "A small challenge at the time you pick, less often if you don't come back. Nothing is sent: the phone schedules it.",
+  "onboardingRhythmTitle": "When do you like to sort?",
+  "onboardingRhythmBody": "We'll send you a small challenge then. You can change it or turn it off in settings.",
+  "onboardingRhythmNone": "No reminder"
 }

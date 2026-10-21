@@ -432,7 +432,7 @@ void main() {
     await closeApp(tester);
   });
 
-  testWidgets('rappel : activé dans les réglages, avec le nombre à trier', (
+  testWidgets('rappels : chaque jour à l\'heure choisie, façon jeu', (
     tester,
   ) async {
     final reminders = FakeReminderScheduler();
@@ -444,21 +444,20 @@ void main() {
     await openMenu(tester);
     await tester.tap(find.byTooltip('Réglages'));
     await settle(tester);
-    await tapVisible(tester, find.text('Rappel chaque semaine'));
-    expect(
-      reminders.scheduledBody,
-      "2 photos t'attendent. Quelques minutes pour libérer de la place.",
-    );
+    await tapVisible(tester, find.text('Jour'));
+    await tapVisible(tester, find.textContaining('Matin'));
 
-    // Refusé : le réglage reste coupé et l'app explique pourquoi.
-    await tester.tap(find.text('Rappel chaque semaine'));
-    await settle(tester);
-    expect(reminders.scheduledBody, isNull);
+    expect(reminders.scheduled, isNotEmpty);
+    expect(reminders.scheduled.first.at.hour, 8);
+    expect(reminders.scheduled.first.title, 'Galerie rangée à 0 %');
+
+    // Refusé : les rappels restent coupés et l'app explique pourquoi.
+    await tapVisible(tester, find.text('Aucun'));
+    expect(reminders.scheduled, isEmpty);
     reminders.permission = false;
-    await tester.tap(find.text('Rappel chaque semaine'));
-    await settle(tester);
+    await tapVisible(tester, find.text('Semaine'));
     expect(find.textContaining('Notifications refusées'), findsOneWidget);
-    expect(reminders.scheduledBody, isNull);
+    expect(reminders.scheduled, isEmpty);
 
     await closeApp(tester);
   });

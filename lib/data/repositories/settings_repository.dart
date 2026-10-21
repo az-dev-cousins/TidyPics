@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/reminder_plan.dart';
 import 'library_repository.dart';
 
 /// Réglages de l'app (F8), stockés avec `shared_preferences`.
@@ -18,7 +19,9 @@ class AppSettings {
     this.deleteDirectly = false,
     this.rawIntroSeen = false,
     this.burstIntroSeen = false,
-    this.weeklyReminder = false,
+    this.reminderMode = ReminderMode.off,
+    this.reminderSlot = ReminderSlot.evening,
+    this.lastVisit,
   });
 
   final bool onboardingDone;
@@ -49,8 +52,13 @@ class AppSettings {
   /// Explication du tri d'une rafale déjà vue.
   final bool burstIntroSeen;
 
-  /// Rappel hebdomadaire par notification locale (désactivé par défaut).
-  final bool weeklyReminder;
+  /// Rappels par notification locale (coupés par défaut), à l'heure du
+  /// créneau choisi à l'onboarding.
+  final ReminderMode reminderMode;
+  final ReminderSlot reminderSlot;
+
+  /// Dernière ouverture de l'app : les rappels partent de là.
+  final DateTime? lastVisit;
 
   static const thresholds = [10, 25, 50, 100];
   static const minBurstGap = 1;
@@ -68,7 +76,9 @@ class AppSettings {
     bool? deleteDirectly,
     bool? rawIntroSeen,
     bool? burstIntroSeen,
-    bool? weeklyReminder,
+    ReminderMode? reminderMode,
+    ReminderSlot? reminderSlot,
+    DateTime? lastVisit,
   }) => AppSettings(
     onboardingDone: onboardingDone ?? this.onboardingDone,
     sortOrder: sortOrder ?? this.sortOrder,
@@ -81,7 +91,9 @@ class AppSettings {
     deleteDirectly: deleteDirectly ?? this.deleteDirectly,
     rawIntroSeen: rawIntroSeen ?? this.rawIntroSeen,
     burstIntroSeen: burstIntroSeen ?? this.burstIntroSeen,
-    weeklyReminder: weeklyReminder ?? this.weeklyReminder,
+    reminderMode: reminderMode ?? this.reminderMode,
+    reminderSlot: reminderSlot ?? this.reminderSlot,
+    lastVisit: lastVisit ?? this.lastVisit,
   );
 }
 
@@ -101,6 +113,11 @@ class SettingsRepository {
   static const _deleteDirectly = 'delete_directly';
   static const _rawIntroSeen = 'raw_intro_seen';
   static const _burstIntroSeen = 'burst_intro_seen';
+  static const _reminderMode = 'reminder_mode';
+  static const _reminderSlot = 'reminder_slot';
+  static const _lastVisit = 'last_visit';
+
+  /// Ancienne clé (rappel hebdomadaire seul), lue une fois pour migrer.
   static const _weeklyReminder = 'weekly_reminder';
 
   static const keys = {
@@ -115,6 +132,9 @@ class SettingsRepository {
     _deleteDirectly,
     _rawIntroSeen,
     _burstIntroSeen,
+    _reminderMode,
+    _reminderSlot,
+    _lastVisit,
     _weeklyReminder,
   };
 
@@ -145,7 +165,20 @@ class SettingsRepository {
       deleteDirectly: _prefs.getBool(_deleteDirectly) ?? false,
       rawIntroSeen: _prefs.getBool(_rawIntroSeen) ?? false,
       burstIntroSeen: _prefs.getBool(_burstIntroSeen) ?? false,
-      weeklyReminder: _prefs.getBool(_weeklyReminder) ?? false,
+      reminderMode: _prefs.containsKey(_reminderMode)
+          ? byName(ReminderMode.values, _reminderMode, defaults.reminderMode)
+          : (_prefs.getBool(_weeklyReminder) ?? false)
+          ? ReminderMode.weekly
+          : ReminderMode.off,
+      reminderSlot: byName(
+        ReminderSlot.values,
+        _reminderSlot,
+        defaults.reminderSlot,
+      ),
+      lastVisit: switch (_prefs.getInt(_lastVisit)) {
+        final int ms => DateTime.fromMillisecondsSinceEpoch(ms),
+        null => null,
+      },
     );
   }
 
@@ -161,6 +194,11 @@ class SettingsRepository {
     await _prefs.setBool(_deleteDirectly, settings.deleteDirectly);
     await _prefs.setBool(_rawIntroSeen, settings.rawIntroSeen);
     await _prefs.setBool(_burstIntroSeen, settings.burstIntroSeen);
-    await _prefs.setBool(_weeklyReminder, settings.weeklyReminder);
+    await _prefs.setString(_reminderMode, settings.reminderMode.name);
+    await _prefs.setString(_reminderSlot, settings.reminderSlot.name);
+    final visit = settings.lastVisit;
+    if (visit != null) {
+      await _prefs.setInt(_lastVisit, visit.millisecondsSinceEpoch);
+    }
   }
 }

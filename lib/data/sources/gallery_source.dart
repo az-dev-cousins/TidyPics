@@ -55,6 +55,10 @@ abstract interface class GallerySource {
   /// Toutes les photos de la galerie, sans les vidéos.
   Future<List<GalleryPhoto>> fetchAll();
 
+  /// Photos prises depuis [since] (rappels « grosse semaine »). Rapide :
+  /// juste un compte, sans lire la galerie.
+  Future<int> countPhotosSince(DateTime since);
+
   /// Taille du fichier en octets (0 si inconnue).
   Future<int> fileSize(String id);
 
@@ -173,6 +177,17 @@ class PhotoManagerGallerySource implements GallerySource {
   @override
   Future<void> extendLimitedAccess() =>
       PhotoManager.presentLimited(type: RequestType.common);
+
+  @override
+  Future<int> countPhotosSince(DateTime since) async {
+    final filter = FilterOptionGroup(
+      createTimeCond: DateTimeCond(min: since, max: DateTime.now()),
+    );
+    return PhotoManager.getAssetCount(
+      filterOption: filter,
+      type: RequestType.image,
+    );
+  }
 
   @override
   Future<List<GalleryPhoto>> fetchAll() async {

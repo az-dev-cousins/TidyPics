@@ -62,6 +62,10 @@ class FakeGallerySource implements GallerySource {
   Future<List<GalleryPhoto>> fetchAll() async => [...photos];
 
   @override
+  Future<int> countPhotosSince(DateTime since) async =>
+      photos.where((p) => !p.takenAt.isBefore(since)).length;
+
+  @override
   Future<int> fileSize(String id) async => sizes[id] ?? 1000;
 
   /// Photos dont la miniature est illisible (ex. certains RAW).

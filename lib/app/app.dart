@@ -33,13 +33,15 @@ class _TidyPicsAppState extends ConsumerState<TidyPicsApp> {
     onHide: () {
       // Option Android 12+ : le panier part à la corbeille quand on quitte.
       unawaited(ref.read(checkpointActionsProvider).trashOnLeave());
-      // Le rappel tombera une semaine après cette visite.
+      // Les rappels partent de cette visite.
       final context = _messenger.currentContext;
       if (context != null) {
+        final l10n = AppLocalizations.of(context);
         unawaited(
           ref
-              .read(reminderActionsProvider)
-              .reschedule(AppLocalizations.of(context)),
+              .read(settingsProvider.notifier)
+              .markVisit()
+              .then((_) => ref.read(reminderActionsProvider).replan(l10n)),
         );
       }
     },
