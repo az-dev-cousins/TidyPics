@@ -132,11 +132,13 @@ Pistes et choix : https://claude.ai/artifact/D4jveh5gf2pPxWirwQxVsC. Menu A + C,
 - [x] « Mes documents » (dossier donné une fois) et « Trier des fichiers »
 - [x] Tri au swipe, les plus gros d'abord, aperçu PDF / Word / PowerPoint / Excel, « Ouvrir »
 - [x] Restaurer et vider dans « En cours de suppression »
-- [ ] Vérifier sur le Pixel : vrais PDF (gros, protégés), restauration
+- [x] Vérifié sur émulateur : mise de côté, retour dans le sous-dossier d'origine
+- [ ] Vérifier sur le Pixel : vrais PDF (gros, protégés)
 
 ## Lot 13 bis — Retours du Pixel
 
 - [x] Doublons : versions en grand (zoom), mode swipe sur les copies
 - [x] Vidéos : barre d'avancée et temps
 - [x] Rappels façon jeu : moment choisi à l'onboarding, rythme qui s'espace, « 30 photos cette semaine »
+- [x] Rappels : plus d'heure affichée, l'heure s'adapte aux ouvertures de l'app
 - [ ] Vérifier sur le Pixel : les rappels arrivent à l'heure, la tâche de fond

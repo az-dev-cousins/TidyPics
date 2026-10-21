@@ -235,6 +235,7 @@ Future<void> replanReminders({
     now: at,
     lastVisit: settings.lastVisit ?? at,
     state: state,
+    usage: settings.usageHours,
   );
   await scheduler.scheduleAll(reminderTexts(l10n, planned));
 }

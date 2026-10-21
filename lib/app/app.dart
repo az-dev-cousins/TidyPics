@@ -27,6 +27,7 @@ class _TidyPicsAppState extends ConsumerState<TidyPicsApp> {
   // des photos ont pu être prises ou supprimées ailleurs.
   late final AppLifecycleListener _lifecycle = AppLifecycleListener(
     onResume: () async {
+      unawaited(ref.read(settingsProvider.notifier).recordUsage());
       await ref.read(galleryAccessProvider.notifier).refresh();
       unawaited(ref.read(gallerySyncProvider.notifier).scan());
     },
@@ -52,6 +53,11 @@ class _TidyPicsAppState extends ConsumerState<TidyPicsApp> {
     super.initState();
     _lifecycle; // Démarre l'écoute.
     // L'indexation de la galerie démarre dès que l'accès est connu.
+    // L'heure des rappels s'adapte aux ouvertures de l'app.
+    // Pas pendant la construction du premier écran.
+    unawaited(
+      Future.microtask(ref.read(settingsProvider.notifier).recordUsage),
+    );
     ref
       ..read(gallerySyncProvider)
       // Les empreintes visuelles (doublons) se calculent après chaque scan.

@@ -87,4 +87,38 @@ void main() {
     );
     expect(reminders.first.at, DateTime(2026, 10, 21, 19));
   });
+
+  group("l'heure s'adapte à l'habitude", () {
+    List<int> usage(Map<int, int> counts) => [
+      for (var h = 0; h < 24; h++) counts[h] ?? 0,
+    ];
+
+    test("l'heure la plus fréquente dans ce moment de la journée", () {
+      // Ouvre souvent l'app vers 21 h, parfois à 9 h (hors du soir).
+      final u = usage({21: 5, 20: 2, 9: 8});
+      expect(ReminderSlot.evening.preferredHour(u), 21);
+      expect(ReminderSlot.morning.preferredHour(u), 9);
+    });
+
+    test("pas assez d'ouvertures : l'heure par défaut", () {
+      expect(ReminderSlot.evening.preferredHour(usage({22: 2})), 19);
+      expect(ReminderSlot.afternoon.preferredHour(const []), 13);
+    });
+
+    test('à égalité, la plus proche de l\'heure par défaut', () {
+      expect(ReminderSlot.evening.preferredHour(usage({18: 2, 22: 2})), 18);
+    });
+
+    test('les rappels tombent à cette heure', () {
+      final reminders = planReminders(
+        mode: ReminderMode.daily,
+        slot: ReminderSlot.evening,
+        now: now,
+        lastVisit: visit,
+        state: const ReminderState(total: 100, sorted: 10),
+        usage: usage({21: 6}),
+      );
+      expect(reminders.first.at, DateTime(2026, 10, 22, 21));
+    });
+  });
 }

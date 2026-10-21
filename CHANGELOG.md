@@ -7,7 +7,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 
 ### Ajouté
 - Documents (F16) : PDF, Word, téléchargements au swipe, avec aperçu ; dossier Documents donné une fois ou sélecteur ; corbeille de TidyPics 30 jours.
-- Rappels façon jeu (F15) : moment choisi à l'onboarding (8 h, 13 h, 19 h), chaque jour puis espacés, messages de série, d'avancée, de succès, de défi ; « 30 photos cette semaine ».
+- Rappels façon jeu (F15) : moment choisi à l'onboarding (matin, après-midi, soir ; l'heure s'adapte à celle où l'on ouvre le plus l'app), chaque jour puis espacés, messages de série, d'avancée, de succès, de défi ; « 30 photos cette semaine ».
 - Doublons : versions en grand, et tri des copies au swipe.
 - Vidéos : barre d'avancée (qu'on peut faire glisser) et temps.
 - Succès (F12) : 16 succès (espace libéré, photos triées, séries de jours, premières fois), écran dédié et annonce quand on en débloque un.
@@ -36,6 +36,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions : [S
 - Le tri propose les rafales et les paires JPG + RAW comme un seul élément.
 
 ### Corrigé
+- Doublons : une miniature pas encore prête (photo tout juste ajoutée) était notée illisible pour toujours ; les RAW ne bloquent plus l'analyse à 97 %.
+- Corbeille des documents : « 30 jours restants » juste après la suppression (au lieu de 29).
 - Une copie gardée revenait dans les doublons.
 - Des captures d'écran copiées d'un coup formaient une « rafale ».
 - Des photos WhatsApp reçues à la même heure formaient une « rafale » : les rafales demandent maintenant le même dossier, hors dossiers de photos reçues, et des photos qui se ressemblent.

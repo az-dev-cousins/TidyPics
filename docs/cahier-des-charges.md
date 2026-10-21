@@ -275,8 +275,10 @@ Chaque fonctionnalité a un identifiant (Fx) qui sert de référence dans les ti
 - Mêmes gestes, même panier et même récap que le tri normal.
 
 ### F15 — Rappels façon jeu (V2) ✅
-- **Onboarding** : « Quand aimes-tu trier ? » matin (8 h), après-midi (13 h), soir (19 h) ou pas de rappel. Choisir un moment active les rappels **chaque jour** et demande la permission de notifier.
-- **Réglages** : Aucun / Semaine / Jour, et le moment.
+- **Onboarding** : « Quand aimes-tu trier ? » matin, après-midi, soir ou pas de rappel (sans heure affichée). Choisir un moment active les rappels **chaque jour** et demande la permission de notifier.
+- **Réglages** : Aucun / Semaine / Jour, et le moment (matin / après-midi / soir).
+- ✅ **L'heure s'adapte** : dans le moment choisi (matin 6 h – 11 h, après-midi 12 h – 17 h, soir 18 h – 22 h), l'heure où l'on ouvre le plus souvent l'app (au moins 3 ouvertures), sinon 8 h, 13 h ou 19 h.
+- Les emojis ne sont que dans le texte des notifications (hors de l'app) ; dans l'app, ce sont des icônes.
 - **Rythme** : à partir de la dernière visite, J+1, J+2, J+3, puis J+5, J+7, J+14 (hebdomadaire : J+7, J+14, J+28). Tant qu'on revient, c'est tous les jours ; sinon ça s'espace.
 - **Messages variés, façon jeu** : série en cours (« 🔥 Série de 4 jours »), série perdue (« On en relance une ? »), avancée (« Galerie rangée à 62 % · prochain objectif 70 % »), succès à portée (« Plus que 40 photos pour… »), défi du jour (« 20 photos en 2 minutes. Chiche ? »), puis « Ta galerie t'attend ».
 - **Presque tout trié** (90 % ou plus) : silence, sauf **30 photos ou plus cette semaine** : « Hey, t'as pris 85 photos cette semaine… et si on triait ça ? », une fois.

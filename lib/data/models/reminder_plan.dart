@@ -6,13 +6,40 @@ library;
 enum ReminderMode { off, weekly, daily }
 
 /// Moment de la journée choisi à l'onboarding, en heure locale.
+/// L'heure précise s'adapte à celle où l'on ouvre le plus l'app dans ce
+/// moment de la journée ([preferredHour]) ; [hour] sert tant qu'on ne sait
+/// pas.
 enum ReminderSlot {
-  morning(8),
-  afternoon(13),
-  evening(19);
+  morning(8, 6, 11),
+  afternoon(13, 12, 17),
+  evening(19, 18, 22);
 
-  const ReminderSlot(this.hour);
+  const ReminderSlot(this.hour, this.first, this.last);
+
+  /// Heure par défaut.
   final int hour;
+
+  /// Heures (incluses) qui font partie de ce moment.
+  final int first;
+  final int last;
+
+  /// L'heure la plus fréquente d'ouverture de l'app dans ce moment de la
+  /// journée ([usage] : nombre d'ouvertures pour chaque heure, de 0 à 23).
+  /// Au moins 3 ouvertures dans ce moment, sinon l'heure par défaut.
+  int preferredHour(List<int> usage) {
+    if (usage.length != 24) return hour;
+    var total = 0;
+    var best = hour;
+    for (var h = first; h <= last; h++) {
+      total += usage[h];
+      final better = usage[h] > usage[best];
+      // À égalité, la plus proche de l'heure par défaut.
+      final tieCloser =
+          usage[h] == usage[best] && (h - hour).abs() < (best - hour).abs();
+      if (better || tieCloser) best = h;
+    }
+    return total >= 3 ? best : hour;
+  }
 }
 
 /// Ce qu'on sait de la galerie et du joueur au moment de planifier.
@@ -120,7 +147,9 @@ List<PlannedReminder> planReminders({
   required DateTime now,
   required DateTime lastVisit,
   required ReminderState state,
+  List<int> usage = const [],
 }) {
+  final hour = slot.preferredHour(usage);
   if (mode == ReminderMode.off || state.total == 0) return const [];
   final days = mode == ReminderMode.daily
       ? ReminderRules.dailyDays
@@ -134,7 +163,7 @@ List<PlannedReminder> planReminders({
       visitDay.year,
       visitDay.month,
       visitDay.day + day,
-      slot.hour,
+      hour,
     );
     if (!at.isAfter(now)) continue;
     if (almostDone) {

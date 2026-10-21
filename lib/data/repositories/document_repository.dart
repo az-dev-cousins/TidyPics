@@ -15,8 +15,11 @@ class DocumentTrashEntry {
   /// Comme la corbeille du système : 30 jours.
   static const keep = Duration(days: 30);
 
-  int daysLeft(DateTime now) =>
-      (keep - now.difference(row.trashedAt)).inDays.clamp(0, 30);
+  /// Comme pour les photos : arrondi au jour supérieur (30 juste après).
+  int daysLeft(DateTime now) {
+    final left = row.trashedAt.add(keep).difference(now);
+    return left.isNegative ? 0 : (left.inHours / 24).ceil();
+  }
 
   DocumentFile get file => DocumentFile(
     uri: row.uri,

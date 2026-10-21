@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/duplicates.dart';
 import '../../../data/models/gallery_photo.dart';
 import '../../../data/models/photo_groups.dart';
+import '../../../data/models/visual_hash.dart';
 import '../../../data/providers.dart';
 import '../../../data/repositories/library_repository.dart';
 import '../../../data/repositories/trash_repository.dart';
@@ -174,6 +175,7 @@ class VisualHashController extends Notifier<bool> {
   /// Miniatures lues en même temps, puis empreintes enregistrées par lot.
   static const _parallel = 8;
   static const _batch = 64;
+  static const _retryDelay = Duration(seconds: 2);
 
   @override
   bool build() {
@@ -190,9 +192,7 @@ class VisualHashController extends Notifier<bool> {
     final library = ref.read(libraryRepositoryProvider);
     final hasher = ref.read(visualHasherProvider);
     try {
-      while (ref.mounted) {
-        final photos = await library.photosToHash(limit: _batch);
-        if (photos.isEmpty || !ref.mounted) break;
+      Future<List<Uint8List?>> read(List<GalleryPhoto> photos) async {
         final thumbnails = <Uint8List?>[];
         for (var i = 0; i < photos.length; i += _parallel) {
           thumbnails.addAll(
@@ -207,9 +207,39 @@ class VisualHashController extends Notifier<bool> {
             ),
           );
         }
+        return thumbnails;
+      }
+
+      while (ref.mounted) {
+        final batch = await library.photosToHash(limit: _batch);
+        if (batch.isEmpty || !ref.mounted) break;
+        // Les RAW ne sont pas comparés (F6 s'en charge) : rien à calculer.
+        final raws = [
+          for (final p in batch)
+            if (p.isRaw) p,
+        ];
+        final photos = [
+          for (final p in batch)
+            if (!p.isRaw) p,
+        ];
+        final thumbnails = await read(photos);
+        // Miniature pas encore prête (photo tout juste ajoutée, Android pas
+        // fini) : un second essai un peu plus tard avant de dire illisible.
+        final missing = [
+          for (final (i, _) in photos.indexed)
+            if (thumbnails[i] == null) i,
+        ];
+        if (missing.isNotEmpty) {
+          await Future<void>.delayed(_retryDelay);
+          final retried = await read([for (final i in missing) photos[i]]);
+          for (final (k, i) in missing.indexed) {
+            thumbnails[i] = retried[k];
+          }
+        }
         final hashes = await hasher(thumbnails);
         if (!ref.mounted) break;
         await library.setVisualHashes({
+          for (final p in raws) p.id: VisualHash.unreadable,
           for (final (i, photo) in photos.indexed) photo.id: hashes[i],
         });
       }

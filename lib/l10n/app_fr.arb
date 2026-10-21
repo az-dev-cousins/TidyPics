@@ -799,16 +799,7 @@
   "slotMorning": "Matin",
   "slotAfternoon": "Après-midi",
   "slotEvening": "Soir",
-  "slotHour": "{hour} h",
-  "@slotHour": {
-    "placeholders": {
-      "hour": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
-  },
-  "settingsReminderHint": "Un petit défi à l'heure choisie, qui s'espace si tu ne viens pas. Rien n'est envoyé : c'est le téléphone qui le programme.",
+  "settingsReminderHint": "Un petit défi au moment choisi, à l'heure où tu ouvres le plus souvent l'app, de moins en moins souvent si tu ne viens pas. Rien n'est envoyé : c'est le téléphone qui le programme.",
   "onboardingRhythmTitle": "Quand aimes-tu trier ?",
   "onboardingRhythmBody": "On te lancera un petit défi à ce moment-là. Tu pourras changer ou tout couper dans les réglages.",
   "onboardingRhythmNone": "Pas de rappel",

@@ -354,7 +354,7 @@ class _RhythmStep extends StatelessWidget {
                 child: _RhythmChoice(
                   icon: icon,
                   label: label,
-                  hour: value == null ? null : l10n.slotHour(value.hour),
+
                   selected: slot == value,
                   onTap: () => onChanged(value),
                 ),
@@ -370,14 +370,12 @@ class _RhythmChoice extends StatelessWidget {
   const _RhythmChoice({
     required this.icon,
     required this.label,
-    required this.hour,
     required this.selected,
     required this.onTap,
   });
 
   final IconData icon;
   final String label;
-  final String? hour;
   final bool selected;
   final VoidCallback onTap;
 
@@ -416,13 +414,6 @@ class _RhythmChoice extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (hour != null)
-                  Text(
-                    hour!,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: selected ? tidy.onMint : tidy.inkMuted,
-                    ),
-                  ),
               ],
             ),
           ),

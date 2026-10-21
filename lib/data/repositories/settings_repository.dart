@@ -22,6 +22,7 @@ class AppSettings {
     this.reminderMode = ReminderMode.off,
     this.reminderSlot = ReminderSlot.evening,
     this.lastVisit,
+    this.usageHours = const [],
   });
 
   final bool onboardingDone;
@@ -60,6 +61,10 @@ class AppSettings {
   /// Dernière ouverture de l'app : les rappels partent de là.
   final DateTime? lastVisit;
 
+  /// Ouvertures de l'app par heure (24 nombres) : l'heure des rappels
+  /// s'adapte à l'habitude.
+  final List<int> usageHours;
+
   static const thresholds = [10, 25, 50, 100];
   static const minBurstGap = 1;
   static const maxBurstGap = 10;
@@ -79,6 +84,7 @@ class AppSettings {
     ReminderMode? reminderMode,
     ReminderSlot? reminderSlot,
     DateTime? lastVisit,
+    List<int>? usageHours,
   }) => AppSettings(
     onboardingDone: onboardingDone ?? this.onboardingDone,
     sortOrder: sortOrder ?? this.sortOrder,
@@ -94,6 +100,7 @@ class AppSettings {
     reminderMode: reminderMode ?? this.reminderMode,
     reminderSlot: reminderSlot ?? this.reminderSlot,
     lastVisit: lastVisit ?? this.lastVisit,
+    usageHours: usageHours ?? this.usageHours,
   );
 }
 
@@ -116,6 +123,7 @@ class SettingsRepository {
   static const _reminderMode = 'reminder_mode';
   static const _reminderSlot = 'reminder_slot';
   static const _lastVisit = 'last_visit';
+  static const _usageHours = 'usage_hours';
 
   /// Ancienne clé (rappel hebdomadaire seul), lue une fois pour migrer.
   static const _weeklyReminder = 'weekly_reminder';
@@ -135,6 +143,7 @@ class SettingsRepository {
     _reminderMode,
     _reminderSlot,
     _lastVisit,
+    _usageHours,
     _weeklyReminder,
   };
 
@@ -179,6 +188,10 @@ class SettingsRepository {
         final int ms => DateTime.fromMillisecondsSinceEpoch(ms),
         null => null,
       },
+      usageHours: [
+        for (final v in _prefs.getStringList(_usageHours) ?? const <String>[])
+          int.tryParse(v) ?? 0,
+      ],
     );
   }
 
@@ -199,6 +212,11 @@ class SettingsRepository {
     final visit = settings.lastVisit;
     if (visit != null) {
       await _prefs.setInt(_lastVisit, visit.millisecondsSinceEpoch);
+    }
+    if (settings.usageHours.isNotEmpty) {
+      await _prefs.setStringList(_usageHours, [
+        for (final v in settings.usageHours) '$v',
+      ]);
     }
   }
 }

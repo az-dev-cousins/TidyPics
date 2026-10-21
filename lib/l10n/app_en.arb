@@ -572,16 +572,7 @@
   "slotMorning": "Morning",
   "slotAfternoon": "Afternoon",
   "slotEvening": "Evening",
-  "slotHour": "{hour}:00",
-  "@slotHour": {
-    "placeholders": {
-      "hour": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
-  },
-  "settingsReminderHint": "A small challenge at the time you pick, less often if you don't come back. Nothing is sent: the phone schedules it.",
+  "settingsReminderHint": "A small challenge at the time of day you pick, at the hour you usually open the app, less often if you don't come back. Nothing is sent: the phone schedules it.",
   "onboardingRhythmTitle": "When do you like to sort?",
   "onboardingRhythmBody": "We'll send you a small challenge then. You can change it or turn it off in settings.",
   "onboardingRhythmNone": "No reminder",

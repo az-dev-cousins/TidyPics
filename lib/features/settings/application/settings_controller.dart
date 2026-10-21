@@ -59,6 +59,16 @@ class SettingsController extends Notifier<AppSettings> {
 
   Future<void> markVisit([DateTime? at]) =>
       _save(state.copyWith(lastVisit: at ?? DateTime.now()));
+
+  /// Une ouverture de l'app à cette heure (heure des rappels).
+  Future<void> recordUsage([DateTime? at]) {
+    final hour = (at ?? DateTime.now()).hour;
+    final usage = state.usageHours.length == 24
+        ? [...state.usageHours]
+        : List.filled(24, 0);
+    usage[hour]++;
+    return _save(state.copyWith(usageHours: usage));
+  }
 }
 
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(

@@ -304,10 +304,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       for (final slot in ReminderSlot.values)
                         ButtonSegment(
                           value: slot,
-                          label: Text(
-                            '${slotName(l10n, slot)}\n${l10n.slotHour(slot.hour)}',
-                            textAlign: TextAlign.center,
-                          ),
+                          label: Text(slotName(l10n, slot)),
                         ),
                     ],
                     selected: {settings.reminderSlot},
