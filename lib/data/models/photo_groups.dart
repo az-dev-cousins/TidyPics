@@ -106,15 +106,34 @@ bool isReceivedFolder(String? folder) {
 
 /// Deux photos de suite font partie d'une rafale : prises à moins de
 /// [gap] et, si leurs empreintes sont connues, presque identiques.
-bool _sameBurst(GalleryPhoto previous, GalleryPhoto photo, Duration gap) {
-  if (photo.takenAt.difference(previous.takenAt) > gap) return false;
+///
+/// [similarGap] (test) : au-delà de [gap] et jusqu'à [similarGap], deux
+/// photos qui se ressemblent (formes et couleurs) font aussi partie de la
+/// rafale : la même vue prise toutes les 20 secondes.
+bool _sameBurst(
+  GalleryPhoto previous,
+  GalleryPhoto photo,
+  Duration gap,
+  Duration? similarGap,
+) {
+  final elapsed = photo.takenAt.difference(previous.takenAt);
   final a = previous.visualHash;
   final b = photo.visualHash;
-  if (!VisualHash.isInformative(a) || !VisualHash.isInformative(b)) {
-    return true;
+  final known = VisualHash.isInformative(a) && VisualHash.isInformative(b);
+  if (elapsed <= gap) {
+    return !known || VisualHash.distance(a!, b!) <= VisualHash.burstDistance;
   }
-  return VisualHash.distance(a!, b!) <= VisualHash.burstDistance;
+  if (similarGap == null || elapsed > similarGap || !known) return false;
+  final colorsA = previous.visualColor;
+  final colorsB = photo.visualColor;
+  return VisualHash.distance(a!, b!) <= VisualHash.burstDistance &&
+      colorsA != null &&
+      colorsB != null &&
+      VisualHash.sameColors(colorsA, colorsB);
 }
+
+/// Écart maximum entre deux photos semblables d'une même rafale (test).
+const similarBurstGap = Duration(minutes: 2);
 
 /// Au-delà, ce n'est pas une rafale : ce sont des fichiers sans date de prise
 /// de vue, copiés d'un coup (sauvegarde restaurée, téléchargements). Ils se
@@ -134,6 +153,7 @@ List<PhotoItem> groupPhotos(
   List<GalleryPhoto> photos, {
   Duration burstGap = const Duration(seconds: 3),
   bool bursts = true,
+  Duration? similarGap,
 }) {
   final pairs = findRawPairs(photos);
   final paired = {for (final pair in pairs) ...pair.photos.map((p) => p.id)};
@@ -168,7 +188,10 @@ List<PhotoItem> groupPhotos(
   for (final photos in byFolder.values) {
     for (final photo in photos) {
       final previous = run.lastOrNull;
-      if (previous == null || !_sameBurst(previous, photo, burstGap)) flush();
+      if (previous == null ||
+          !_sameBurst(previous, photo, burstGap, similarGap)) {
+        flush();
+      }
       run.add(photo);
     }
     flush();

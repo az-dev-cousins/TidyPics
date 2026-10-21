@@ -692,5 +692,7 @@
       }
     }
   },
-  "documentsRestoreFailed": "Couldn't put it back."
+  "documentsRestoreFailed": "Couldn't put it back.",
+  "settingsSimilarBursts": "Similar photos (test)",
+  "settingsSimilarBurstsBody": "Up to 2 minutes apart, photos that look alike also form a burst: the same view shot several times."
 }

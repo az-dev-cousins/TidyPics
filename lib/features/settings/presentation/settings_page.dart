@@ -224,6 +224,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ],
                           ),
                         ),
+                      if (settings.groupBursts) ...[
+                        const Divider(height: 1),
+                        SwitchListTile(
+                          value: settings.similarBursts,
+                          title: Text(l10n.settingsSimilarBursts),
+                          subtitle: Text(l10n.settingsSimilarBurstsBody),
+                          onChanged: (v) =>
+                              unawaited(_controller.setSimilarBursts(v)),
+                        ),
+                      ],
                     ],
                   ),
                 ),

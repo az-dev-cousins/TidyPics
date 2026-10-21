@@ -34,6 +34,9 @@ class SettingsController extends Notifier<AppSettings> {
   Future<void> setGroupBursts(bool value) =>
       _save(state.copyWith(groupBursts: value));
 
+  Future<void> setSimilarBursts(bool value) =>
+      _save(state.copyWith(similarBursts: value));
+
   Future<void> setBurstGap(int seconds) => _save(
     state.copyWith(
       burstGapSeconds: seconds.clamp(

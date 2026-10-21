@@ -258,6 +258,7 @@ class SwipeSession extends AsyncNotifier<SwipeState> {
       photos,
       bursts: settings.groupBursts,
       burstGap: Duration(seconds: settings.burstGapSeconds),
+      similarGap: settings.similarBursts ? similarBurstGap : null,
     );
     // Mesure de la file, en mode profile (flutter run --profile).
     if (kProfileMode) {

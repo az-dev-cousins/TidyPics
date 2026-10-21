@@ -23,6 +23,7 @@ class AppSettings {
     this.reminderSlot = ReminderSlot.evening,
     this.lastVisit,
     this.usageHours = const [],
+    this.similarBursts = true,
   });
 
   final bool onboardingDone;
@@ -65,6 +66,10 @@ class AppSettings {
   /// s'adapte à l'habitude.
   final List<int> usageHours;
 
+  /// Test : des photos semblables jusqu'à 2 min d'écart forment aussi une
+  /// rafale.
+  final bool similarBursts;
+
   static const thresholds = [10, 25, 50, 100];
   static const minBurstGap = 1;
   static const maxBurstGap = 10;
@@ -85,6 +90,7 @@ class AppSettings {
     ReminderSlot? reminderSlot,
     DateTime? lastVisit,
     List<int>? usageHours,
+    bool? similarBursts,
   }) => AppSettings(
     onboardingDone: onboardingDone ?? this.onboardingDone,
     sortOrder: sortOrder ?? this.sortOrder,
@@ -101,6 +107,7 @@ class AppSettings {
     reminderSlot: reminderSlot ?? this.reminderSlot,
     lastVisit: lastVisit ?? this.lastVisit,
     usageHours: usageHours ?? this.usageHours,
+    similarBursts: similarBursts ?? this.similarBursts,
   );
 }
 
@@ -124,6 +131,7 @@ class SettingsRepository {
   static const _reminderSlot = 'reminder_slot';
   static const _lastVisit = 'last_visit';
   static const _usageHours = 'usage_hours';
+  static const _similarBursts = 'similar_bursts';
 
   /// Ancienne clé (rappel hebdomadaire seul), lue une fois pour migrer.
   static const _weeklyReminder = 'weekly_reminder';
@@ -144,6 +152,7 @@ class SettingsRepository {
     _reminderSlot,
     _lastVisit,
     _usageHours,
+    _similarBursts,
     _weeklyReminder,
   };
 
@@ -188,6 +197,7 @@ class SettingsRepository {
         final int ms => DateTime.fromMillisecondsSinceEpoch(ms),
         null => null,
       },
+      similarBursts: _prefs.getBool(_similarBursts) ?? true,
       usageHours: [
         for (final v in _prefs.getStringList(_usageHours) ?? const <String>[])
           int.tryParse(v) ?? 0,
@@ -213,6 +223,7 @@ class SettingsRepository {
     if (visit != null) {
       await _prefs.setInt(_lastVisit, visit.millisecondsSinceEpoch);
     }
+    await _prefs.setBool(_similarBursts, settings.similarBursts);
     if (settings.usageHours.isNotEmpty) {
       await _prefs.setStringList(_usageHours, [
         for (final v in settings.usageHours) '$v',

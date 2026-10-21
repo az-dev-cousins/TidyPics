@@ -18,6 +18,12 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   // jusqu'à voir l'élément.
   final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
   for (var i = 0; i < 10; i++) {
+    // Pas encore construit (liste longue) : on descend.
+    if (finder.evaluate().isEmpty) {
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      continue;
+    }
     final y = tester.getCenter(finder).dy;
     if (y > 80 && y < screen.height - 80) break;
     await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));

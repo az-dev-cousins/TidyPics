@@ -173,6 +173,7 @@ class _SwipePageState extends ConsumerState<SwipePage> {
             s.checkpointThreshold,
             s.groupBursts,
             s.burstGapSeconds,
+            s.similarBursts,
           ),
         ),
         (_, _) => ref.invalidate(provider),

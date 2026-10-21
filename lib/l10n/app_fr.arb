@@ -919,5 +919,7 @@
       }
     }
   },
-  "documentsRestoreFailed": "Impossible de le remettre en place."
+  "documentsRestoreFailed": "Impossible de le remettre en place.",
+  "settingsSimilarBursts": "Photos semblables (test)",
+  "settingsSimilarBurstsBody": "Jusqu'à 2 minutes d'écart, des photos qui se ressemblent forment aussi une rafale : la même vue prise plusieurs fois."
 }

@@ -128,6 +128,30 @@ void main() {
       ]);
     });
 
+    test('photos semblables à 20 s d\'écart : une rafale (test)', () {
+      GalleryPhoto shot(String id, int s, int hash, int color) => GalleryPhoto(
+        id: id,
+        takenAt: at(s),
+        folder: 'DCIM/Camera/',
+        visualHash: hash,
+        visualColor: color,
+      );
+      const view = 0x0F0F0F0F0F0F0F0F;
+      const other = 0x70F0F0F0F0F0F0F0;
+      final photos = [
+        shot('a', 0, view, 0x123456789ABC),
+        shot('b', 20, view ^ 0x3, 0x123456789ABC),
+        shot('c', 45, view ^ 0x5, 0x123456789ABC),
+        // Autre sujet, 20 s plus tard : pas dans la rafale.
+        shot('d', 65, other, 0x123456789ABC),
+      ];
+      final items = groupPhotos(photos, similarGap: const Duration(minutes: 2));
+      expect(items.first.photos.map((p) => p.id), ['a', 'b', 'c']);
+      expect(items.last.photos.single.id, 'd');
+      // Réglage coupé : chacune seule.
+      expect(groupPhotos(photos), hasLength(4));
+    });
+
     test("l'écart est réglable", () {
       final photos = [photo('a', 'A.jpg', at(0)), photo('b', 'B.jpg', at(5))];
       expect(groupPhotos(photos), hasLength(2));
